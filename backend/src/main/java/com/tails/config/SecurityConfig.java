@@ -7,7 +7,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-// 임시: JWT 인증 필터는 별도 슬라이스에서 추가 예정 — 지금은 전부 permitAll로 열어둠
+// Spring Security 설정 (비밀번호 암호화, 인증 규칙)
+// 임시: JWT 인증 필터는 별도 슬라이스에서 추가 예정. 지금은 전부 permitAll 열어둔 상태
 @Configuration
 public class SecurityConfig {
 
