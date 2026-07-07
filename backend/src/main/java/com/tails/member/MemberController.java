@@ -2,7 +2,9 @@ package com.tails.member;
 
 import com.tails.common.response.ApiResponse;
 import com.tails.member.dto.AvailabilityResponse;
+import com.tails.member.dto.LoginResponse;
 import com.tails.member.dto.MemberJoinRequest;
+import com.tails.member.dto.MemberLoginRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -26,6 +28,15 @@ public class MemberController {
     public ApiResponse<Long> join(@Valid @RequestBody MemberJoinRequest request) {
         Long memberId = memberService.join(request);
         return ApiResponse.success(memberId);
+    }
+
+    @PostMapping("/login")
+    @Operation(
+            summary = "로그인",
+            description = "이메일, 비밀번호로 로그인하고 JWT를 발급받습니다."
+    )
+    public ApiResponse<LoginResponse> login(@Valid @RequestBody MemberLoginRequest request) {
+        return ApiResponse.success(memberService.login(request));
     }
 
     @GetMapping("/check-email")

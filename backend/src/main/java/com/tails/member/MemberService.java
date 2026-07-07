@@ -2,13 +2,16 @@ package com.tails.member;
 
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
+import com.tails.common.security.JwtProvider;
+import com.tails.member.dto.LoginResponse;
 import com.tails.member.dto.MemberJoinRequest;
+import com.tails.member.dto.MemberLoginRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-// 회원 관련 비즈니스 로직 (회원가입/중복확인)
+// 회원 관련 비즈니스 로직 (회원가입/로그인/중복확인)
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -16,6 +19,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
 
     @Transactional
     public Long join(MemberJoinRequest request) {
@@ -36,6 +40,19 @@ public class MemberService {
                 .build();
 
         return memberRepository.save(member).getId();
+    }
+
+    // 이메일로 회원 조회 후 비밀번호 검증, 성공 시 JWT 발급
+    public LoginResponse login(MemberLoginRequest request) {
+        Member member = memberRepository.findByEmail(normalizeEmail(request.email()))
+                .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_FAILED));
+
+        if (!passwordEncoder.matches(request.password(), member.getPassword())) {
+            throw new CustomException(ErrorCode.LOGIN_FAILED);
+        }
+
+        String token = jwtProvider.createToken(member.getId(), member.getEmail());
+        return new LoginResponse(token, member.getId(), member.getNickname());
     }
 
     public boolean isEmailDuplicated(String email) {
