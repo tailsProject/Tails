@@ -16,10 +16,10 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/**
- * PLACE 테이블 매핑 엔티티.
- * placeId/createdAt/updatedAt은 DB/Auditing이 채우는 값이라 빌더 파라미터에서 제외
- */
+
+// PLACE 테이블 매핑 엔티티
+// placeId/createdAt/updatedAt은 DB/Auditing이 채우는 값이라 빌더 파라미터에서 제외
+ 
 @Entity
 @Table(name = "place")
 @Getter
@@ -32,7 +32,7 @@ public class Place {
     @Column(name = "place_id")
     private Long placeId;
 
-    /** 한국관광공사 API의 contentid — 중복 저장 방지용 */
+    // 한국관광공사 API의 contentid — 중복 저장 방지용
     @Column(name = "external_place_id", nullable = false, unique = true)
     private String externalPlaceId;
 
