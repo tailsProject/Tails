@@ -1,14 +1,18 @@
 package com.tails.member;
 
 import com.tails.common.response.ApiResponse;
+import com.tails.common.security.CustomUserDetails;
 import com.tails.member.dto.AvailabilityResponse;
 import com.tails.member.dto.LoginResponse;
 import com.tails.member.dto.MemberJoinRequest;
 import com.tails.member.dto.MemberLoginRequest;
+import com.tails.member.dto.MemberResponse;
+import com.tails.member.dto.MemberUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 // 회원 관련 REST API
@@ -57,5 +61,25 @@ public class MemberController {
     public ApiResponse<AvailabilityResponse> checkNickname(@RequestParam String nickname) {
         boolean available = !memberService.isNicknameDuplicated(nickname);
         return ApiResponse.success(new AvailabilityResponse(available));
+    }
+
+    @GetMapping("/me")
+    @Operation(
+            summary = "내 정보 조회",
+            description = "로그인한 회원의 정보를 조회합니다."
+    )
+    public ApiResponse<MemberResponse> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(memberService.getMyInfo(userDetails.getMemberId()));
+    }
+
+    @PatchMapping("/me")
+    @Operation(
+            summary = "내 정보 수정",
+            description = "로그인한 회원의 닉네임/프로필 사진을 수정합니다."
+    )
+    public ApiResponse<Void> updateMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                           @Valid @RequestBody MemberUpdateRequest request) {
+        memberService.updateMyInfo(userDetails.getMemberId(), request);
+        return ApiResponse.success();
     }
 }
