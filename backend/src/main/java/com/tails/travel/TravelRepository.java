@@ -1,0 +1,13 @@
+package com.tails.travel;
+
+import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface TravelRepository extends JpaRepository<Travel, Long> {
+
+    // 마이페이지 "내 여행 일정" 목록용
+    List<Travel> findByMember_Id(Long memberId);
+
+    // 수정/삭제 전 소유권 확인용. 다른 회원의 travelId를 끼워 넣어 접근하는 걸 방지
+    boolean existsByTravelIdAndMember_Id(Long travelId, Long memberId);
+}
