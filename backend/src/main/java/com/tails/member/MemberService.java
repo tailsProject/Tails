@@ -6,12 +6,14 @@ import com.tails.common.security.JwtProvider;
 import com.tails.member.dto.LoginResponse;
 import com.tails.member.dto.MemberJoinRequest;
 import com.tails.member.dto.MemberLoginRequest;
+import com.tails.member.dto.MemberResponse;
+import com.tails.member.dto.MemberUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-// 회원 관련 비즈니스 로직 (회원가입/로그인/중복확인)
+// 회원 관련 비즈니스 로직 (회원가입/로그인/중복확인/내 정보 조회·수정)
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -55,6 +57,32 @@ public class MemberService {
         return new LoginResponse(token, member.getId(), member.getNickname());
     }
 
+    // findByIdWithPets로 회원+반려동물을 한 번의 쿼리로 함께 조회
+    public MemberResponse getMyInfo(Long memberId) {
+        Member member = memberRepository.findByIdWithPets(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        return MemberResponse.from(member);
+    }
+
+    // 닉네임/프로필 사진 수정. 닉네임은 실제로 값이 바뀔 때만 중복 체크
+    @Transactional
+    public void updateMyInfo(Long memberId, MemberUpdateRequest request) {
+        Member member = getMemberOrThrow(memberId);
+
+        if (request.nickname() != null) {
+            String nickname = request.nickname().trim();
+            if (!nickname.equals(member.getNickname())) {
+                if (isNicknameDuplicated(nickname)) {
+                    throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+                }
+                member.changeNickname(nickname);
+            }
+        }
+        if (request.profileImg() != null) {
+            member.changeProfileImg(request.profileImg());
+        }
+    }
+
     public boolean isEmailDuplicated(String email) {
         return memberRepository.existsByEmail(normalizeEmail(email));
     }
@@ -72,5 +100,10 @@ public class MemberService {
     // 대소문자/공백 차이로 다른 계정 취급되지 않도록 가입/로그인/중복체크 모두 이 기준으로 통일
     private String normalizeEmail(String email) {
         return email.trim().toLowerCase();
+    }
+
+    private Member getMemberOrThrow(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
 }
