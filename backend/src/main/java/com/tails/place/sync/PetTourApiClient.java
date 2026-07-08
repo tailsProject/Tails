@@ -1,0 +1,128 @@
+package com.tails.place.sync;
+
+import com.tails.place.sync.dto.PetTourDetailItem;
+import com.tails.place.sync.dto.PetTourListItem;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.util.List;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+
+// KorPetTourService2의 petTourSyncList2(목록)/detailPetTour2(상세) 오퍼레이션 클라이언트
+// 두 오퍼레이션 응답이 같은 envelope 구조를 공유해서, item 타입만 다른 제네릭 record로
+// 내부에 감춰둠(다른 클래스에서 쓸 일 없는 구현 세부사항이라 dto 패키지로 안 뺐음)
+@Component
+public class PetTourApiClient {
+
+    private static final String BASE_URL = "http://apis.data.go.kr/B551011/KorPetTourService2";
+    private static final String MOBILE_OS = "ETC";
+    private static final String MOBILE_APP = "Tails";
+    static final String SUCCESS_RESULT_CODE = "0000";
+
+    private final RestClient restClient;
+    private final TourApiProperties tourApiProperties;
+
+    public PetTourApiClient(TourApiProperties tourApiProperties) {
+        // 기본 HttpClient는 http(평문)여도 h2c 업그레이드를 시도하는데, TourAPI 게이트웨이가
+        // 이걸 못 받아줘서 502발생. HTTP/1.1로 고정하면 정상 응답
+        HttpClient httpClient = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .build();
+
+        this.restClient = RestClient.builder()
+                .baseUrl(BASE_URL)
+                .requestFactory(new JdkClientHttpRequestFactory(httpClient))
+                .build();
+        this.tourApiProperties = tourApiProperties;
+    }
+
+    // contentTypeId가 null이면 전체 카테고리 대상으로 조회
+    public List<PetTourListItem> fetchSyncList(String contentTypeId, int pageNo, int numOfRows) {
+        StringBuilder url = new StringBuilder(BASE_URL)
+                .append("/petTourSyncList2")
+                .append("?serviceKey=").append(tourApiProperties.serviceKey())
+                .append("&MobileOS=").append(MOBILE_OS)
+                .append("&MobileApp=").append(MOBILE_APP)
+                .append("&_type=json")
+                .append("&numOfRows=").append(numOfRows)
+                .append("&pageNo=").append(pageNo);
+
+        if (contentTypeId != null) {
+            url.append("&contentTypeId=").append(contentTypeId);
+        }
+
+        TourApiBody<PetTourListItem> body = fetchBody(
+                url.toString(), new ParameterizedTypeReference<TourApiEnvelope<PetTourListItem>>() {
+                });
+
+        return body.items() == null ? List.of() : body.items().item();
+    }
+
+    // totalCount만 필요해서 numOfRows=1로 최소 조회. item 내용은 안 쓰므로 타입은 Object
+    public long fetchTotalCount(String contentTypeId) {
+        String url = BASE_URL + "/petTourSyncList2"
+                + "?serviceKey=" + tourApiProperties.serviceKey()
+                + "&MobileOS=" + MOBILE_OS
+                + "&MobileApp=" + MOBILE_APP
+                + "&_type=json"
+                + "&numOfRows=1"
+                + "&pageNo=1"
+                + "&contentTypeId=" + contentTypeId;
+
+        TourApiBody<Object> body = fetchBody(url, new ParameterizedTypeReference<TourApiEnvelope<Object>>() {
+        });
+
+        return body.totalCount();
+    }
+
+    // 결과가 1건이어도 item이 배열로 내려와서 첫 번째 값을 꺼냄
+    public PetTourDetailItem fetchDetail(String contentId) {
+        String url = BASE_URL + "/detailPetTour2"
+                + "?serviceKey=" + tourApiProperties.serviceKey()
+                + "&MobileOS=" + MOBILE_OS
+                + "&MobileApp=" + MOBILE_APP
+                + "&_type=json"
+                + "&contentId=" + contentId;
+
+        TourApiBody<PetTourDetailItem> body = fetchBody(
+                url, new ParameterizedTypeReference<TourApiEnvelope<PetTourDetailItem>>() {
+                });
+
+        return body.items().item().getFirst();
+    }
+
+    // HTTP 호출 + envelope 해체 + resultCode 검증 공통 처리
+    private <T> TourApiBody<T> fetchBody(String url, ParameterizedTypeReference<TourApiEnvelope<T>> typeRef) {
+        TourApiEnvelope<T> envelope = restClient.get()
+                .uri(URI.create(url))
+                .retrieve()
+                .body(typeRef);
+
+        TourApiHeader header = envelope.response().header();
+        if (!SUCCESS_RESULT_CODE.equals(header.resultCode())) {
+            throw new IllegalStateException(
+                    "TourAPI 호출 실패. url=" + url
+                            + ", resultCode=" + header.resultCode()
+                            + ", resultMsg=" + header.resultMsg());
+        }
+
+        return envelope.response().body();
+    }
+
+    private record TourApiEnvelope<T>(TourApiResponse<T> response) {
+    }
+
+    private record TourApiResponse<T>(TourApiHeader header, TourApiBody<T> body) {
+    }
+
+    private record TourApiHeader(String resultCode, String resultMsg) {
+    }
+
+    private record TourApiBody<T>(TourApiItems<T> items, int numOfRows, int pageNo, long totalCount) {
+    }
+
+    private record TourApiItems<T>(List<T> item) {
+    }
+}
