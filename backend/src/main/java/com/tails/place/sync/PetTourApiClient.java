@@ -1,5 +1,7 @@
 package com.tails.place.sync;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tails.place.sync.dto.PetTourDetailItem;
 import com.tails.place.sync.dto.PetTourListItem;
 import java.net.URI;
@@ -7,6 +9,7 @@ import java.net.http.HttpClient;
 import java.util.List;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -31,9 +34,15 @@ public class PetTourApiClient {
                 .version(HttpClient.Version.HTTP_1_1)
                 .build();
 
+        // 상세정보가 없는 항목은 TourAPI가 "items":{} 대신 "items":"" (빈 문자열)로 내려줘서,
+        // 이 옵션이 없으면 TourApiItems로 역직렬화하다가 예외가 나 fetchDetail 전체가 실패 처리
+        ObjectMapper objectMapper = new ObjectMapper()
+                .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+
         this.restClient = RestClient.builder()
                 .baseUrl(BASE_URL)
                 .requestFactory(new JdkClientHttpRequestFactory(httpClient))
+                .messageConverters(converters -> converters.add(0, new MappingJackson2HttpMessageConverter(objectMapper)))
                 .build();
         this.tourApiProperties = tourApiProperties;
     }
@@ -78,6 +87,7 @@ public class PetTourApiClient {
     }
 
     // 결과가 1건이어도 item이 배열로 내려와서 첫 번째 값을 꺼냄
+    // 반려동물 동반 상세정보가 없는 contentId는 items가 아예 빈 문자열로 내려와서 null 반환
     public PetTourDetailItem fetchDetail(String contentId) {
         String url = BASE_URL + "/detailPetTour2"
                 + "?serviceKey=" + tourApiProperties.serviceKey()
@@ -90,7 +100,7 @@ public class PetTourApiClient {
                 url, new ParameterizedTypeReference<TourApiEnvelope<PetTourDetailItem>>() {
                 });
 
-        return body.items().item().getFirst();
+        return body.items() == null ? null : body.items().item().getFirst();
     }
 
     // HTTP 호출 + envelope 해체 + resultCode 검증 공통 처리

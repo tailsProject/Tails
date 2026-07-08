@@ -137,7 +137,12 @@ public class PlaceSyncService {
     }
 
     // 값이 있는 필드만 "라벨: 값" 형태로 줄바꿈해서 이어붙임
+    // detail이 null이면(반려동물 동반 상세정보 없는 항목) 빈 문자열 반환
     private String buildPetInfo(PetTourDetailItem detail) {
+        if (detail == null) {
+            return "";
+        }
+
         StringBuilder petInfo = new StringBuilder();
 
         for (PetInfoField field : PET_INFO_FIELDS) {
