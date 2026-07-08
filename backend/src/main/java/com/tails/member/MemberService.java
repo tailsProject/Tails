@@ -8,6 +8,7 @@ import com.tails.member.dto.MemberJoinRequest;
 import com.tails.member.dto.MemberLoginRequest;
 import com.tails.member.dto.MemberResponse;
 import com.tails.member.dto.MemberUpdateRequest;
+import com.tails.member.dto.PasswordChangeRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -82,6 +83,29 @@ public class MemberService {
             member.changeProfileImg(request.profileImg());
         }
     }
+    
+    // 현재 비밀번호 확인 → 기존 비밀번호와 중복 여부 확인 → 새 비밀번호 확인 일치 여부 검증
+    @Transactional
+    public void changePassword(Long memberId, PasswordChangeRequest request) {
+        Member member = getMemberOrThrow(memberId);
+
+        if (!passwordEncoder.matches(request.currentPassword(), member.getPassword())) {
+            throw new CustomException(ErrorCode.WRONG_PASSWORD);
+        }
+        if (passwordEncoder.matches(request.newPassword(), member.getPassword())) {
+            throw new CustomException(ErrorCode.SAME_AS_OLD_PASSWORD);
+        }
+        requireMatchingPasswords(request.newPassword(), request.newPasswordConfirm());
+
+        member.changePassword(passwordEncoder.encode(request.newPassword()));
+    }
+
+    // 회원 삭제 시 연관된 반려동물도 Cascade + orphanRemoval에 의해 함께 삭제
+    @Transactional
+    public void withdraw(Long memberId) {
+        Member member = getMemberOrThrow(memberId);
+        memberRepository.delete(member);
+    }   
 
     public boolean isEmailDuplicated(String email) {
         return memberRepository.existsByEmail(normalizeEmail(email));

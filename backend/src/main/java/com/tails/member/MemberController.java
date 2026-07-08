@@ -8,6 +8,7 @@ import com.tails.member.dto.MemberJoinRequest;
 import com.tails.member.dto.MemberLoginRequest;
 import com.tails.member.dto.MemberResponse;
 import com.tails.member.dto.MemberUpdateRequest;
+import com.tails.member.dto.PasswordChangeRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -80,6 +81,27 @@ public class MemberController {
     public ApiResponse<Void> updateMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails,
                                            @Valid @RequestBody MemberUpdateRequest request) {
         memberService.updateMyInfo(userDetails.getMemberId(), request);
+        return ApiResponse.success();
+    }
+
+    @PatchMapping("/me/password")
+    @Operation(
+            summary = "비밀번호 변경",
+            description = "로그인한 회원의 현재 비밀번호 확인 후 새 비밀번호로 변경합니다."
+    )
+    public ApiResponse<Void> changePassword(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                             @Valid @RequestBody PasswordChangeRequest request) {
+        memberService.changePassword(userDetails.getMemberId(), request);
+        return ApiResponse.success();
+    }
+
+    @DeleteMapping("/me")
+    @Operation(
+            summary = "회원 탈퇴",
+            description = "로그인한 회원 본인의 계정을 삭제합니다."
+    )
+    public ApiResponse<Void> withdraw(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        memberService.withdraw(userDetails.getMemberId());
         return ApiResponse.success();
     }
 }
