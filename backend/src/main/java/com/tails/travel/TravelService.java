@@ -5,6 +5,7 @@ import com.tails.common.exception.ErrorCode;
 import com.tails.member.MemberRepository;
 import com.tails.travel.dto.TravelCreateRequest;
 import com.tails.travel.dto.TravelResponse;
+import com.tails.travel.dto.TravelUpdateRequest;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +54,25 @@ public class TravelService {
         if (!travelRepository.existsByTravelIdAndMember_Id(travelId, memberId)) {
             throw new CustomException(ErrorCode.NOT_TRAVEL_OWNER);
         }
+
+        return TravelResponse.from(travel);
+    }
+
+    // 여행 일정 수정
+    @Transactional
+    public TravelResponse updateTravel(Long travelId, Long memberId, TravelUpdateRequest request) {
+        validateDateRange(request.startDate(), request.endDate());
+
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TRAVEL_NOT_FOUND));
+
+        if (!travelRepository.existsByTravelIdAndMember_Id(travelId, memberId)) {
+            throw new CustomException(ErrorCode.NOT_TRAVEL_OWNER);
+        }
+
+        travel.updateInfo(request.title(), request.startDate(), request.endDate());
+        // flush 없으면 응답에 updatedAt이 예전 값으로 찍힘 (커밋 전이라 @PreUpdate 미실행)
+        travelRepository.flush();
 
         return TravelResponse.from(travel);
     }
