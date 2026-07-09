@@ -2,10 +2,13 @@ package com.tails.bookmark;
 
 import com.tails.board.Board;
 import com.tails.board.BoardRepository;
+import com.tails.board.dto.BoardResponse;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,5 +41,10 @@ public class BoardBookmarkService {
                     boardBookmarkRepository.save(bookmark);
                     return true;
                 });
+    }
+
+    public Page<BoardResponse> getMyBookmarks(Long memberId, Pageable pageable) {
+        return boardBookmarkRepository.findBookmarkedBoardsByMemberId(memberId, pageable)
+                .map(BoardResponse::from);
     }
 }
