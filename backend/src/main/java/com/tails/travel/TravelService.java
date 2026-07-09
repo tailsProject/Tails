@@ -6,6 +6,7 @@ import com.tails.member.MemberRepository;
 import com.tails.travel.dto.TravelCreateRequest;
 import com.tails.travel.dto.TravelResponse;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,14 @@ public class TravelService {
 
         Travel savedTravel = travelRepository.save(travel);
         return TravelResponse.from(savedTravel);
+    }
+
+    // 내 여행 일정 목록 조회
+    @Transactional(readOnly = true)
+    public List<TravelResponse> getMyTravels(Long memberId) {
+        return travelRepository.findByMember_Id(memberId).stream()
+                .map(TravelResponse::from)
+                .toList();
     }
 
     // 종료일이 시작일보다 빠르면 예외 (createTravel/updateTravel 공통)
