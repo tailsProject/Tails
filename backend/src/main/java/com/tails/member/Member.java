@@ -1,6 +1,7 @@
 package com.tails.member;
 
 import com.tails.pet.Pet;
+import com.tails.travel.Travel;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -54,6 +55,10 @@ public class Member {
     // 회원 탈퇴 시 반려동물도 함께 삭제
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pet> pets = new ArrayList<>();
+
+    // 여행 일정 목록. 개인 데이터라 회원 삭제 시 함께 삭제
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Travel> travels = new ArrayList<>();       
 
     @Builder
     public Member(String email, String password, String nickname) {
