@@ -1,5 +1,6 @@
 package com.tails.member;
 
+import com.tails.bookmark.BoardBookmark;
 import com.tails.pet.Pet;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/* 회원 엔티티 */
+// 회원 엔티티 
 @Entity
 @Table(name = "member")
 @Getter
@@ -54,6 +55,10 @@ public class Member {
     // 회원 탈퇴 시 반려동물도 함께 삭제
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pet> pets = new ArrayList<>();
+
+    // 탈퇴 시 북마크 기록도 함께 삭제
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BoardBookmark> boardBookmarks = new ArrayList<>();
 
     @Builder
     public Member(String email, String password, String nickname) {
