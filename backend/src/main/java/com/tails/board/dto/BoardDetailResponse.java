@@ -16,7 +16,8 @@ public record BoardDetailResponse(
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public static BoardDetailResponse of(Board board) {
+    
+    public static BoardDetailResponse of(Board board, int viewCount) {
         Long authorId = board.getMember() != null ? board.getMember().getId() : null;
         String authorNickname = board.getMember() != null ? board.getMember().getNickname() : "탈퇴한 회원";
         return new BoardDetailResponse(
@@ -25,7 +26,7 @@ public record BoardDetailResponse(
                 board.getContent(),
                 authorId,
                 authorNickname,
-                board.getViewCount(),
+                viewCount,
                 board.getLikeCount(),
                 board.getCreatedAt(),
                 board.getUpdatedAt()

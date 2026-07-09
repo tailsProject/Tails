@@ -42,8 +42,8 @@ public class BoardService {
     @Transactional
     public BoardDetailResponse getDetail(Long boardId) {
         Board board = getBoardOrThrow(boardId);
-        board.increaseViewCount();
-        return BoardDetailResponse.of(board);
+        boardRepository.increaseViewCount(boardId);
+        return BoardDetailResponse.of(board, board.getViewCount() + 1);
     }
 
     @Transactional

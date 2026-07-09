@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/members/join", "/api/members/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/members/check-email", "/api/members/check-nickname").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/boards", "/api/boards/{boardId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/boards", "/api/boards/{boardId:[0-9]+}").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception

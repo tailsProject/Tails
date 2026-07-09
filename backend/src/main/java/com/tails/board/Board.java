@@ -70,10 +70,6 @@ public class Board {
         this.content = content;
     }
 
-    public void increaseViewCount() {
-        this.viewCount++;
-    }
-
     public void increaseLikeCount() {
         this.likeCount++;
     }
