@@ -3,6 +3,7 @@ package com.tails.board;
 import com.tails.board.dto.BoardCreateRequest;
 import com.tails.board.dto.BoardDetailResponse;
 import com.tails.board.dto.BoardResponse;
+import com.tails.board.dto.BoardUpdateRequest;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.member.MemberRepository;
@@ -41,6 +42,27 @@ public class BoardService {
         Board board = getBoardOrThrow(boardId);
         board.increaseViewCount();
         return BoardDetailResponse.of(board);
+    }
+
+    @Transactional
+    public void update(Long memberId, Long boardId, BoardUpdateRequest request) {
+        Board board = getBoardOrThrow(boardId);
+        requireOwner(board, memberId);
+        board.changeTitleAndContent(request.title(), request.content());
+    }
+
+    @Transactional
+    public void delete(Long memberId, Long boardId) {
+        Board board = getBoardOrThrow(boardId);
+        requireOwner(board, memberId);
+        boardRepository.delete(board);
+    }
+
+    // 작성자가 탈퇴한 게시글(member == null)은 정당한 소유자가 없으므로 누구든 거부
+    private void requireOwner(Board board, Long memberId) {
+        if (board.getMember() == null || !board.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.NOT_BOARD_OWNER);
+        }
     }
 
     private Board getBoardOrThrow(Long boardId) {

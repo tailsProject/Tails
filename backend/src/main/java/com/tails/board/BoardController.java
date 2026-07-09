@@ -3,6 +3,7 @@ package com.tails.board;
 import com.tails.board.dto.BoardCreateRequest;
 import com.tails.board.dto.BoardDetailResponse;
 import com.tails.board.dto.BoardResponse;
+import com.tails.board.dto.BoardUpdateRequest;
 import com.tails.common.response.ApiResponse;
 import com.tails.common.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,9 +47,32 @@ public class BoardController {
     @GetMapping("/{boardId}")
     @Operation(
             summary = "게시글 상세 조회",
-            description = "boardId로 게시글 상세 정보를 조회합니다. 로그인 불필요."
+            description = "boardId에 해당하는 게시글 상세 정보를 조회합니다. 로그인 불필요."
     )
     public ApiResponse<BoardDetailResponse> getDetail(@PathVariable Long boardId) {
         return ApiResponse.success(boardService.getDetail(boardId));
+    }
+
+    @PatchMapping("/{boardId}")
+    @Operation(
+            summary = "게시글 수정",
+            description = "boardId에 해당하는 게시글을 수정합니다. 작성자 본인만 수정할 수 있습니다."
+    )
+    public ApiResponse<Void> update(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                     @PathVariable Long boardId,
+                                     @Valid @RequestBody BoardUpdateRequest request) {
+        boardService.update(userDetails.getMemberId(), boardId, request);
+        return ApiResponse.success();
+    }
+
+    @DeleteMapping("/{boardId}")
+    @Operation(
+            summary = "게시글 삭제",
+            description = "boardId에 해당하는 게시글을 삭제합니다. 작성자 본인만 수정할 수 있습니다."
+    )
+    public ApiResponse<Void> delete(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                     @PathVariable Long boardId) {
+        boardService.delete(userDetails.getMemberId(), boardId);
+        return ApiResponse.success();
     }
 }
