@@ -77,6 +77,19 @@ public class TravelService {
         return TravelResponse.from(travel);
     }
 
+    // 여행 일정 삭제
+    @Transactional
+    public void deleteTravel(Long travelId, Long memberId) {
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TRAVEL_NOT_FOUND));
+
+        if (!travelRepository.existsByTravelIdAndMember_Id(travelId, memberId)) {
+            throw new CustomException(ErrorCode.NOT_TRAVEL_OWNER);
+        }
+
+        travelRepository.delete(travel);
+    }
+
     // 종료일이 시작일보다 빠르면 예외 (createTravel/updateTravel 공통)
     private void validateDateRange(LocalDate startDate, LocalDate endDate) {
         if (startDate != null && endDate != null && endDate.isBefore(startDate)) {

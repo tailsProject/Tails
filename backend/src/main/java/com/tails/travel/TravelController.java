@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,5 +62,15 @@ public class TravelController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody TravelUpdateRequest request) {
         return ApiResponse.success(travelService.updateTravel(travelId, userDetails.getMemberId(), request));
+    }
+
+    // 여행 일정 삭제
+    @DeleteMapping("/{travelId}")
+    @Operation(summary = "여행 일정 삭제", description = "travelId 여행 일정을 삭제합니다. 본인 소유가 아니면 접근이 거부됩니다.")
+    public ApiResponse<Void> deleteTravel(
+            @PathVariable Long travelId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        travelService.deleteTravel(travelId, userDetails.getMemberId());
+        return ApiResponse.success();
     }
 }
