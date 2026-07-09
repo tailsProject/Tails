@@ -4,6 +4,7 @@ import com.tails.board.dto.BoardCreateRequest;
 import com.tails.board.dto.BoardDetailResponse;
 import com.tails.board.dto.BoardResponse;
 import com.tails.board.dto.BoardUpdateRequest;
+import com.tails.board.dto.LikeToggleResponse;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.member.MemberRepository;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BoardService {
 
     private final BoardRepository boardRepository;
+    private final BoardLikeRepository boardLikeRepository;
     private final MemberRepository memberRepository;
 
     @Transactional
@@ -36,7 +38,7 @@ public class BoardService {
         return boardRepository.findAll(pageable).map(BoardResponse::from);
     }
 
-    // 호출될 때마다 조회수 1 증가 (중복 방지 없이 단순 카운트)
+    // 게시글 상세 조회 + 조회수 1 증가
     @Transactional
     public BoardDetailResponse getDetail(Long boardId) {
         Board board = getBoardOrThrow(boardId);
@@ -58,7 +60,31 @@ public class BoardService {
         boardRepository.delete(board);
     }
 
-    // 작성자가 탈퇴한 게시글(member == null)은 정당한 소유자가 없으므로 누구든 거부
+    // 좋아요 추가/취소 토글
+    @Transactional
+    public LikeToggleResponse toggleLike(Long memberId, Long boardId) {
+        Board board = getBoardOrThrow(boardId);
+
+        boolean liked = boardLikeRepository.findByBoardIdAndMemberId(boardId, memberId)
+                .map(existing -> {
+                    boardLikeRepository.delete(existing);
+                    board.decreaseLikeCount();
+                    return false;
+                })
+                .orElseGet(() -> {
+                    BoardLike like = BoardLike.builder()
+                            .board(board)
+                            .member(memberRepository.getReferenceById(memberId))
+                            .build();
+                    boardLikeRepository.save(like);
+                    board.increaseLikeCount();
+                    return true;
+                });
+
+        return new LikeToggleResponse(liked, board.getLikeCount());
+    }
+
+    // 작성자 본인인지 확인
     private void requireOwner(Board board, Long memberId) {
         if (board.getMember() == null || !board.getMember().getId().equals(memberId)) {
             throw new CustomException(ErrorCode.NOT_BOARD_OWNER);
