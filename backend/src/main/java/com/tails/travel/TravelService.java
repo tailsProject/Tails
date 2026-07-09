@@ -44,6 +44,19 @@ public class TravelService {
                 .toList();
     }
 
+    // 여행 일정 상세 조회. 미존재 시 404, 소유자 아니면 403
+    @Transactional(readOnly = true)
+    public TravelResponse getTravelDetail(Long travelId, Long memberId) {
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TRAVEL_NOT_FOUND));
+
+        if (!travelRepository.existsByTravelIdAndMember_Id(travelId, memberId)) {
+            throw new CustomException(ErrorCode.NOT_TRAVEL_OWNER);
+        }
+
+        return TravelResponse.from(travel);
+    }
+
     // 종료일이 시작일보다 빠르면 예외 (createTravel/updateTravel 공통)
     private void validateDateRange(LocalDate startDate, LocalDate endDate) {
         if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
