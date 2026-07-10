@@ -34,14 +34,24 @@ public class Comment {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Board board;
 
-    //회원 탈퇴해도 댓글은 "탈퇴한 회원"으로 남김
+    // 회원 탈퇴 시 작성자 정보만 삭제하고 댓글은 유지
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = true)
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private Member member;
 
+    // 답글인 경우 부모 댓글을 참조, 최상위 댓글이면 null
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_comment_id", nullable = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Comment parent;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
+
+    // 답글이 있는 댓글은 실제 삭제하지 않고 삭제 여부만 변경
+    @Column(nullable = false)
+    private boolean deleted;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -52,9 +62,14 @@ public class Comment {
     private LocalDateTime updatedAt;
 
     @Builder
-    public Comment(Board board, Member member, String content) {
+    public Comment(Board board, Member member, Comment parent, String content) {
         this.board = board;
         this.member = member;
+        this.parent = parent;
         this.content = content;
+    }
+
+    public void softDelete() {
+        this.deleted = true;
     }
 }
