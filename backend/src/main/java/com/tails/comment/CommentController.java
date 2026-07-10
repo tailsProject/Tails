@@ -46,4 +46,13 @@ public class CommentController {
         commentService.update(userDetails.getMemberId(), boardId, commentId, request);
         return ApiResponse.success();
     }
+
+    @DeleteMapping("/{commentId}")
+    @Operation(summary = "댓글 삭제", description = "commentId 댓글을 삭제합니다. 작성자 본인만 가능.")
+    public ApiResponse<Void> delete(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                     @PathVariable Long boardId,
+                                     @PathVariable Long commentId) {
+        commentService.delete(userDetails.getMemberId(), boardId, commentId);
+        return ApiResponse.success();
+    }
 }

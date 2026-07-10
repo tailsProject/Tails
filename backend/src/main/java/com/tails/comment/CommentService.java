@@ -81,6 +81,14 @@ public class CommentService {
         comment.changeContent(request.content());
     }
 
+    // 작성자 본인만 삭제 가능. 실제로 지우지 않고 "삭제된 댓글입니다"로만 표시
+    @Transactional
+    public void delete(Long memberId, Long boardId, Long commentId) {
+        Comment comment = getCommentInBoardOrThrow(boardId, commentId);
+        requireOwner(comment, memberId);
+        comment.softDelete();
+    }
+
     private List<CommentResponse> toResponses(List<Comment> comments) {
         return comments.stream().map(comment -> CommentResponse.of(comment, List.of())).toList();
     }
