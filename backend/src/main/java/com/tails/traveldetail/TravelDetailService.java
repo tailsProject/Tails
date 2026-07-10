@@ -8,6 +8,8 @@ import com.tails.travel.Travel;
 import com.tails.travel.TravelRepository;
 import com.tails.traveldetail.dto.TravelDetailCreateRequest;
 import com.tails.traveldetail.dto.TravelDetailResponse;
+import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +25,7 @@ public class TravelDetailService {
     private final TravelDetailRepository travelDetailRepository;
 
     // 여행 일정에 방문 장소 추가. sequence는 "그 날짜의 현재 마지막 순서 + 1"로 서버가 계산
-    // (클라이언트가 직접 정하게 하면 중복/건너뜀 실수가 생기기 쉬움)
+    // (클라이언트가 직접 정하게 하면 중복/건너뜀 실수가 생기기 쉬움).
     @Transactional
     public TravelDetailResponse addTravelDetail(Long travelId, Long memberId, TravelDetailCreateRequest request) {
         Travel travel = validateTravelOwnership(travelId, memberId);
@@ -46,7 +48,27 @@ public class TravelDetailService {
         return TravelDetailResponse.from(savedTravelDetail);
     }
 
-    // travelId 존재 + memberId 소유 확인 공통 로직
+    // 전체 세부 일정을 날짜순 → 순서순으로 조회
+    @Transactional(readOnly = true)
+    public List<TravelDetailResponse> getTravelDetails(Long travelId, Long memberId) {
+        validateTravelOwnership(travelId, memberId);
+
+        return travelDetailRepository.findByTravel_TravelIdOrderByTravelDateAscSequenceAsc(travelId).stream()
+                .map(TravelDetailResponse::from)
+                .toList();
+    }
+
+    // 특정 하루치 세부 일정만 순서대로 조회
+    @Transactional(readOnly = true)
+    public List<TravelDetailResponse> getTravelDetailsByDate(Long travelId, Long memberId, LocalDate travelDate) {
+        validateTravelOwnership(travelId, memberId);
+
+        return travelDetailRepository.findByTravel_TravelIdAndTravelDateOrderBySequenceAsc(travelId, travelDate).stream()
+                .map(TravelDetailResponse::from)
+                .toList();
+    }
+
+    // travelId 존재 + memberId 소유 확인 공통 로직.
     // TravelService와 달리 existsBy가 아니라 findById로 가져오는 이유: 이후 로직에서
     // Travel 엔티티 자체가 필요해서(연관관계로 걸어야 함) 조회 한 번으로 겸함
     private Travel validateTravelOwnership(Long travelId, Long memberId) {

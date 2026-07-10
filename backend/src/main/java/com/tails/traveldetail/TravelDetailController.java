@@ -7,12 +7,16 @@ import com.tails.traveldetail.dto.TravelDetailResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 // TravelDetail API 컨트롤러. TravelDetail은 항상 특정 Travel에 소속되므로
@@ -33,5 +37,20 @@ public class TravelDetailController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody TravelDetailCreateRequest request) {
         return ApiResponse.success(travelDetailService.addTravelDetail(travelId, userDetails.getMemberId(), request));
+    }
+
+    // 세부 일정 목록 조회. date는 선택 — 없으면 전체(날짜순/순서순), 있으면 그 날짜만.
+    // 같은 리소스를 필터 여부만 다르게 보는 거라 경로를 나누지 않고 한 엔드포인트에서 분기
+    @GetMapping
+    @Operation(summary = "여행 일정 상세 목록 조회", description = "date 쿼리 파라미터가 있으면 그 날짜 일정만, 없으면 전체 일정을 날짜순/순서순으로 조회합니다.")
+    public ApiResponse<List<TravelDetailResponse>> getTravelDetails(
+            @PathVariable Long travelId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(required = false) LocalDate date) {
+        Long memberId = userDetails.getMemberId();
+        if (date != null) {
+            return ApiResponse.success(travelDetailService.getTravelDetailsByDate(travelId, memberId, date));
+        }
+        return ApiResponse.success(travelDetailService.getTravelDetails(travelId, memberId));
     }
 }
