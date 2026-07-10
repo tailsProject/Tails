@@ -35,7 +35,7 @@ public class BoardService {
     }
 
     public Page<BoardResponse> getList(Pageable pageable) {
-        return boardRepository.findAll(pageable).map(BoardResponse::from);
+        return boardRepository.findAllWithMember(pageable).map(BoardResponse::from);
     }
 
     // 게시글 상세 조회 + 조회수 1 증가
