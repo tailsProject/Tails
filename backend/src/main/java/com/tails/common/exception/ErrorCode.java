@@ -26,6 +26,11 @@ public enum ErrorCode {
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
     NOT_BOARD_OWNER(HttpStatus.FORBIDDEN, "본인 게시글만 수정/삭제할 수 있습니다.");
 
+    // ===== 장소(Place) 관련 =====
+    // PlaceService의 장소 상세 조회, TravelDetailService가 여행 일정에 장소를 추가할 때
+    // (요청으로 받은 placeId 검증) 둘 다에서 재사용한다.
+    PLACE_NOT_FOUND(HttpStatus.NOT_FOUND, "장소를 찾을 수 없습니다.");
+
     private final HttpStatus status;
     private final String message;
 }
