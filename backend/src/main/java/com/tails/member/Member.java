@@ -2,6 +2,7 @@ package com.tails.member;
 
 import com.tails.board.BoardLike;
 import com.tails.pet.Pet;
+import com.tails.travel.Travel;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -56,6 +57,10 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pet> pets = new ArrayList<>();
 
+    // 여행 일정 목록. 개인 데이터라 회원 삭제 시 함께 삭제
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Travel> travels = new ArrayList<>();     
+  
     // 회원 삭제 시 연관된 좋아요 기록 삭제 처리
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BoardLike> boardLikes = new ArrayList<>();
