@@ -1,5 +1,6 @@
 package com.tails.member;
 
+import com.tails.board.BoardLike;
 import com.tails.pet.Pet;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -54,6 +55,10 @@ public class Member {
     // 회원 탈퇴 시 반려동물도 함께 삭제
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pet> pets = new ArrayList<>();
+
+    // 회원 삭제 시 연관된 좋아요 기록 삭제 처리
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BoardLike> boardLikes = new ArrayList<>();
 
     @Builder
     public Member(String email, String password, String nickname) {
