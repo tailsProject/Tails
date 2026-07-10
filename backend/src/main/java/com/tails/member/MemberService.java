@@ -104,8 +104,9 @@ public class MemberService {
     @Transactional
     public void withdraw(Long memberId) {
         Member member = getMemberOrThrow(memberId);
+        member.getBoardLikes().forEach(like -> like.getBoard().decreaseLikeCount());
         memberRepository.delete(member);
-    }   
+    }
 
     public boolean isEmailDuplicated(String email) {
         return memberRepository.existsByEmail(normalizeEmail(email));
