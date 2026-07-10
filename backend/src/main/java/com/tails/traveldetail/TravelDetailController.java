@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -64,5 +65,16 @@ public class TravelDetailController {
             @Valid @RequestBody TravelDetailUpdateRequest request) {
         return ApiResponse.success(
                 travelDetailService.updateTravelDetail(travelId, detailId, userDetails.getMemberId(), request));
+    }
+
+    // 세부 일정 삭제
+    @DeleteMapping("/{detailId}")
+    @Operation(summary = "세부 일정 삭제", description = "travelId 여행 일정의 detailId 세부 일정을 삭제합니다.")
+    public ApiResponse<Void> deleteTravelDetail(
+            @PathVariable Long travelId,
+            @PathVariable Long detailId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        travelDetailService.deleteTravelDetail(travelId, detailId, userDetails.getMemberId());
+        return ApiResponse.success();
     }
 }

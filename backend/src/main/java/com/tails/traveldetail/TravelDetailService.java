@@ -80,3 +80,39 @@ public class TravelDetailService {
         if (!travelDetail.getTravel().getTravelId().equals(travelId)) {
             throw new CustomException(ErrorCode.TRAVEL_DETAIL_NOT_FOUND);
         }
+
+        travelDetail.updateInfo(request.visitTime(), request.memo());
+        // flush 없으면 응답의 updatedAt이 예전 값으로 찍힘 (커밋 전이라 @PreUpdate 미실행)
+        travelDetailRepository.flush();
+
+        return TravelDetailResponse.from(travelDetail);
+    }
+
+    // 세부 일정 삭제
+    @Transactional
+    public void deleteTravelDetail(Long travelId, Long detailId, Long memberId) {
+        validateTravelOwnership(travelId, memberId);
+
+        TravelDetail travelDetail = travelDetailRepository.findById(detailId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TRAVEL_DETAIL_NOT_FOUND));
+
+        // detailId가 다른 여행 일정 소속이면 차단
+        if (!travelDetail.getTravel().getTravelId().equals(travelId)) {
+            throw new CustomException(ErrorCode.TRAVEL_DETAIL_NOT_FOUND);
+        }
+
+        travelDetailRepository.delete(travelDetail);
+    }
+
+    // travelId 존재 + 소유권 확인 공통 로직. 이후 로직에서 Travel 엔티티가 필요해 findById로 조회
+    private Travel validateTravelOwnership(Long travelId, Long memberId) {
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TRAVEL_NOT_FOUND));
+
+        if (!travel.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.NOT_TRAVEL_OWNER);
+        }
+
+        return travel;
+    }
+}
