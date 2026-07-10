@@ -34,7 +34,7 @@ public class Comment {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Board board;
 
-    // 회원 탈퇴 시 작성자 정보만 삭제하고 댓글은 유지
+    // 회원 탈퇴해도 댓글은 "탈퇴한 회원"으로 남김
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = true)
     @OnDelete(action = OnDeleteAction.SET_NULL)
@@ -66,6 +66,10 @@ public class Comment {
         this.board = board;
         this.member = member;
         this.parent = parent;
+        this.content = content;
+    }
+
+    public void changeContent(String content) {
         this.content = content;
     }
 

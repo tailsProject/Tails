@@ -4,6 +4,7 @@ import com.tails.board.Board;
 import com.tails.board.BoardRepository;
 import com.tails.comment.dto.CommentCreateRequest;
 import com.tails.comment.dto.CommentResponse;
+import com.tails.comment.dto.CommentUpdateRequest;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.member.MemberRepository;
@@ -72,7 +73,31 @@ public class CommentService {
                 .toList();
     }
 
+    // 작성자 본인만 수정 가능
+    @Transactional
+    public void update(Long memberId, Long boardId, Long commentId, CommentUpdateRequest request) {
+        Comment comment = getCommentInBoardOrThrow(boardId, commentId);
+        requireOwner(comment, memberId);
+        comment.changeContent(request.content());
+    }
+
     private List<CommentResponse> toResponses(List<Comment> comments) {
         return comments.stream().map(comment -> CommentResponse.of(comment, List.of())).toList();
+    }
+
+    private void requireOwner(Comment comment, Long memberId) {
+        if (comment.getMember() == null || !comment.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.NOT_COMMENT_OWNER);
+        }
+    }
+
+    // commentId로 조회하고 URL의 boardId와 다른 게시글 소속이면 못 찾은 것처럼 처리
+    private Comment getCommentInBoardOrThrow(Long boardId, Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+        if (!comment.getBoard().getId().equals(boardId)) {
+            throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
+        }
+        return comment;
     }
 }

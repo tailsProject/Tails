@@ -32,6 +32,7 @@ public enum ErrorCode {
     // ===== 댓글(Comment) 관련 =====
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
     PARENT_COMMENT_BOARD_MISMATCH(HttpStatus.BAD_REQUEST, "다른 게시글의 댓글에는 답글을 달 수 없습니다."),
+    NOT_COMMENT_OWNER(HttpStatus.FORBIDDEN, "본인 댓글만 수정/삭제할 수 있습니다."),
 
     // ===== 여행 일정(Travel) 관련 =====
     TRAVEL_NOT_FOUND(HttpStatus.NOT_FOUND, "여행 일정을 찾을 수 없습니다."),

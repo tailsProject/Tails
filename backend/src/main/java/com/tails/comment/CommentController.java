@@ -2,6 +2,7 @@ package com.tails.comment;
 
 import com.tails.comment.dto.CommentCreateRequest;
 import com.tails.comment.dto.CommentResponse;
+import com.tails.comment.dto.CommentUpdateRequest;
 import com.tails.common.response.ApiResponse;
 import com.tails.common.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,5 +35,15 @@ public class CommentController {
     @Operation(summary = "댓글 목록 조회", description = "게시글의 댓글 목록을 조회합니다. 로그인 불필요.")
     public ApiResponse<List<CommentResponse>> getList(@PathVariable Long boardId) {
         return ApiResponse.success(commentService.getList(boardId));
+    }
+
+    @PatchMapping("/{commentId}")
+    @Operation(summary = "댓글 수정", description = "commentId 댓글을 수정합니다. 작성자 본인만 가능.")
+    public ApiResponse<Void> update(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                     @PathVariable Long boardId,
+                                     @PathVariable Long commentId,
+                                     @Valid @RequestBody CommentUpdateRequest request) {
+        commentService.update(userDetails.getMemberId(), boardId, commentId, request);
+        return ApiResponse.success();
     }
 }
