@@ -1,6 +1,7 @@
 package com.tails.comment;
 
 import com.tails.comment.dto.CommentCreateRequest;
+import com.tails.comment.dto.CommentResponse;
 import com.tails.common.response.ApiResponse;
 import com.tails.common.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,6 +10,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 // 게시글 댓글 API. 로그인 필요
 @RestController
@@ -25,5 +28,11 @@ public class CommentController {
                                      @PathVariable Long boardId,
                                      @Valid @RequestBody CommentCreateRequest request) {
         return ApiResponse.success(commentService.create(userDetails.getMemberId(), boardId, request));
+    }
+
+    @GetMapping
+    @Operation(summary = "댓글 목록 조회", description = "게시글의 댓글 목록을 조회합니다. 로그인 불필요.")
+    public ApiResponse<List<CommentResponse>> getList(@PathVariable Long boardId) {
+        return ApiResponse.success(commentService.getList(boardId));
     }
 }
