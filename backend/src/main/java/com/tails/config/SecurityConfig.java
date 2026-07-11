@@ -36,6 +36,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/members/check-email", "/api/members/check-nickname").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/boards", "/api/boards/{boardId:[0-9]+}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/boards/{boardId}/images", "/api/reviews/{reviewId}/images").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/boards/{boardId:[0-9]+}/comments").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception
