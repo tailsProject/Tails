@@ -5,7 +5,10 @@ import com.tails.common.exception.ErrorCode;
 import com.tails.member.MemberRepository;
 import com.tails.place.Place;
 import com.tails.place.PlaceRepository;
+import com.tails.place.dto.PlaceResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,5 +41,11 @@ public class PlaceBookmarkService {
                     placeBookmarkRepository.save(bookmark);
                     return true;
                 });
+    }
+
+    // 내가 찜한 장소 목록 조회 (최근 찜 순)
+    public Page<PlaceResponse> getMyBookmarks(Long memberId, Pageable pageable) {
+        return placeBookmarkRepository.findBookmarkedPlacesByMemberId(memberId, pageable)
+                .map(PlaceResponse::from);
     }
 }
