@@ -12,10 +12,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-// 게시글 이미지 업로드/조회/삭제 API
+// 게시글/리뷰 이미지 업로드/조회/삭제 API
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "Image", description = "게시글 이미지 업로드 / 조회 / 삭제 API")
+@Tag(name = "Image", description = "게시글/리뷰 이미지 업로드 / 조회 / 삭제 API")
 public class ImageController {
 
     private final ImageService imageService;
@@ -34,8 +34,22 @@ public class ImageController {
         return ApiResponse.success(imageService.getByBoard(boardId));
     }
 
+    @PostMapping(value = "/api/reviews/{reviewId}/images", consumes = "multipart/form-data")
+    @Operation(summary = "리뷰 이미지 업로드", description = "리뷰에 이미지를 여러 장 업로드합니다. 리뷰 작성자 본인만 가능.")
+    public ApiResponse<List<ImageResponse>> uploadReviewImages(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                 @PathVariable Long reviewId,
+                                                                 @RequestParam("files") List<MultipartFile> files) {
+        return ApiResponse.success(imageService.uploadForReview(userDetails.getMemberId(), reviewId, files));
+    }
+
+    @GetMapping("/api/reviews/{reviewId}/images")
+    @Operation(summary = "리뷰 이미지 목록 조회", description = "리뷰에 첨부된 이미지 목록을 조회합니다. 로그인 불필요.")
+    public ApiResponse<List<ImageResponse>> getReviewImages(@PathVariable Long reviewId) {
+        return ApiResponse.success(imageService.getByReview(reviewId));
+    }
+
     @DeleteMapping("/api/images/{imageId}")
-    @Operation(summary = "이미지 삭제", description = "imageId 이미지를 삭제합니다. 게시글 작성자 본인만 가능.")
+    @Operation(summary = "이미지 삭제", description = "imageId 이미지를 삭제합니다. 게시글/리뷰 작성자 본인만 가능.")
     public ApiResponse<Void> delete(@AuthenticationPrincipal CustomUserDetails userDetails,
                                      @PathVariable Long imageId) {
         imageService.delete(userDetails.getMemberId(), imageId);
