@@ -23,6 +23,8 @@ import java.util.function.BiFunction;
 @Transactional(readOnly = true)
 public class ImageService {
 
+    private static final int MAX_FILE_COUNT = 10;
+
     private final ImageRepository imageRepository;
     private final BoardRepository boardRepository;
     private final ReviewRepository reviewRepository;
@@ -63,6 +65,13 @@ public class ImageService {
     // 업로드 중 예외가 발생하면 저장된 파일을 모두 삭제
     private List<ImageResponse> storeAndSave(List<MultipartFile> files,
                                               BiFunction<String, String, Image> imageFactory) {
+        if (files == null || files.isEmpty()) {
+            throw new CustomException(ErrorCode.EMPTY_FILE);
+        }
+        if (files.size() > MAX_FILE_COUNT) {
+            throw new CustomException(ErrorCode.TOO_MANY_FILES);
+        }
+
         List<String> storedFileNames = new ArrayList<>();
         try {
             return files.stream()
