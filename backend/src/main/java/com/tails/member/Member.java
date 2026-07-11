@@ -2,6 +2,7 @@ package com.tails.member;
 
 import com.tails.board.BoardLike;
 import com.tails.bookmark.BoardBookmark;
+import com.tails.bookmark.PlaceBookmark;
 import com.tails.pet.Pet;
 import com.tails.travel.Travel;
 import jakarta.persistence.*;
@@ -61,6 +62,10 @@ public class Member {
     // 회원 탈퇴 시 북마크 기록도 함께 삭제
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BoardBookmark> boardBookmarks = new ArrayList<>();
+
+    // 회원 탈퇴 시 장소 찜 기록도 함께 삭제
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlaceBookmark> placeBookmarks = new ArrayList<>();
 
     // 여행 일정 목록. 개인 데이터라 회원 삭제 시 함께 삭제
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
