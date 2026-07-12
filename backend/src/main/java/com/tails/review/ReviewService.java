@@ -66,6 +66,14 @@ public class ReviewService {
         review.updateInfo(request.rating(), request.content());
     }
 
+    // 리뷰 삭제 - 작성자 본인만 가능
+    @Transactional
+    public void delete(Long memberId, Long placeId, Long reviewId) {
+        Review review = getReviewInPlaceOrThrow(placeId, reviewId);
+        requireOwner(review, memberId);
+        reviewRepository.delete(review);
+    }
+
     // 작성자 본인인지 확인. 탈퇴한 회원(member == null)의 리뷰는 정당한 소유자가 없으므로 누구든 거부
     private void requireOwner(Review review, Long memberId) {
         if (review.getMember() == null || !review.getMember().getId().equals(memberId)) {

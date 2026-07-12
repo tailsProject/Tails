@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,6 +52,15 @@ public class ReviewController {
                                      @PathVariable Long reviewId,
                                      @Valid @RequestBody ReviewUpdateRequest request) {
         reviewService.update(userDetails.getMemberId(), placeId, reviewId, request);
+        return ApiResponse.success();
+    }
+
+    @DeleteMapping("/api/places/{placeId}/reviews/{reviewId}")
+    @Operation(summary = "리뷰 삭제", description = "reviewId 리뷰를 삭제합니다. 작성자 본인만 가능.")
+    public ApiResponse<Void> delete(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                     @PathVariable Long placeId,
+                                     @PathVariable Long reviewId) {
+        reviewService.delete(userDetails.getMemberId(), placeId, reviewId);
         return ApiResponse.success();
     }
 }
