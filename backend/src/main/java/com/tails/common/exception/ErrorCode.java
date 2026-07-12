@@ -29,6 +29,15 @@ public enum ErrorCode {
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
     NOT_BOARD_OWNER(HttpStatus.FORBIDDEN, "본인 게시글만 수정/삭제할 수 있습니다."),
 
+    IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다."),
+    NOT_IMAGE_OWNER(HttpStatus.FORBIDDEN, "본인 게시글/리뷰의 이미지만 업로드/삭제할 수 있습니다."),
+    EMPTY_FILE(HttpStatus.BAD_REQUEST, "업로드할 파일이 없습니다."),
+    INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "이미지 파일(jpg, png, gif, webp)만 업로드할 수 있습니다."),
+    FILE_TOO_LARGE(HttpStatus.BAD_REQUEST, "파일 크기가 너무 큽니다. (최대 5MB)"),
+    FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드 중 오류가 발생했습니다."),
+    TOO_MANY_FILES(HttpStatus.BAD_REQUEST, "한 번에 최대 10장까지 업로드할 수 있습니다."),
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰를 찾을 수 없습니다."),
+
     // ===== 댓글(Comment) 관련 =====
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
     PARENT_COMMENT_BOARD_MISMATCH(HttpStatus.BAD_REQUEST, "다른 게시글의 댓글에는 답글을 달 수 없습니다."),

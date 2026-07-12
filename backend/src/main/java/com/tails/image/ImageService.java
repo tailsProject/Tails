@@ -1,0 +1,125 @@
+package com.tails.image;
+
+import com.tails.board.Board;
+import com.tails.board.BoardRepository;
+import com.tails.common.exception.CustomException;
+import com.tails.common.exception.ErrorCode;
+import com.tails.common.util.FileStorage;
+import com.tails.image.dto.ImageResponse;
+import com.tails.review.Review;
+import com.tails.review.ReviewRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiFunction;
+
+// 게시글/리뷰 이미지 업로드, 조회, 삭제 비즈니스 로직
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class ImageService {
+
+    private static final int MAX_FILE_COUNT = 10;
+
+    private final ImageRepository imageRepository;
+    private final BoardRepository boardRepository;
+    private final ReviewRepository reviewRepository;
+    private final FileStorage fileStorage;
+
+    // 게시글 작성자 본인만 업로드 가능, 여러 장 동시 업로드
+    @Transactional
+    public List<ImageResponse> uploadForBoard(Long memberId, Long boardId, List<MultipartFile> files) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        if (board.getMember() == null || !board.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.NOT_IMAGE_OWNER);
+        }
+
+        return storeAndSave(files, (storedFileName, originalFileName) -> Image.builder()
+                .board(board)
+                .storedFileName(storedFileName)
+                .originalFileName(originalFileName)
+                .build());
+    }
+
+    // 리뷰 작성자 본인만 업로드 가능. 
+    @Transactional
+    public List<ImageResponse> uploadForReview(Long memberId, Long reviewId, List<MultipartFile> files) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+        if (review.getMember() == null || !review.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.NOT_IMAGE_OWNER);
+        }
+
+        return storeAndSave(files, (storedFileName, originalFileName) -> Image.builder()
+                .review(review)
+                .storedFileName(storedFileName)
+                .originalFileName(originalFileName)
+                .build());
+    }
+
+    // 업로드 중 예외가 발생하면 저장된 파일을 모두 삭제
+    private List<ImageResponse> storeAndSave(List<MultipartFile> files,
+                                              BiFunction<String, String, Image> imageFactory) {
+        if (files == null || files.isEmpty()) {
+            throw new CustomException(ErrorCode.EMPTY_FILE);
+        }
+        if (files.size() > MAX_FILE_COUNT) {
+            throw new CustomException(ErrorCode.TOO_MANY_FILES);
+        }
+
+        List<String> storedFileNames = new ArrayList<>();
+        try {
+            return files.stream()
+                    .map(file -> {
+                        String storedFileName = fileStorage.store(file);
+                        storedFileNames.add(storedFileName);
+                        Image image = imageFactory.apply(storedFileName, file.getOriginalFilename());
+                        return ImageResponse.from(imageRepository.save(image));
+                    })
+                    .toList();
+        } catch (RuntimeException e) {
+            storedFileNames.forEach(fileStorage::delete);
+            throw e;
+        }
+    }
+    // 게시글 이미지 조회
+    public List<ImageResponse> getByBoard(Long boardId) {
+        return imageRepository.findByBoardIdOrderByCreatedAtAsc(boardId).stream()
+                .map(ImageResponse::from)
+                .toList();
+    }
+    // 리뷰 이미지 조회
+    public List<ImageResponse> getByReview(Long reviewId) {
+        return imageRepository.findByReviewIdOrderByCreatedAtAsc(reviewId).stream()
+                .map(ImageResponse::from)
+                .toList();
+    }
+
+    // 게시글/리뷰 작성자 본인만 삭제 가능
+    @Transactional
+    public void delete(Long memberId, Long imageId) {
+        Image image = imageRepository.findById(imageId)
+                .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_NOT_FOUND));
+
+        Long ownerId = resolveOwnerId(image);
+        if (ownerId == null || !ownerId.equals(memberId)) {
+            throw new CustomException(ErrorCode.NOT_IMAGE_OWNER);
+        }
+
+        imageRepository.delete(image);
+        fileStorage.delete(image.getStoredFileName());
+    }
+
+    // 이미지 소유자의 회원 id 조회
+    private Long resolveOwnerId(Image image) {
+        if (image.getBoard() != null) {
+            return image.getBoard().getMember() != null ? image.getBoard().getMember().getId() : null;
+        }
+        return image.getReview().getMember() != null ? image.getReview().getMember().getId() : null;
+    }
+}

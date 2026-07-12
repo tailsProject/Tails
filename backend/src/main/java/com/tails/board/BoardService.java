@@ -7,6 +7,9 @@ import com.tails.board.dto.BoardUpdateRequest;
 import com.tails.board.dto.LikeToggleResponse;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
+import com.tails.common.util.FileStorage;
+import com.tails.image.Image;
+import com.tails.image.ImageRepository;
 import com.tails.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +26,8 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final BoardLikeRepository boardLikeRepository;
     private final MemberRepository memberRepository;
+    private final ImageRepository imageRepository;
+    private final FileStorage fileStorage;
 
     @Transactional
     public Long create(Long memberId, BoardCreateRequest request) {
@@ -57,6 +62,12 @@ public class BoardService {
     public void delete(Long memberId, Long boardId) {
         Board board = getBoardOrThrow(boardId);
         requireOwner(board, memberId);
+
+        // DB에서 삭제되지 않는 파일은 직접 삭제
+        for (Image image : imageRepository.findByBoardIdOrderByCreatedAtAsc(boardId)) {
+            fileStorage.deleteAfterCommit(image.getStoredFileName());
+        }
+
         boardRepository.delete(board);
     }
 
