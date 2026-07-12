@@ -8,6 +8,7 @@ import com.tails.place.PlaceRepository;
 import com.tails.review.dto.ReviewCreateRequest;
 import com.tails.review.dto.ReviewListResponse;
 import com.tails.review.dto.ReviewResponse;
+import com.tails.review.dto.ReviewUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -55,5 +56,30 @@ public class ReviewService {
         long reviewCount = reviewRepository.countByPlace_PlaceId(placeId);
 
         return new ReviewListResponse(reviews, averageRating != null ? averageRating : 0.0, reviewCount);
+    }
+
+    // 리뷰 수정 - 작성자 본인만 가능
+    @Transactional
+    public void update(Long memberId, Long placeId, Long reviewId, ReviewUpdateRequest request) {
+        Review review = getReviewInPlaceOrThrow(placeId, reviewId);
+        requireOwner(review, memberId);
+        review.updateInfo(request.rating(), request.content());
+    }
+
+    // 작성자 본인인지 확인. 탈퇴한 회원(member == null)의 리뷰는 정당한 소유자가 없으므로 누구든 거부
+    private void requireOwner(Review review, Long memberId) {
+        if (review.getMember() == null || !review.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.NOT_REVIEW_OWNER);
+        }
+    }
+
+    // reviewId로 조회하고, 그 리뷰가 URL의 placeId 소속이 맞는지도 함께 확인 (다른 장소의 reviewId를 잘못/악의적으로 넘긴 경우 방지)
+    private Review getReviewInPlaceOrThrow(Long placeId, Long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+        if (!review.getPlace().getPlaceId().equals(placeId)) {
+            throw new CustomException(ErrorCode.REVIEW_NOT_FOUND);
+        }
+        return review;
     }
 }

@@ -60,4 +60,9 @@ public class Review {
         this.rating = rating;
         this.content = content;
     }
+
+    public void updateInfo(int rating, String content) {
+        this.rating = rating;
+        this.content = content;
+    }
 }
