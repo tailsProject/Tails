@@ -2,6 +2,7 @@ package com.tails.review;
 
 import com.tails.common.response.ApiResponse;
 import com.tails.common.security.CustomUserDetails;
+import com.tails.review.dto.MyReviewResponse;
 import com.tails.review.dto.ReviewCreateRequest;
 import com.tails.review.dto.ReviewListResponse;
 import com.tails.review.dto.ReviewUpdateRequest;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -62,5 +64,12 @@ public class ReviewController {
                                      @PathVariable Long reviewId) {
         reviewService.delete(userDetails.getMemberId(), placeId, reviewId);
         return ApiResponse.success();
+    }
+
+    @GetMapping("/api/reviews/me")
+    @Operation(summary = "내가 작성한 리뷰 목록 조회", description = "로그인한 회원이 작성한 리뷰 목록을 조회합니다.")
+    public ApiResponse<Page<MyReviewResponse>> getMyReviews(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                             @PageableDefault(size = 10) Pageable pageable) {
+        return ApiResponse.success(reviewService.getMyReviews(userDetails.getMemberId(), pageable));
     }
 }

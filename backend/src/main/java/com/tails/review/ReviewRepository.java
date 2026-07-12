@@ -22,4 +22,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Double findAverageRatingByPlaceId(@Param("placeId") Long placeId);
 
     long countByPlace_PlaceId(Long placeId);
+
+    // 내가 작성한 리뷰 목록. left join fetch로 장소를 함께 가져와 N+1 방지
+    @Query(value = "select r from Review r left join fetch r.place where r.member.id = :memberId order by r.createdAt desc",
+            countQuery = "select count(r) from Review r where r.member.id = :memberId")
+    Page<Review> findByMemberIdWithPlace(@Param("memberId") Long memberId, Pageable pageable);
 }

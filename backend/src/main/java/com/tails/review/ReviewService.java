@@ -5,6 +5,7 @@ import com.tails.common.exception.ErrorCode;
 import com.tails.member.MemberRepository;
 import com.tails.place.Place;
 import com.tails.place.PlaceRepository;
+import com.tails.review.dto.MyReviewResponse;
 import com.tails.review.dto.ReviewCreateRequest;
 import com.tails.review.dto.ReviewListResponse;
 import com.tails.review.dto.ReviewResponse;
@@ -72,6 +73,12 @@ public class ReviewService {
         Review review = getReviewInPlaceOrThrow(placeId, reviewId);
         requireOwner(review, memberId);
         reviewRepository.delete(review);
+    }
+
+    // 내가 작성한 리뷰 목록
+    public Page<MyReviewResponse> getMyReviews(Long memberId, Pageable pageable) {
+        return reviewRepository.findByMemberIdWithPlace(memberId, pageable)
+                .map(MyReviewResponse::from);
     }
 
     // 작성자 본인인지 확인. 탈퇴한 회원(member == null)의 리뷰는 정당한 소유자가 없으므로 누구든 거부
