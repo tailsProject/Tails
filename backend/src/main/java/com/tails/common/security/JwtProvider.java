@@ -19,12 +19,15 @@ public class JwtProvider {
 
     private final SecretKey key;
     private final long expiration;
+    private final long refreshExpiration;
     private final JwtParser parser;
 
     public JwtProvider(@Value("${jwt.secret}") String secret,
-                        @Value("${jwt.expiration}") long expiration) {
+                        @Value("${jwt.expiration}") long expiration,
+                        @Value("${jwt.refresh-expiration}") long refreshExpiration) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expiration = expiration;
+        this.refreshExpiration = refreshExpiration;
         this.parser = Jwts.parser().verifyWith(key).build();
     }
 
@@ -36,6 +39,19 @@ public class JwtProvider {
         return Jwts.builder()
                 .subject(String.valueOf(memberId))
                 .claim("email", email)
+                .issuedAt(now)
+                .expiration(expiry)
+                .signWith(key)
+                .compact();
+    }
+
+    // Refresh Token 발급 - Access Token과 같은 서명 키, 만료만 훨씬 길게
+    public String createRefreshToken(Long memberId) {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + refreshExpiration);
+
+        return Jwts.builder()
+                .subject(String.valueOf(memberId))
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(key)

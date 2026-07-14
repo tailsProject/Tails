@@ -11,8 +11,10 @@ import com.tails.member.dto.MemberUpdateRequest;
 import com.tails.member.dto.PasswordChangeRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,13 +37,17 @@ public class MemberController {
         return ApiResponse.success(memberId);
     }
 
+    // Access Token은 응답 본문, Refresh Token은 httpOnly 쿠키로 발급
     @PostMapping("/login")
     @Operation(
             summary = "로그인",
-            description = "이메일, 비밀번호로 로그인하고 JWT를 발급받습니다."
+            description = "이메일, 비밀번호로 로그인합니다. Access Token은 본문, Refresh Token은 httpOnly 쿠키로 발급됩니다."
     )
-    public ApiResponse<LoginResponse> login(@Valid @RequestBody MemberLoginRequest request) {
-        return ApiResponse.success(memberService.login(request));
+    public ApiResponse<LoginResponse> login(@Valid @RequestBody MemberLoginRequest request,
+                                             HttpServletResponse response) {
+        MemberService.LoginResult result = memberService.login(request);
+        response.addHeader(HttpHeaders.SET_COOKIE, result.refreshCookie().toString());
+        return ApiResponse.success(result.response());
     }
 
     @GetMapping("/check-email")

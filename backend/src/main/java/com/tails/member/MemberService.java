@@ -2,7 +2,7 @@ package com.tails.member;
 
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
-import com.tails.common.security.JwtProvider;
+import com.tails.common.security.AuthService;
 import com.tails.member.dto.LoginResponse;
 import com.tails.member.dto.MemberJoinRequest;
 import com.tails.member.dto.MemberLoginRequest;
@@ -10,6 +10,7 @@ import com.tails.member.dto.MemberResponse;
 import com.tails.member.dto.MemberUpdateRequest;
 import com.tails.member.dto.PasswordChangeRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +23,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtProvider jwtProvider;
+    private final AuthService authService;
 
     @Transactional
     public Long join(MemberJoinRequest request) {
@@ -45,8 +46,12 @@ public class MemberService {
         return memberRepository.save(member).getId();
     }
 
-    // 이메일로 회원 조회 후 비밀번호 검증, 성공 시 JWT 발급
-    public LoginResponse login(MemberLoginRequest request) {
+    // 컨트롤러가 본문(LoginResponse)과 별개로 Refresh Token 쿠키를 Set-Cookie에 실어야 해서 묶어서 반환
+    public record LoginResult(LoginResponse response, ResponseCookie refreshCookie) {
+    }
+
+    @Transactional
+    public LoginResult login(MemberLoginRequest request) {
         Member member = memberRepository.findByEmail(normalizeEmail(request.email()))
                 .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_FAILED));
 
@@ -54,18 +59,18 @@ public class MemberService {
             throw new CustomException(ErrorCode.LOGIN_FAILED);
         }
 
-        String token = jwtProvider.createToken(member.getId(), member.getEmail());
-        return new LoginResponse(token, member.getId(), member.getNickname());
+        var tokens = authService.issueTokens(member);
+        return new LoginResult(
+                new LoginResponse(tokens.accessToken(), member.getId(), member.getNickname()),
+                tokens.refreshCookie());
     }
 
-    // findByIdWithPets로 회원+반려동물을 한 번의 쿼리로 함께 조회
     public MemberResponse getMyInfo(Long memberId) {
         Member member = memberRepository.findByIdWithPets(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         return MemberResponse.from(member);
     }
 
-    // 닉네임/프로필 사진 수정. 닉네임은 실제로 값이 바뀔 때만 중복 체크
     @Transactional
     public void updateMyInfo(Long memberId, MemberUpdateRequest request) {
         Member member = getMemberOrThrow(memberId);
@@ -83,8 +88,7 @@ public class MemberService {
             member.changeProfileImg(request.profileImg());
         }
     }
-    
-    // 현재 비밀번호 확인 → 기존 비밀번호와 중복 여부 확인 → 새 비밀번호 확인 일치 여부 검증
+
     @Transactional
     public void changePassword(Long memberId, PasswordChangeRequest request) {
         Member member = getMemberOrThrow(memberId);
@@ -100,11 +104,10 @@ public class MemberService {
         member.changePassword(passwordEncoder.encode(request.newPassword()));
     }
 
-    // 회원 삭제 시 연관된 반려동물도 Cascade + orphanRemoval에 의해 함께 삭제
     @Transactional
     public void withdraw(Long memberId) {
         Member member = getMemberOrThrow(memberId);
-        member.getBoardLikes().forEach(like -> like.getBoard().decreaseLikeCount());
+        authService.revokeSession(memberId);
         memberRepository.delete(member);
     }
 
@@ -122,7 +125,6 @@ public class MemberService {
         }
     }
 
-    // 대소문자/공백 차이로 다른 계정 취급되지 않도록 가입/로그인/중복체크 모두 이 기준으로 통일
     private String normalizeEmail(String email) {
         return email.trim().toLowerCase();
     }
