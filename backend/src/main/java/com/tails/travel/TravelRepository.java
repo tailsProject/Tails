@@ -1,5 +1,6 @@
 package com.tails.travel;
 
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -10,4 +11,7 @@ public interface TravelRepository extends JpaRepository<Travel, Long> {
 
     // 수정/삭제 전 소유권 확인용. 다른 회원의 travelId를 끼워 넣어 접근하는 걸 방지
     boolean existsByTravelIdAndMember_Id(Long travelId, Long memberId);
+
+    // 여행 리마인더 스케줄러용
+    List<Travel> findByStartDate(LocalDate startDate);
 }
