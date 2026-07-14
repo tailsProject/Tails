@@ -54,6 +54,8 @@ public enum ErrorCode {
     // PlaceService의 장소 상세 조회, TravelDetailService가 여행 일정에 장소를 추가할 때
     // (요청으로 받은 placeId 검증) 둘 다에서 재사용한다.
     PLACE_NOT_FOUND(HttpStatus.NOT_FOUND, "장소를 찾을 수 없습니다."),
+    // 검색 조건이 하나도 없거나, 좌표 검색인데 lat/lng/radius 중 일부만 온 경우
+    INVALID_SEARCH_CONDITION(HttpStatus.BAD_REQUEST, "검색 조건이 올바르지 않습니다."),
 
     // ===== 리뷰(Review) 관련 =====
     // (place_id, member_id) UNIQUE — 한 회원은 한 장소에 리뷰 하나만
