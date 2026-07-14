@@ -3,6 +3,7 @@ package com.tails.member;
 import com.tails.board.BoardLike;
 import com.tails.bookmark.BoardBookmark;
 import com.tails.bookmark.PlaceBookmark;
+import com.tails.notification.Notification;
 import com.tails.pet.Pet;
 import com.tails.travel.Travel;
 import jakarta.persistence.*;
@@ -74,6 +75,10 @@ public class Member {
     // 회원 삭제 시 연관된 좋아요 기록 삭제 처리
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BoardLike> boardLikes = new ArrayList<>();
+
+    // 회원 탈퇴 시 알림도 함께 삭제
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications = new ArrayList<>();
 
     @Builder
     public Member(String email, String password, String nickname) {
