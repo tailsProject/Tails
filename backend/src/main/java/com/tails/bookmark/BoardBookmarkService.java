@@ -6,7 +6,9 @@ import com.tails.board.dto.BoardResponse;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.member.MemberRepository;
+import com.tails.notification.event.BoardBookmarkedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ public class BoardBookmarkService {
     private final BoardBookmarkRepository boardBookmarkRepository;
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     // 이미 북마크했으면 취소, 안 했으면 추가
     @Transactional
@@ -39,6 +42,9 @@ public class BoardBookmarkService {
                             .member(memberRepository.getReferenceById(memberId))
                             .build();
                     boardBookmarkRepository.save(bookmark);
+                    if (board.getMember() != null && !board.getMember().getId().equals(memberId)) {
+                        eventPublisher.publishEvent(new BoardBookmarkedEvent(board.getMember().getId(), memberId, boardId));
+                    }
                     return true;
                 });
     }

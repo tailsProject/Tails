@@ -11,7 +11,9 @@ import com.tails.common.util.FileStorage;
 import com.tails.image.Image;
 import com.tails.image.ImageRepository;
 import com.tails.member.MemberRepository;
+import com.tails.notification.event.BoardLikedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ public class BoardService {
     private final MemberRepository memberRepository;
     private final ImageRepository imageRepository;
     private final FileStorage fileStorage;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public Long create(Long memberId, BoardCreateRequest request) {
@@ -89,6 +92,9 @@ public class BoardService {
                             .build();
                     boardLikeRepository.save(like);
                     board.increaseLikeCount();
+                    if (board.getMember() != null && !board.getMember().getId().equals(memberId)) {
+                        eventPublisher.publishEvent(new BoardLikedEvent(board.getMember().getId(), memberId, boardId));
+                    }
                     return true;
                 });
 
