@@ -8,7 +8,9 @@ import com.tails.comment.dto.CommentUpdateRequest;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.member.MemberRepository;
+import com.tails.notification.event.CommentCreatedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     // 답글에는 다시 답글을 달 수 없도록 항상 최상위 댓글을 부모로 설정
     @Transactional
@@ -50,7 +53,13 @@ public class CommentService {
                 .parent(parent)
                 .content(request.content())
                 .build();
-        return commentRepository.save(comment).getId();
+        Long commentId = commentRepository.save(comment).getId();
+
+        if (board.getMember() != null && !board.getMember().getId().equals(memberId)) {
+            eventPublisher.publishEvent(new CommentCreatedEvent(board.getMember().getId(), memberId, boardId));
+        }
+
+        return commentId;
     }
 
     // 최상위 댓글 기준으로 답글을 묶어 반환
