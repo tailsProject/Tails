@@ -1,5 +1,6 @@
 package com.tails.board;
 
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,6 +15,11 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     @Modifying
     @Query("update Board b set b.viewCount = b.viewCount + 1 where b.id = :id")
     void increaseViewCount(@Param("id") Long id);
+
+    // 회원 탈퇴 시 그 회원이 좋아요 눌렀던 게시글의 likeCount를 벌크로 낮춤(MemberService.withdraw)
+    @Modifying
+    @Query("update Board b set b.likeCount = case when b.likeCount > 0 then b.likeCount - 1 else 0 end where b.id in :boardIds")
+    void decreaseLikeCountBulk(@Param("boardIds") List<Long> boardIds);
 
     @Query(value = "select b from Board b left join fetch b.member",
             countQuery = "select count(b) from Board b")

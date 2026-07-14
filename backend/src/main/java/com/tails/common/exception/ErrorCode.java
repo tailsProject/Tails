@@ -25,6 +25,7 @@ public enum ErrorCode {
     WRONG_PASSWORD(HttpStatus.BAD_REQUEST, "기존 비밀번호가 올바르지 않습니다."),
     SAME_AS_OLD_PASSWORD(HttpStatus.BAD_REQUEST, "새 비밀번호가 기존 비밀번호와 같습니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "로그인이 만료되었습니다. 다시 로그인해주세요."),
+    ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, "로그인 실패 횟수를 초과했습니다. 잠시 후 다시 시도해주세요."),
 
     // ===== 게시글(Board) 관련 =====
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),

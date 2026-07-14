@@ -1,19 +1,24 @@
 package com.tails.member;
 
+import com.tails.board.BoardRepository;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.common.security.AuthService;
+import com.tails.common.security.LoginAttemptService;
+import com.tails.common.util.FileStorage;
 import com.tails.member.dto.LoginResponse;
 import com.tails.member.dto.MemberJoinRequest;
 import com.tails.member.dto.MemberLoginRequest;
 import com.tails.member.dto.MemberResponse;
 import com.tails.member.dto.MemberUpdateRequest;
 import com.tails.member.dto.PasswordChangeRequest;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 // 회원 관련 비즈니스 로직 (회원가입/로그인/중복확인/내 정보 조회·수정)
 @Service
@@ -21,9 +26,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class MemberService {
 
+    private static final String UPLOAD_URL_PREFIX = "/uploads/";
+
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
+    private final LoginAttemptService loginAttemptService;
+    private final FileStorage fileStorage;
+    // 회원 탈퇴 시 좋아요 눌렀던 게시글의 likeCount를 벌크로 낮추는 용도(withdraw 참고)
+    private final BoardRepository boardRepository;
 
     @Transactional
     public Long join(MemberJoinRequest request) {
@@ -55,9 +66,16 @@ public class MemberService {
         Member member = memberRepository.findByEmail(normalizeEmail(request.email()))
                 .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_FAILED));
 
+        if (member.isLocked()) {
+            throw new CustomException(ErrorCode.ACCOUNT_LOCKED);
+        }
+
         if (!passwordEncoder.matches(request.password(), member.getPassword())) {
+            loginAttemptService.recordFailure(member.getId());
             throw new CustomException(ErrorCode.LOGIN_FAILED);
         }
+
+        loginAttemptService.recordSuccess(member);
 
         var tokens = authService.issueTokens(member);
         return new LoginResult(
@@ -90,6 +108,12 @@ public class MemberService {
     }
 
     @Transactional
+    public void updateFcmToken(Long memberId, String fcmToken) {
+        Member member = getMemberOrThrow(memberId);
+        member.changeFcmToken(fcmToken);
+    }
+
+    @Transactional
     public void changePassword(Long memberId, PasswordChangeRequest request) {
         Member member = getMemberOrThrow(memberId);
 
@@ -104,11 +128,43 @@ public class MemberService {
         member.changePassword(passwordEncoder.encode(request.newPassword()));
     }
 
+    // Board(게시글) 자체는 남기고(탈퇴한 회원으로 표시), 좋아요 눌렀던 글의 likeCount만 벌크로 낮춤
     @Transactional
     public void withdraw(Long memberId) {
         Member member = getMemberOrThrow(memberId);
+        List<Long> likedBoardIds = member.getBoardLikes().stream()
+                .map(like -> like.getBoard().getId())
+                .toList();
+        if (!likedBoardIds.isEmpty()) {
+            boardRepository.decreaseLikeCountBulk(likedBoardIds);
+        }
         authService.revokeSession(memberId);
         memberRepository.delete(member);
+    }
+
+    // 기존 프로필 이미지가 우리 서버 파일이면 교체 시 함께 정리
+    @Transactional
+    public String uploadProfileImage(Long memberId, MultipartFile file) {
+        Member member = getMemberOrThrow(memberId);
+
+        String storedFileName = fileStorage.store(file);
+        deleteStoredProfileImageIfExists(member);
+        member.changeProfileImg(UPLOAD_URL_PREFIX + storedFileName);
+        return member.getProfileImg();
+    }
+
+    @Transactional
+    public void deleteProfileImage(Long memberId) {
+        Member member = getMemberOrThrow(memberId);
+        deleteStoredProfileImageIfExists(member);
+        member.changeProfileImg(null);
+    }
+
+    private void deleteStoredProfileImageIfExists(Member member) {
+        String currentUrl = member.getProfileImg();
+        if (currentUrl != null && currentUrl.startsWith(UPLOAD_URL_PREFIX)) {
+            fileStorage.deleteAfterCommit(currentUrl.substring(UPLOAD_URL_PREFIX.length()));
+        }
     }
 
     public boolean isEmailDuplicated(String email) {
