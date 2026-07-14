@@ -2,7 +2,10 @@ package com.tails.place;
 
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
+import com.tails.common.util.GeoUtil;
 import com.tails.place.dto.PlaceResponse;
+import com.tails.place.dto.PlaceSearchResponse;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,11 +39,62 @@ public class PlaceService {
                 .map(PlaceResponse::from);
     }
 
-    // 장소명에 keyword가 포함된 장소 검색. 결과가 없으면 빈 리스트를 반환
-    public List<PlaceResponse> searchPlacesByName(String keyword) {
-        return placeRepository.findByPlaceNameContaining(keyword).stream()
-                .map(PlaceResponse::from)
+    // 통합 검색 — 키워드/카테고리/지역/반경(좌표) 조건을 자유롭게 조합. keyword만 넘기면 기존 장소명 검색과 동일하게 동작
+    // 반경 검색은 2단계: 경계 상자로 DB에서 후보를 크게 줄인 뒤(GeoUtil.latDelta/lngDelta),
+    // Haversine으로 정확한 거리를 계산해 반경 밖을 제외하고 가까운 순 정렬
+    // @throws CustomException {@link ErrorCode#INVALID_SEARCH_CONDITION} 조건이 하나도 없거나, 좌표 3종(lat/lng/radius) 중 일부만 왔거나, radius가 0 이하인 경우
+    public List<PlaceSearchResponse> searchPlaces(String keyword, String cat1, String cat2,
+            String region, Double lat, Double lng, Double radiusMeters) {
+        keyword = blankToNull(keyword);
+        cat1 = blankToNull(cat1);
+        cat2 = blankToNull(cat2);
+        region = blankToNull(region);
+
+        boolean anyGeo = lat != null || lng != null || radiusMeters != null;
+        boolean allGeo = lat != null && lng != null && radiusMeters != null;
+        if (anyGeo && (!allGeo || radiusMeters <= 0)) {
+            throw new CustomException(ErrorCode.INVALID_SEARCH_CONDITION);
+        }
+        if (!allGeo && keyword == null && cat1 == null && cat2 == null && region == null) {
+            throw new CustomException(ErrorCode.INVALID_SEARCH_CONDITION);
+        }
+
+        Double minLat = null;
+        Double maxLat = null;
+        Double minLng = null;
+        Double maxLng = null;
+        if (allGeo) {
+            double latDelta = GeoUtil.latDelta(radiusMeters);
+            double lngDelta = GeoUtil.lngDelta(radiusMeters, lat);
+            minLat = lat - latDelta;
+            maxLat = lat + latDelta;
+            minLng = lng - lngDelta;
+            maxLng = lng + lngDelta;
+        }
+
+        List<Place> candidates = placeRepository.searchPlaces(
+                keyword, cat1, cat2, region, minLat, maxLat, minLng, maxLng);
+
+        if (!allGeo) {
+            return candidates.stream()
+                    .map(PlaceSearchResponse::from)
+                    .toList();
+        }
+
+        final double centerLat = lat;
+        final double centerLng = lng;
+        final double radius = radiusMeters;
+        return candidates.stream()
+                .map(place -> PlaceSearchResponse.of(place,
+                        GeoUtil.distanceMeters(centerLat, centerLng, place.getLatitude(), place.getLongitude())))
+                .filter(response -> response.getDistanceMeters() <= radius)
+                .sorted(Comparator.comparing(PlaceSearchResponse::getDistanceMeters))
                 .toList();
+    }
+
+    // 빈 문자열/공백만 있는 파라미터를 null("조건 없음")로 통일
+    private String blankToNull(String value) {
+        return (value == null || value.isBlank()) ? null : value.trim();
     }
 
     // cat1(필수) + cat2(선택) 카테고리로 장소 필터링. cat2가 없으면 cat1만으로 조회
