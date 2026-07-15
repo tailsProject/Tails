@@ -2,7 +2,9 @@ package com.tails.traveldetail;
 
 import com.tails.common.response.ApiResponse;
 import com.tails.common.security.CustomUserDetails;
+import com.tails.traveldetail.dto.OptimizedRouteResponse;
 import com.tails.traveldetail.dto.TravelDetailCreateRequest;
+import com.tails.traveldetail.dto.TravelDetailReorderRequest;
 import com.tails.traveldetail.dto.TravelDetailResponse;
 import com.tails.traveldetail.dto.TravelDetailUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -76,5 +79,27 @@ public class TravelDetailController {
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         travelDetailService.deleteTravelDetail(travelId, detailId, userDetails.getMemberId());
         return ApiResponse.success();
+    }
+
+    // 하루 일정 순서 재정렬. detailIds는 그 날짜의 세부 일정 전체와 정확히 일치해야 함
+    @PatchMapping("/order")
+    @Operation(summary = "하루 일정 순서 재정렬", description = "요청받은 detailIds 순서 그대로 그 날짜의 sequence를 다시 부여합니다. detailIds는 해당 날짜의 세부 일정 전체와 정확히 일치해야 합니다.")
+    public ApiResponse<List<TravelDetailResponse>> reorderDetails(
+            @PathVariable Long travelId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody TravelDetailReorderRequest request) {
+        return ApiResponse.success(
+                travelDetailService.reorderDetails(travelId, userDetails.getMemberId(), request));
+    }
+
+    // 하루 일정 경로 최적화 추천. DB 미반영 — 마음에 들면 재정렬 API를 다시 호출해서 반영
+    @GetMapping("/optimize-route")
+    @Operation(summary = "여행 경로 최적화 추천", description = "지정한 날짜의 방문 장소들을 최근접 이웃 방식으로 정렬한 추천 순서와 총 이동 거리를 반환합니다. DB에는 반영되지 않으며, 반영하려면 순서 재정렬 API를 다시 호출해야 합니다.")
+    public ApiResponse<OptimizedRouteResponse> suggestOptimizedRoute(
+            @PathVariable Long travelId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam LocalDate date) {
+        return ApiResponse.success(
+                travelDetailService.suggestOptimizedRoute(travelId, userDetails.getMemberId(), date));
     }
 }
