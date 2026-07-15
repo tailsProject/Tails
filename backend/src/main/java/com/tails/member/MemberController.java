@@ -3,6 +3,7 @@ package com.tails.member;
 import com.tails.common.response.ApiResponse;
 import com.tails.common.security.CustomUserDetails;
 import com.tails.member.dto.AvailabilityResponse;
+import com.tails.member.dto.FcmTokenRequest;
 import com.tails.member.dto.LoginResponse;
 import com.tails.member.dto.MemberJoinRequest;
 import com.tails.member.dto.MemberLoginRequest;
@@ -11,10 +12,13 @@ import com.tails.member.dto.MemberUpdateRequest;
 import com.tails.member.dto.PasswordChangeRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 // 회원 관련 REST API
 @RestController
@@ -35,13 +39,17 @@ public class MemberController {
         return ApiResponse.success(memberId);
     }
 
+    // Access Token은 응답 본문, Refresh Token은 httpOnly 쿠키로 발급
     @PostMapping("/login")
     @Operation(
             summary = "로그인",
-            description = "이메일, 비밀번호로 로그인하고 JWT를 발급받습니다."
+            description = "이메일, 비밀번호로 로그인합니다. Access Token은 본문, Refresh Token은 httpOnly 쿠키로 발급됩니다."
     )
-    public ApiResponse<LoginResponse> login(@Valid @RequestBody MemberLoginRequest request) {
-        return ApiResponse.success(memberService.login(request));
+    public ApiResponse<LoginResponse> login(@Valid @RequestBody MemberLoginRequest request,
+                                             HttpServletResponse response) {
+        MemberService.LoginResult result = memberService.login(request);
+        response.addHeader(HttpHeaders.SET_COOKIE, result.refreshCookie().toString());
+        return ApiResponse.success(result.response());
     }
 
     @GetMapping("/check-email")
@@ -92,6 +100,29 @@ public class MemberController {
     public ApiResponse<Void> changePassword(@AuthenticationPrincipal CustomUserDetails userDetails,
                                              @Valid @RequestBody PasswordChangeRequest request) {
         memberService.changePassword(userDetails.getMemberId(), request);
+        return ApiResponse.success();
+    }
+
+    // 앱이 로그인 직후 또는 토큰 재발급 시 호출
+    @PatchMapping("/me/fcm-token")
+    @Operation(summary = "FCM 기기 토큰 등록", description = "푸시 알림을 받을 기기의 FCM 토큰을 등록/갱신합니다.")
+    public ApiResponse<Void> updateFcmToken(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                             @Valid @RequestBody FcmTokenRequest request) {
+        memberService.updateFcmToken(userDetails.getMemberId(), request.fcmToken());
+        return ApiResponse.success();
+    }
+
+    @PostMapping(value = "/me/profile-image", consumes = "multipart/form-data")
+    @Operation(summary = "프로필 이미지 업로드", description = "프로필 이미지를 업로드합니다(기존 이미지는 교체됨).")
+    public ApiResponse<String> uploadProfileImage(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                   @RequestParam("file") MultipartFile file) {
+        return ApiResponse.success(memberService.uploadProfileImage(userDetails.getMemberId(), file));
+    }
+
+    @DeleteMapping("/me/profile-image")
+    @Operation(summary = "프로필 이미지 삭제", description = "프로필 이미지를 삭제하고 기본 상태로 되돌립니다.")
+    public ApiResponse<Void> deleteProfileImage(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        memberService.deleteProfileImage(userDetails.getMemberId());
         return ApiResponse.success();
     }
 

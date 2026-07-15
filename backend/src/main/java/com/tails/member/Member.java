@@ -44,6 +44,17 @@ public class Member {
     @Column(name = "profile_img", length = 500)
     private String profileImg;
 
+    // 로그인 실패 횟수 제한
+    @Column(name = "failed_login_count", nullable = false, columnDefinition = "INT NOT NULL DEFAULT 0")
+    private int failedLoginCount;
+
+    @Column(name = "locked_until")
+    private LocalDateTime lockedUntil;
+
+    // FCM 기기 토큰. 기기당 하나만 저장(다중 기기 미지원)
+    @Column(name = "fcm_token", length = 255)
+    private String fcmToken;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -97,5 +108,26 @@ public class Member {
 
     public void changePassword(String encodedPassword) {
         this.password = encodedPassword;
+    }
+
+    public void changeFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
+
+    public void increaseFailedLoginCount() {
+        this.failedLoginCount++;
+    }
+
+    public void resetFailedLoginCount() {
+        this.failedLoginCount = 0;
+        this.lockedUntil = null;
+    }
+
+    public void lock(LocalDateTime until) {
+        this.lockedUntil = until;
+    }
+
+    public boolean isLocked() {
+        return lockedUntil != null && lockedUntil.isAfter(LocalDateTime.now());
     }
 }
