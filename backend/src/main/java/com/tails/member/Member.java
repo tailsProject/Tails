@@ -35,7 +35,8 @@ public class Member {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(nullable = false, length = 255)
+    // 소셜 로그인 회원은 비밀번호 없이 가입되므로 nullable
+    @Column(length = 255)
     private String password;
 
     @Column(nullable = false, unique = true, length = 50)
@@ -43,6 +44,16 @@ public class Member {
 
     @Column(name = "profile_img", length = 500)
     private String profileImg;
+
+    @Column(name = "email_verified", nullable = false, columnDefinition = "TINYINT(1) NOT NULL DEFAULT 0")
+    private boolean emailVerified;
+
+    // provider가 null이면 자체가입, "kakao"/"google"/"naver"면 소셜 가입 회원
+    @Column(length = 20)
+    private String provider;
+
+    @Column(name = "provider_id", length = 100)
+    private String providerId;
 
     // 로그인 실패 횟수 제한
     @Column(name = "failed_login_count", nullable = false, columnDefinition = "INT NOT NULL DEFAULT 0")
@@ -92,10 +103,12 @@ public class Member {
     private List<Notification> notifications = new ArrayList<>();
 
     @Builder
-    public Member(String email, String password, String nickname) {
+    public Member(String email, String password, String nickname, String provider, String providerId) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
+        this.provider = provider;
+        this.providerId = providerId;
     }
 
     public void changeNickname(String nickname) {
@@ -112,6 +125,10 @@ public class Member {
 
     public void changeFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;
+    }
+
+    public void markEmailVerified() {
+        this.emailVerified = true;
     }
 
     public void increaseFailedLoginCount() {
