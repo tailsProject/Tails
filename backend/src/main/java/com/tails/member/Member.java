@@ -67,6 +67,11 @@ public class Member {
     @Version
     private Long version;
 
+    // 가입 시 항상 USER로 시작 - Builder 생성자에 role 파라미터가 없어 스스로 ADMIN을 자처할 수 없음
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, length = 20)
+    private MemberRole role = MemberRole.USER;
+
     // 회원 탈퇴 시 반려동물도 함께 삭제
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pet> pets = new ArrayList<>();
@@ -129,5 +134,10 @@ public class Member {
 
     public boolean isLocked() {
         return lockedUntil != null && lockedUntil.isAfter(LocalDateTime.now());
+    }
+
+    // AdminService에서만 호출 (본인 스스로 바꿀 수 없도록 API 자체를 분리)
+    public void changeRole(MemberRole role) {
+        this.role = role;
     }
 }

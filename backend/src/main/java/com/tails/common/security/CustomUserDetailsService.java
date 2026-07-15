@@ -20,6 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Member member = memberRepository.findById(Long.valueOf(username))
                 .orElseThrow(() -> new UsernameNotFoundException("존재하지 않거나 탈퇴한 회원입니다: " + username));
-        return new CustomUserDetails(member.getId(), member.getEmail());
+        // role을 토큰이 아니라 여기서 DB로 읽는 이유: 권한 회수(ADMIN -> USER)가 다음 요청부터 즉시 반영되도록
+        return new CustomUserDetails(member.getId(), member.getEmail(), member.getRole());
     }
 }
