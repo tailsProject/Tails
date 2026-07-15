@@ -91,4 +91,10 @@ public class TravelDetail {
         this.visitTime = visitTime;
         this.memo = memo;
     }
+
+    // 방문 순서만 변경. (travel_id, travel_date, sequence) 유니크 제약 때문에 호출하는 쪽이
+    // "전부 임시 음수값으로 옮긴 뒤 최종값으로 재배치"하는 2단계 절차를 책임져야 함
+    public void changeSequence(Integer sequence) {
+        this.sequence = sequence;
+    }
 }
