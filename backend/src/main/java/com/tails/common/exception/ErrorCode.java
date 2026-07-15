@@ -49,6 +49,10 @@ public enum ErrorCode {
     // 종료일이 시작일보다 빠른 경우처럼, 필드 하나만으로는 판단할 수 없고 두 필드를 같이 봐야
     // 알 수 있는 규칙이라 Bean Validation(@NotNull 등) 대신 TravelService에서 직접 검증한다.
     INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "종료일은 시작일보다 빠를 수 없습니다."),
+    // 순서 재정렬 요청의 detailIds가 그 날짜의 세부 일정 전체와 정확히 일치하지 않는 경우 (누락/중복/다른 날짜 id 포함)
+    INVALID_SEQUENCE_REQUEST(HttpStatus.BAD_REQUEST, "순서 재정렬 요청이 올바르지 않습니다."),
+    // 경로 최적화 대상 날짜에 좌표(위도/경도)가 없는 장소가 섞여 있는 경우
+    PLACE_LOCATION_MISSING(HttpStatus.BAD_REQUEST, "좌표 정보가 없는 장소가 포함되어 있습니다."),
 
     // ===== 장소(Place) 관련 =====
     // PlaceService의 장소 상세 조회, TravelDetailService가 여행 일정에 장소를 추가할 때
