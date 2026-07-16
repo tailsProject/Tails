@@ -9,6 +9,7 @@ import com.tails.member.dto.MemberJoinRequest;
 import com.tails.member.dto.MemberLoginRequest;
 import com.tails.member.dto.MemberResponse;
 import com.tails.member.dto.MemberUpdateRequest;
+import com.tails.member.dto.MyStatsResponse;
 import com.tails.member.dto.PasswordChangeRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -124,6 +125,12 @@ public class MemberController {
     public ApiResponse<Void> deleteProfileImage(@AuthenticationPrincipal CustomUserDetails userDetails) {
         memberService.deleteProfileImage(userDetails.getMemberId());
         return ApiResponse.success();
+    }
+
+    @GetMapping("/me/stats")
+    @Operation(summary = "마이페이지 통계 조회", description = "내 여행 일정/찜한 장소/작성 리뷰 개수를 조회합니다.")
+    public ApiResponse<MyStatsResponse> getMyStats(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(memberService.getMyStats(userDetails.getMemberId()));
     }
 
     @DeleteMapping("/me")
