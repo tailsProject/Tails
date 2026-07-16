@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -69,6 +70,11 @@ public class Travel {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    // 공유 링크용 토큰. null이면 "공유 안 함" — UNIQUE 제약이어도 NULL끼리는 중복 검사에서 제외되므로
+    // 공유 안 하는 Travel이 여러 개 있어도 문제없음
+    @Column(name = "share_token", unique = true, length = 36)
+    private String shareToken;
+
     @Builder
     public Travel(Member member, String title, LocalDate startDate, LocalDate endDate) {
         this.member = member;
@@ -81,5 +87,16 @@ public class Travel {
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    // 공유 링크 (재)발급. 이미 공유 중이었어도 항상 새 UUID로 교체해 기존 링크를 무효화
+    public String generateShareToken() {
+        this.shareToken = UUID.randomUUID().toString();
+        return this.shareToken;
+    }
+
+    // 공유 중단(비공개 전환)
+    public void revokeShareToken() {
+        this.shareToken = null;
     }
 }
