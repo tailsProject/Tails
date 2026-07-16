@@ -2,6 +2,8 @@ package com.tails.travel;
 
 import com.tails.common.response.ApiResponse;
 import com.tails.common.security.CustomUserDetails;
+import com.tails.travel.dto.ShareTokenResponse;
+import com.tails.travel.dto.SharedTravelResponse;
 import com.tails.travel.dto.TravelCreateRequest;
 import com.tails.travel.dto.TravelResponse;
 import com.tails.travel.dto.TravelUpdateRequest;
@@ -72,5 +74,32 @@ public class TravelController {
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         travelService.deleteTravel(travelId, userDetails.getMemberId());
         return ApiResponse.success();
+    }
+
+    // 여행 일정 공유 링크 발급(재발급 시 기존 링크 무효화). 본인 소유가 아니면 접근 거부
+    @PostMapping("/{travelId}/share")
+    @Operation(summary = "여행 일정 공유 링크 발급", description = "travelId 여행 일정의 공유 링크를 발급(재발급 시 기존 링크는 무효화)합니다.")
+    public ApiResponse<ShareTokenResponse> shareTravel(
+            @PathVariable Long travelId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(travelService.shareTravel(travelId, userDetails.getMemberId()));
+    }
+
+    // 여행 일정 공유 중단(비공개 전환). 본인 소유가 아니면 접근 거부
+    @DeleteMapping("/{travelId}/share")
+    @Operation(summary = "여행 일정 공유 중단", description = "travelId 여행 일정의 공유를 중단합니다. 이후 기존 공유 링크는 사용할 수 없습니다.")
+    public ApiResponse<Void> unshareTravel(
+            @PathVariable Long travelId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        travelService.unshareTravel(travelId, userDetails.getMemberId());
+        return ApiResponse.success();
+    }
+
+    // 공유 링크로 여행 일정 읽기 전용 조회. 로그인 불필요 (SecurityConfig의 GET /api/travels/shared/** permitAll 규칙 참고 —
+    // /api/travels/{travelId}(숫자 PK)와 경로 구조가 달라 서로 충돌하지 않음)
+    @GetMapping("/shared/{shareToken}")
+    @Operation(summary = "공유된 여행 일정 조회", description = "공유 토큰으로 여행 일정을 읽기 전용 조회합니다. 로그인 불필요.")
+    public ApiResponse<SharedTravelResponse> getSharedTravel(@PathVariable String shareToken) {
+        return ApiResponse.success(travelService.getSharedTravel(shareToken));
     }
 }

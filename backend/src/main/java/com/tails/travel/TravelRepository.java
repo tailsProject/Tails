@@ -2,6 +2,7 @@ package com.tails.travel;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TravelRepository extends JpaRepository<Travel, Long> {
@@ -14,4 +15,7 @@ public interface TravelRepository extends JpaRepository<Travel, Long> {
 
     // 여행 리마인더 스케줄러용
     List<Travel> findByStartDate(LocalDate startDate);
+
+    // 공유 링크(GET /api/travels/shared/{token})용. shareToken이 unique라 0건 또는 1건만 나옴
+    Optional<Travel> findByShareToken(String shareToken);
 }

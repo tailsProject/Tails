@@ -3,9 +3,13 @@ package com.tails.travel;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.member.MemberRepository;
+import com.tails.travel.dto.ShareTokenResponse;
+import com.tails.travel.dto.SharedTravelResponse;
 import com.tails.travel.dto.TravelCreateRequest;
 import com.tails.travel.dto.TravelResponse;
 import com.tails.travel.dto.TravelUpdateRequest;
+import com.tails.traveldetail.TravelDetail;
+import com.tails.traveldetail.TravelDetailRepository;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +23,7 @@ public class TravelService {
 
     private final TravelRepository travelRepository;
     private final MemberRepository memberRepository;
+    private final TravelDetailRepository travelDetailRepository;
 
     // 여행 일정 생성
     @Transactional
@@ -88,6 +93,45 @@ public class TravelService {
         }
 
         travelRepository.delete(travel);
+    }
+
+    // 여행 일정 공유 링크 (재)발급. 이미 공유 중이었어도 항상 새 토큰으로 교체해 기존 링크를 무효화
+    @Transactional
+    public ShareTokenResponse shareTravel(Long travelId, Long memberId) {
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TRAVEL_NOT_FOUND));
+
+        if (!travelRepository.existsByTravelIdAndMember_Id(travelId, memberId)) {
+            throw new CustomException(ErrorCode.NOT_TRAVEL_OWNER);
+        }
+
+        return new ShareTokenResponse(travel.generateShareToken());
+    }
+
+    // 여행 일정 공유 중단(비공개 전환)
+    @Transactional
+    public void unshareTravel(Long travelId, Long memberId) {
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TRAVEL_NOT_FOUND));
+
+        if (!travelRepository.existsByTravelIdAndMember_Id(travelId, memberId)) {
+            throw new CustomException(ErrorCode.NOT_TRAVEL_OWNER);
+        }
+
+        travel.revokeShareToken();
+    }
+
+    // 공유 토큰으로 여행 일정을 읽기 전용 조회. 로그인 불필요 — 토큰을 아는 것 자체가 접근 권한이라
+    // 소유권 확인이 없음. 존재하지 않거나 공유 중단된 토큰은 SHARED_TRAVEL_NOT_FOUND 하나로 통일
+    @Transactional(readOnly = true)
+    public SharedTravelResponse getSharedTravel(String shareToken) {
+        Travel travel = travelRepository.findByShareToken(shareToken)
+                .orElseThrow(() -> new CustomException(ErrorCode.SHARED_TRAVEL_NOT_FOUND));
+
+        List<TravelDetail> details = travelDetailRepository
+                .findByTravel_TravelIdOrderByTravelDateAscSequenceAsc(travel.getTravelId());
+
+        return SharedTravelResponse.of(travel, details);
     }
 
     // 종료일이 시작일보다 빠르면 예외 (createTravel/updateTravel 공통)
