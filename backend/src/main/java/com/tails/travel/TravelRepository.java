@@ -18,4 +18,7 @@ public interface TravelRepository extends JpaRepository<Travel, Long> {
 
     // 공유 링크(GET /api/travels/shared/{token})용. shareToken이 unique라 0건 또는 1건만 나옴
     Optional<Travel> findByShareToken(String shareToken);
+
+    // 마이페이지 통계용 - 내 여행 일정 개수
+    long countByMember_Id(Long memberId);
 }

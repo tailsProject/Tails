@@ -19,4 +19,7 @@ public interface PlaceBookmarkRepository extends JpaRepository<PlaceBookmark, Lo
     // PlaceResponse는 Place 자신의 필드만 읽어서 board 쪽과 달리 fetch join은 불필요
     @Query("select p from PlaceBookmark pb join pb.place p where pb.member.id = :memberId order by pb.createdAt desc")
     Page<Place> findBookmarkedPlacesByMemberId(@Param("memberId") Long memberId, Pageable pageable);
+
+    // 마이페이지 통계용 - 내가 찜한 장소 개수
+    long countByMemberId(Long memberId);
 }
