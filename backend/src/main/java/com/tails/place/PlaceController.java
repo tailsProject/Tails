@@ -1,6 +1,8 @@
 package com.tails.place;
 
 import com.tails.common.response.ApiResponse;
+import com.tails.common.security.CustomUserDetails;
+import com.tails.place.dto.PlaceRecommendationResponse;
 import com.tails.place.dto.PlaceResponse;
 import com.tails.place.dto.PlaceSearchResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PlaceController {
 
     private final PlaceService placeService;
+    private final PlaceRecommendationService placeRecommendationService;
 
     // 장소 상세 조회 (GET /api/places/{placeId})
     @GetMapping("/{placeId}")
@@ -65,5 +69,13 @@ public class PlaceController {
             @RequestParam(required = true) String cat1,
             @RequestParam(required = false) String cat2) {
         return ApiResponse.success(placeService.getPlacesByCategory(cat1, cat2));
+    }
+
+    // 개인화 장소 추천 - 로그인한 회원의 찜/리뷰 이력(카테고리 취향) 기반. 다른 조회 API와 달리 로그인 필요
+    @GetMapping("/recommendations")
+    @Operation(summary = "개인화 장소 추천", description = "로그인한 회원의 찜/리뷰 이력(카테고리 취향)을 바탕으로 아직 안 가본 비슷한 장소를 추천합니다. 로그인 필요.")
+    public ApiResponse<List<PlaceRecommendationResponse>> getRecommendations(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ApiResponse.success(placeRecommendationService.recommend(userDetails.getMemberId()));
     }
 }
