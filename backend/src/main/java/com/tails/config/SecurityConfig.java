@@ -55,6 +55,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/boards", "/api/boards/{boardId:[0-9]+}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/boards/{boardId}/images", "/api/reviews/{reviewId}/images").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/boards/{boardId:[0-9]+}/comments").permitAll()
+                        // 공유 토큰만 알면 로그인 없이 조회 가능. /api/travels/{travelId}(숫자 PK)와 경로 구조가 달라 충돌 없음
+                        .requestMatchers(HttpMethod.GET, "/api/travels/shared/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         // "/api/places/**" 하위 permitAll 규칙보다 먼저 선언해야 우선 매칭된다
                         .requestMatchers("/api/places/sync/**").hasRole("ADMIN")
