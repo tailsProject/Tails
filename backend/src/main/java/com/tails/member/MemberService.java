@@ -1,6 +1,7 @@
 package com.tails.member;
 
 import com.tails.board.BoardRepository;
+import com.tails.bookmark.PlaceBookmarkRepository;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.common.security.AuthService;
@@ -11,7 +12,10 @@ import com.tails.member.dto.MemberJoinRequest;
 import com.tails.member.dto.MemberLoginRequest;
 import com.tails.member.dto.MemberResponse;
 import com.tails.member.dto.MemberUpdateRequest;
+import com.tails.member.dto.MyStatsResponse;
 import com.tails.member.dto.PasswordChangeRequest;
+import com.tails.review.ReviewRepository;
+import com.tails.travel.TravelRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
@@ -35,6 +39,10 @@ public class MemberService {
     private final FileStorage fileStorage;
     // 회원 탈퇴 시 좋아요 눌렀던 게시글의 likeCount를 벌크로 낮추는 용도(withdraw 참고)
     private final BoardRepository boardRepository;
+    // 마이페이지 통계(getMyStats)용
+    private final TravelRepository travelRepository;
+    private final PlaceBookmarkRepository placeBookmarkRepository;
+    private final ReviewRepository reviewRepository;
 
     @Transactional
     public Long join(MemberJoinRequest request) {
@@ -165,6 +173,13 @@ public class MemberService {
         if (currentUrl != null && currentUrl.startsWith(UPLOAD_URL_PREFIX)) {
             fileStorage.deleteAfterCommit(currentUrl.substring(UPLOAD_URL_PREFIX.length()));
         }
+    }
+
+    public MyStatsResponse getMyStats(Long memberId) {
+        return new MyStatsResponse(
+                travelRepository.countByMember_Id(memberId),
+                placeBookmarkRepository.countByMemberId(memberId),
+                reviewRepository.countByMember_Id(memberId));
     }
 
     public boolean isEmailDuplicated(String email) {

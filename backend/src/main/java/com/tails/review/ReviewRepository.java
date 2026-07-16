@@ -27,4 +27,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query(value = "select r from Review r left join fetch r.place where r.member.id = :memberId order by r.createdAt desc",
             countQuery = "select count(r) from Review r where r.member.id = :memberId")
     Page<Review> findByMemberIdWithPlace(@Param("memberId") Long memberId, Pageable pageable);
+
+    // 마이페이지 통계용 - 내가 작성한 리뷰 개수
+    long countByMember_Id(Long memberId);
 }
