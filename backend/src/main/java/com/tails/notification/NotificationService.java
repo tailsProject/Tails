@@ -5,6 +5,7 @@ import com.tails.common.exception.ErrorCode;
 import com.tails.member.Member;
 import com.tails.member.MemberRepository;
 import com.tails.notification.dto.NotificationResponse;
+import com.tails.notification.fcm.FcmService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final MemberRepository memberRepository;
+    private final FcmService fcmService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void create(Long recipientId, NotificationType type, String content, Long targetId) {
@@ -31,6 +33,9 @@ public class NotificationService {
                 .targetId(targetId)
                 .build();
         notificationRepository.save(notification);
+
+        // recipient는 LAZY 프록시라 fcmService 안에서 getFcmToken() 호출 시 SELECT가 나간다
+        fcmService.send(recipient, "Tails", content);
     }
 
     public Page<NotificationResponse> getMyNotifications(Long memberId, Pageable pageable) {
