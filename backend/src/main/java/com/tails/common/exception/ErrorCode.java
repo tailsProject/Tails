@@ -74,7 +74,11 @@ public enum ErrorCode {
 
     // ===== 알림(Notification) 관련 =====
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "알림을 찾을 수 없습니다."),
-    NOT_NOTIFICATION_OWNER(HttpStatus.FORBIDDEN, "본인의 알림만 읽음 처리할 수 있습니다.");
+    NOT_NOTIFICATION_OWNER(HttpStatus.FORBIDDEN, "본인의 알림만 읽음 처리할 수 있습니다."),
+
+    // ===== 신고(Report) 관련 =====
+    CANNOT_REPORT_SELF(HttpStatus.BAD_REQUEST, "자기 자신(또는 자신의 글/댓글)은 신고할 수 없습니다."),
+    DUPLICATE_REPORT(HttpStatus.CONFLICT, "이미 신고한 대상입니다.");
 
     private final HttpStatus status;
     private final String message;
