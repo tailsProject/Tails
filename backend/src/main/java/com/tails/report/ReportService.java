@@ -7,6 +7,7 @@ import com.tails.comment.CommentRepository;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.member.MemberRepository;
+import com.tails.report.dto.AdminReportResponse;
 import com.tails.report.dto.ReportCreateRequest;
 import com.tails.report.dto.ReportResponse;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,18 @@ public class ReportService {
 
     public Page<ReportResponse> getMyReports(Long memberId, Pageable pageable) {
         return reportRepository.findByReporterId(memberId, pageable).map(ReportResponse::from);
+    }
+
+    // 관리자 신고 처리 큐 조회. 기본으로 미처리(PENDING) 건만 보여준다
+    public Page<AdminReportResponse> getReportsByStatus(ReportStatus status, Pageable pageable) {
+        return reportRepository.findByStatus(status, pageable).map(AdminReportResponse::from);
+    }
+
+    @Transactional
+    public void resolve(Long reportId) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REPORT_NOT_FOUND));
+        report.markAsResolved();
     }
 
     // 자기 신고 방지: MEMBER 신고는 대상이 본인, BOARD/COMMENT 신고는 그 글/댓글 작성자가 본인인 경우
