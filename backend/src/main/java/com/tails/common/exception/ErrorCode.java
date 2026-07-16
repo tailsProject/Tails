@@ -56,6 +56,8 @@ public enum ErrorCode {
     INVALID_SEQUENCE_REQUEST(HttpStatus.BAD_REQUEST, "순서 재정렬 요청이 올바르지 않습니다."),
     // 경로 최적화 대상 날짜에 좌표(위도/경도)가 없는 장소가 섞여 있는 경우
     PLACE_LOCATION_MISSING(HttpStatus.BAD_REQUEST, "좌표 정보가 없는 장소가 포함되어 있습니다."),
+    // 공유 토큰이 존재하지 않거나 공유가 중단된 경우. 소유자 존재 여부를 추측할 단서를 안 주려고 404 하나로 통일
+    SHARED_TRAVEL_NOT_FOUND(HttpStatus.NOT_FOUND, "공유된 여행 일정을 찾을 수 없습니다."),
 
     // ===== 장소(Place) 관련 =====
     // PlaceService의 장소 상세 조회, TravelDetailService가 여행 일정에 장소를 추가할 때
