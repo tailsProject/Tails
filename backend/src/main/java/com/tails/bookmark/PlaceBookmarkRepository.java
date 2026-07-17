@@ -22,4 +22,13 @@ public interface PlaceBookmarkRepository extends JpaRepository<PlaceBookmark, Lo
 
     // 마이페이지 통계용 - 내가 찜한 장소 개수
     long countByMemberId(Long memberId);
+
+    // 찜 많은 순 장소 랭킹용. 장소별로 묶어(group by) 찜 개수 내림차순 정렬하고,
+    // 개수가 같으면 placeId 오름차순(2차 정렬)으로 페이지가 바뀌어도 순서가 흔들리지 않게 함.
+    // 찜이 하나도 없는 장소는 묶일 그룹 자체가 없어 결과에서 자연히 제외됨(의도된 동작).
+    // 각 행이 [Place, 찜 개수(Long)] 쌍의 Object[]로 내려옴 (리뷰 평점 랭킹과 동일한 집계 패턴)
+    @Query(value = "select p, count(pb) from PlaceBookmark pb join pb.place p "
+            + "group by p order by count(pb) desc, p.placeId asc",
+            countQuery = "select count(distinct pb.place) from PlaceBookmark pb")
+    Page<Object[]> findPlaceBookmarkCounts(Pageable pageable);
 }
