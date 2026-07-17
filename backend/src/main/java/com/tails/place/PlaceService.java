@@ -3,8 +3,10 @@ package com.tails.place;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.common.util.GeoUtil;
+import com.tails.place.dto.PlaceRatingResponse;
 import com.tails.place.dto.PlaceResponse;
 import com.tails.place.dto.PlaceSearchResponse;
+import com.tails.review.ReviewRepository;
 import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class PlaceService {
 
     private final PlaceRepository placeRepository;
+    // 랭킹 조회 전용. Review 테이블을 집계한 결과라 이 Service가 직접 참조 —
+    // ReviewService를 거치지 않는 이유는 집계 쿼리 하나만 필요할 뿐, 리뷰 CRUD 책임까지 끌어올 필요가 없어서
+    private final ReviewRepository reviewRepository;
 
     
     // 장소 상세 조회.
@@ -106,5 +111,12 @@ public class PlaceService {
         return places.stream()
                 .map(PlaceResponse::from)
                 .toList();
+    }
+
+    // 평점 높은 순 장소 랭킹. 집계 쿼리가 [Place, 평균 별점] 쌍의 Object[]로 반환하므로
+    // 각 자리 타입을 아는 여기서 캐스팅해 dto로 변환 (정렬은 쿼리에 고정돼 있어 Pageable의 sort는 안 쓰임)
+    public Page<PlaceRatingResponse> getPlacesRankedByRating(Pageable pageable) {
+        return reviewRepository.findPlacesOrderByAverageRating(pageable)
+                .map(row -> PlaceRatingResponse.of((Place) row[0], (Double) row[1]));
     }
 }

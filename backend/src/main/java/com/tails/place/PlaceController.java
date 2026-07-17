@@ -2,6 +2,7 @@ package com.tails.place;
 
 import com.tails.common.response.ApiResponse;
 import com.tails.common.security.CustomUserDetails;
+import com.tails.place.dto.PlaceRatingResponse;
 import com.tails.place.dto.PlaceRecommendationResponse;
 import com.tails.place.dto.PlaceResponse;
 import com.tails.place.dto.PlaceSearchResponse;
@@ -69,6 +70,14 @@ public class PlaceController {
             @RequestParam(required = true) String cat1,
             @RequestParam(required = false) String cat2) {
         return ApiResponse.success(placeService.getPlacesByCategory(cat1, cat2));
+    }
+
+    // 평점순 장소 랭킹 (기본 20개 — 정렬 기준은 평점으로 고정이라 sort 파라미터는 무시됨)
+    @GetMapping("/rankings/rating")
+    @Operation(summary = "평점순 장소 랭킹", description = "리뷰 평균 별점이 높은 순으로 장소를 정렬합니다. 리뷰가 하나도 없는 장소는 제외됩니다.")
+    public ApiResponse<Page<PlaceRatingResponse>> getPlacesRankedByRating(
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ApiResponse.success(placeService.getPlacesRankedByRating(pageable));
     }
 
     // 개인화 장소 추천 - 로그인한 회원의 찜/리뷰 이력(카테고리 취향) 기반. 다른 조회 API와 달리 로그인 필요
