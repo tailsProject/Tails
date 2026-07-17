@@ -13,6 +13,8 @@ import com.tails.traveldetail.TravelDetailRepository;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,12 +44,11 @@ public class TravelService {
         return TravelResponse.from(savedTravel);
     }
 
-    // 내 여행 일정 목록 조회
+    // 내 여행 일정 목록 페이지 단위 조회
     @Transactional(readOnly = true)
-    public List<TravelResponse> getMyTravels(Long memberId) {
-        return travelRepository.findByMember_Id(memberId).stream()
-                .map(TravelResponse::from)
-                .toList();
+    public Page<TravelResponse> getMyTravels(Long memberId, Pageable pageable) {
+        return travelRepository.findByMember_Id(memberId, pageable)
+                .map(TravelResponse::from);
     }
 
     // 여행 일정 상세 조회. 미존재 시 404, 소유자 아니면 403

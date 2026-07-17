@@ -10,8 +10,11 @@ import com.tails.travel.dto.TravelUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,11 +43,13 @@ public class TravelController {
         return ApiResponse.success(travelService.createTravel(userDetails.getMemberId(), request));
     }
 
-    // 내 여행 일정 목록 조회
+    // 내 여행 일정 목록 페이지 단위 조회 (기본: 시작일 내림차순 10개)
     @GetMapping
-    @Operation(summary = "내 여행 일정 목록 조회", description = "로그인한 회원이 만든 여행 일정 목록을 조회합니다.")
-    public ApiResponse<List<TravelResponse>> getMyTravels(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ApiResponse.success(travelService.getMyTravels(userDetails.getMemberId()));
+    @Operation(summary = "내 여행 일정 목록 조회", description = "로그인한 회원이 만든 여행 일정 목록을 페이지 단위로 조회합니다. (기본: 시작일 내림차순 10개)")
+    public ApiResponse<Page<TravelResponse>> getMyTravels(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PageableDefault(size = 10, sort = "startDate", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ApiResponse.success(travelService.getMyTravels(userDetails.getMemberId(), pageable));
     }
 
     // 여행 일정 상세 조회
