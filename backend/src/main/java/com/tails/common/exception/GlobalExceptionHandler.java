@@ -3,6 +3,7 @@ package com.tails.common.exception;
 import com.tails.common.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
@@ -41,6 +42,14 @@ public class GlobalExceptionHandler {
         log.warn("DB 제약 조건 위반", e);
         return ResponseEntity.status(ErrorCode.DUPLICATE_RESOURCE.getStatus())
                 .body(ApiResponse.error(ErrorCode.DUPLICATE_RESOURCE));
+    }
+
+    // 낙관적 락 충돌 처리
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<ApiResponse<Void>> handleOptimisticLockingFailure(ObjectOptimisticLockingFailureException e) {
+        log.warn("낙관적 락 충돌", e);
+        return ResponseEntity.status(ErrorCode.CONCURRENT_UPDATE_CONFLICT.getStatus())
+                .body(ApiResponse.error(ErrorCode.CONCURRENT_UPDATE_CONFLICT));
     }
     
     // 요청 데이터 변환 예외 처리

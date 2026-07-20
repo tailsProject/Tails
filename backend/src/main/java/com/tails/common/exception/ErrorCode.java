@@ -13,6 +13,7 @@ public enum ErrorCode {
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "요청 값이 올바르지 않습니다."),
     DUPLICATE_RESOURCE(HttpStatus.CONFLICT, "이미 사용 중인 정보입니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다."),
+    CONCURRENT_UPDATE_CONFLICT(HttpStatus.CONFLICT, "다른 요청과 동시에 처리되어 실패했습니다. 잠시 후 다시 시도해주세요."),
 
     // ===== 회원(Member) 관련 =====
     PASSWORD_NOT_MATCHED(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
