@@ -54,6 +54,17 @@ oauth2.success-redirect-url=${OAUTH2_SUCCESS_REDIRECT_URL:http://localhost:3000/
 # FCM 푸시 알림 - 비워두면 자동 비활성화된다
 firebase.credentials-path=${FIREBASE_CREDENTIALS_PATH:}
 
+# 이메일 인증 / 비밀번호 재설정 발송용 SMTP
+spring.mail.host=${MAIL_HOST:smtp.gmail.com}
+spring.mail.port=${MAIL_PORT:587}
+spring.mail.username=${MAIL_USERNAME:YOUR_MAIL_USERNAME}
+spring.mail.password=${MAIL_PASSWORD:YOUR_MAIL_APP_PASSWORD}
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+
+app.email-verify-url=${APP_EMAIL_VERIFY_URL:http://localhost:3000/verify-email}
+app.password-reset-url=${APP_PASSWORD_RESET_URL:http://localhost:3000/reset-password}
+
 file.upload-dir=uploads
 spring.servlet.multipart.max-file-size=5MB
 spring.servlet.multipart.max-request-size=25MB
