@@ -6,6 +6,7 @@ import com.tails.place.sync.dto.PetTourDetailItem;
 import com.tails.place.sync.dto.PetTourListItem;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.List;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
@@ -24,6 +25,11 @@ public class PetTourApiClient {
     private static final String MOBILE_APP = "Tails";
     static final String SUCCESS_RESULT_CODE = "0000";
 
+    // 연결/응답 타임아웃 없으면 TourAPI가 응답을 지연시키거나 연결만 맺어둔 채 멈출 때
+    // 동기화 요청(최대 100건씩 반복 호출) 스레드가 무한정 블로킹될 수 있음
+    private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
+    private static final Duration READ_TIMEOUT = Duration.ofSeconds(10);
+
     private final RestClient restClient;
     private final TourApiProperties tourApiProperties;
 
@@ -32,7 +38,11 @@ public class PetTourApiClient {
         // 이걸 못 받아줘서 502발생. HTTP/1.1로 고정하면 정상 응답
         HttpClient httpClient = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_1_1)
+                .connectTimeout(CONNECT_TIMEOUT)
                 .build();
+
+        JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory(httpClient);
+        requestFactory.setReadTimeout(READ_TIMEOUT);
 
         // 상세정보가 없는 항목은 TourAPI가 "items":{} 대신 "items":"" (빈 문자열)로 내려줘서,
         // 이 옵션이 없으면 TourApiItems로 역직렬화하다가 예외가 나 fetchDetail 전체가 실패 처리
@@ -41,7 +51,7 @@ public class PetTourApiClient {
 
         this.restClient = RestClient.builder()
                 .baseUrl(BASE_URL)
-                .requestFactory(new JdkClientHttpRequestFactory(httpClient))
+                .requestFactory(requestFactory)
                 .messageConverters(converters -> converters.add(0, new MappingJackson2HttpMessageConverter(objectMapper)))
                 .build();
         this.tourApiProperties = tourApiProperties;
