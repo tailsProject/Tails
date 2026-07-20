@@ -79,6 +79,8 @@ public class PlaceController {
     public ApiResponse<Page<PlaceBookmarkCountResponse>> getPlacesRankedByBookmarkCount(
             @PageableDefault(size = 20) Pageable pageable) {
         return ApiResponse.success(placeService.getPlacesRankedByBookmarkCount(pageable));
+    }
+
     // 평점순 장소 랭킹 (기본 20개 — 정렬 기준은 평점으로 고정이라 sort 파라미터는 무시됨)
     @GetMapping("/rankings/rating")
     @Operation(summary = "평점순 장소 랭킹", description = "리뷰 평균 별점이 높은 순으로 장소를 정렬합니다. 리뷰가 하나도 없는 장소는 제외됩니다.")
