@@ -37,6 +37,12 @@ public class TravelDetailService {
     public TravelDetailResponse addTravelDetail(Long travelId, Long memberId, TravelDetailCreateRequest request) {
         Travel travel = validateTravelOwnership(travelId, memberId);
 
+        // travelDate가 여행 기간(startDate~endDate) 안인지 확인 — TravelService.validateDateRange는
+        // Travel 자체의 startDate/endDate 순서만 보고, TravelDetail이 그 범위 안에 있는지는 별개로 확인해야 함
+        if (request.travelDate().isBefore(travel.getStartDate()) || request.travelDate().isAfter(travel.getEndDate())) {
+            throw new CustomException(ErrorCode.INVALID_DATE_RANGE);
+        }
+
         Place place = placeRepository.findById(request.placeId())
                 .orElseThrow(() -> new CustomException(ErrorCode.PLACE_NOT_FOUND));
 
