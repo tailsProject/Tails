@@ -1,10 +1,11 @@
 package com.tails.pet.dto;
 
 import com.tails.pet.Pet;
+import java.time.LocalDate;
 
-// MemberResponse에 반려동물 목록을 담아 내려주기 위한 최소 응답 DTO
-public record PetResponse(Long petId, String name) {
+// 반려동물 응답 - 단건 조회(PetController)와 MemberResponse 목록 항목에서 공통 사용
+public record PetResponse(Long petId, String name, String species, LocalDate birthDate) {
     public static PetResponse from(Pet pet) {
-        return new PetResponse(pet.getId(), pet.getName());
+        return new PetResponse(pet.getId(), pet.getName(), pet.getSpecies(), pet.getBirthDate());
     }
 }

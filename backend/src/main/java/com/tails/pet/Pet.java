@@ -2,12 +2,13 @@ package com.tails.pet;
 
 import com.tails.member.Member;
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/* 반려동물 최소 구현 — Member.pets 컴파일용. Pet CRUD는 별도 구현 예정. */
+// 반려동물 엔티티
 @Entity
 @Table(name = "pet")
 @Getter
@@ -26,9 +27,24 @@ public class Pet {
     @Column(nullable = false, length = 50)
     private String name;
 
+    // 강아지/고양이 등 - 자유 입력 텍스트
+    @Column(length = 30)
+    private String species;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
+
     @Builder
-    public Pet(Member member, String name) {
+    public Pet(Member member, String name, String species, LocalDate birthDate) {
         this.member = member;
         this.name = name;
+        this.species = species;
+        this.birthDate = birthDate;
+    }
+
+    public void changeInfo(String name, String species, LocalDate birthDate) {
+        this.name = name;
+        this.species = species;
+        this.birthDate = birthDate;
     }
 }

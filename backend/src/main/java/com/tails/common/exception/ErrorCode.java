@@ -79,7 +79,11 @@ public enum ErrorCode {
     // ===== 신고(Report) 관련 =====
     CANNOT_REPORT_SELF(HttpStatus.BAD_REQUEST, "자기 자신(또는 자신의 글/댓글)은 신고할 수 없습니다."),
     DUPLICATE_REPORT(HttpStatus.CONFLICT, "이미 신고한 대상입니다."),
-    REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "신고를 찾을 수 없습니다.");
+    REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "신고를 찾을 수 없습니다."),
+
+    // ===== 반려동물(Pet) 관련 =====
+    PET_NOT_FOUND(HttpStatus.NOT_FOUND, "반려동물을 찾을 수 없습니다."),
+    NOT_PET_OWNER(HttpStatus.FORBIDDEN, "본인의 반려동물만 수정/삭제할 수 있습니다.");
 
     private final HttpStatus status;
     private final String message;
