@@ -6,6 +6,7 @@ import com.tails.common.mail.EmailToken;
 import com.tails.common.mail.EmailTokenRepository;
 import com.tails.common.mail.EmailTokenType;
 import com.tails.common.mail.MailService;
+import com.tails.common.security.dto.PasswordResetConfirmRequest;
 import com.tails.member.Member;
 import com.tails.member.MemberRepository;
 import io.jsonwebtoken.Claims;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final EmailTokenRepository emailTokenRepository;
     private final MailService mailService;
+    private final PasswordEncoder passwordEncoder;
     private final long refreshExpirationMillis;
 
     public AuthService(JwtProvider jwtProvider,
@@ -38,6 +41,7 @@ public class AuthService {
                         MemberRepository memberRepository,
                         EmailTokenRepository emailTokenRepository,
                         MailService mailService,
+                        PasswordEncoder passwordEncoder,
                         @Value("${jwt.refresh-expiration}") long refreshExpirationMillis) {
         this.jwtProvider = jwtProvider;
         this.refreshTokenStore = refreshTokenStore;
@@ -45,6 +49,7 @@ public class AuthService {
         this.memberRepository = memberRepository;
         this.emailTokenRepository = emailTokenRepository;
         this.mailService = mailService;
+        this.passwordEncoder = passwordEncoder;
         this.refreshExpirationMillis = refreshExpirationMillis;
     }
 
@@ -108,6 +113,31 @@ public class AuthService {
         EmailToken emailToken = getValidEmailTokenOrThrow(token, EmailTokenType.SIGNUP_VERIFY);
         emailToken.getMember().markEmailVerified();
         emailTokenRepository.delete(emailToken);
+    }
+
+    // 가입 안 된 이메일이어도 조용히 반환(계정 열거 방지)
+    @Transactional
+    public void requestPasswordReset(String email) {
+        memberRepository.findByEmail(email.trim().toLowerCase()).ifPresent(member -> {
+            String token = upsertEmailToken(member, EmailTokenType.PASSWORD_RESET);
+            mailService.sendPasswordResetMail(member.getEmail(), token);
+        });
+    }
+
+    @Transactional
+    public void resetPassword(PasswordResetConfirmRequest request) {
+        if (!request.newPassword().equals(request.newPasswordConfirm())) {
+            throw new CustomException(ErrorCode.PASSWORD_NOT_MATCHED);
+        }
+        EmailToken emailToken = getValidEmailTokenOrThrow(request.token(), EmailTokenType.PASSWORD_RESET);
+
+        Member member = emailToken.getMember();
+        if (passwordEncoder.matches(request.newPassword(), member.getPassword())) {
+            throw new CustomException(ErrorCode.SAME_AS_OLD_PASSWORD);
+        }
+        member.changePassword(passwordEncoder.encode(request.newPassword()));
+        emailTokenRepository.delete(emailToken);
+        refreshTokenStore.delete(member.getId());
     }
 
     // (member, type)당 한 행만 유지 - 기존 토큰이 있으면 갱신, 없으면 신규 생성

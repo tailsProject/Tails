@@ -5,6 +5,8 @@ import com.tails.common.exception.ErrorCode;
 import com.tails.common.response.ApiResponse;
 import com.tails.common.security.dto.AccessTokenResponse;
 import com.tails.common.security.dto.EmailVerifyRequest;
+import com.tails.common.security.dto.PasswordResetConfirmRequest;
+import com.tails.common.security.dto.PasswordResetRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,11 +21,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-// 토큰 재발급/로그아웃/이메일 인증 API - SecurityConfig에서 전부 permitAll
+// 토큰 재발급/로그아웃/이메일 인증/비밀번호 재설정 API - SecurityConfig에서 전부 permitAll
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Tag(name = "Auth", description = "토큰 재발급 / 로그아웃 / 이메일 인증 API")
+@Tag(name = "Auth", description = "토큰 재발급 / 로그아웃 / 이메일 인증 / 비밀번호 재설정 API")
 public class AuthController {
 
     private final AuthService authService;
@@ -63,6 +65,20 @@ public class AuthController {
     @Operation(summary = "이메일 인증 처리", description = "인증 메일의 토큰을 검증하고 이메일 인증을 완료합니다.")
     public ApiResponse<Void> verifyEmail(@RequestParam String token) {
         authService.verifyEmail(token);
+        return ApiResponse.success();
+    }
+
+    @PostMapping("/password/reset-request")
+    @Operation(summary = "비밀번호 재설정 메일 발송", description = "가입한 이메일로 비밀번호 재설정 링크를 발송합니다. 30분간 유효.")
+    public ApiResponse<Void> requestPasswordReset(@Valid @RequestBody PasswordResetRequest request) {
+        authService.requestPasswordReset(request.email());
+        return ApiResponse.success();
+    }
+
+    @PostMapping("/password/reset")
+    @Operation(summary = "비밀번호 재설정 처리", description = "재설정 메일의 토큰을 검증하고 새 비밀번호로 변경합니다.")
+    public ApiResponse<Void> resetPassword(@Valid @RequestBody PasswordResetConfirmRequest request) {
+        authService.resetPassword(request);
         return ApiResponse.success();
     }
 }
