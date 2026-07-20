@@ -2,6 +2,7 @@ package com.tails.place;
 
 import com.tails.common.response.ApiResponse;
 import com.tails.common.security.CustomUserDetails;
+import com.tails.place.dto.PlaceBookmarkCountResponse;
 import com.tails.place.dto.PlaceRatingResponse;
 import com.tails.place.dto.PlaceRecommendationResponse;
 import com.tails.place.dto.PlaceResponse;
@@ -72,6 +73,12 @@ public class PlaceController {
         return ApiResponse.success(placeService.getPlacesByCategory(cat1, cat2));
     }
 
+    // 찜 개수순 장소 랭킹 (기본 20개 — 정렬 기준은 찜 개수로 고정이라 sort 파라미터는 무시됨)
+    @GetMapping("/rankings/popular")
+    @Operation(summary = "인기 장소 랭킹", description = "찜(북마크) 개수가 많은 순으로 장소를 정렬합니다. 찜이 하나도 없는 장소는 제외됩니다.")
+    public ApiResponse<Page<PlaceBookmarkCountResponse>> getPlacesRankedByBookmarkCount(
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ApiResponse.success(placeService.getPlacesRankedByBookmarkCount(pageable));
     // 평점순 장소 랭킹 (기본 20개 — 정렬 기준은 평점으로 고정이라 sort 파라미터는 무시됨)
     @GetMapping("/rankings/rating")
     @Operation(summary = "평점순 장소 랭킹", description = "리뷰 평균 별점이 높은 순으로 장소를 정렬합니다. 리뷰가 하나도 없는 장소는 제외됩니다.")
