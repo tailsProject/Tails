@@ -123,6 +123,8 @@ public class PlaceService {
     public Page<PlaceBookmarkCountResponse> getPlacesRankedByBookmarkCount(Pageable pageable) {
         return placeBookmarkRepository.findPlaceBookmarkCounts(pageable)
                 .map(row -> PlaceBookmarkCountResponse.of((Place) row[0], (Long) row[1]));
+    }
+
     // 평점 높은 순 장소 랭킹. 집계 쿼리가 [Place, 평균 별점] 쌍의 Object[]로 반환하므로
     // 각 자리 타입을 아는 여기서 캐스팅해 dto로 변환 (정렬은 쿼리에 고정돼 있어 Pageable의 sort는 안 쓰임)
     public Page<PlaceRatingResponse> getPlacesRankedByRating(Pageable pageable) {

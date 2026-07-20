@@ -112,7 +112,7 @@ public class ImageService {
         }
 
         imageRepository.delete(image);
-        fileStorage.delete(image.getStoredFileName());
+        fileStorage.deleteAfterCommit(image.getStoredFileName());
     }
 
     // 이미지 소유자의 회원 id 조회
