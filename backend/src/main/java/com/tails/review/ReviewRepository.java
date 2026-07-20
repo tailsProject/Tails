@@ -30,4 +30,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     // 마이페이지 통계용 - 내가 작성한 리뷰 개수
     long countByMember_Id(Long memberId);
+
+    // 평점 높은 순 장소 랭킹용. 장소별로 묶어(group by) 평균 별점 내림차순 정렬하고,
+    // 평점이 같으면 placeId 오름차순(2차 정렬)으로 페이지가 바뀌어도 순서가 흔들리지 않게 함.
+    // 리뷰가 하나도 없는 장소는 묶일 그룹 자체가 없어 결과에서 자연히 제외됨(의도된 동작).
+    // 반환 타입이 엔티티가 아니라 Object[] — 각 행이 [Place, 평균 별점(Double)] 쌍으로 내려옴
+    @Query(value = "select r.place, avg(r.rating) from Review r group by r.place order by avg(r.rating) desc, r.place.placeId asc",
+            countQuery = "select count(distinct r.place) from Review r")
+    Page<Object[]> findPlacesOrderByAverageRating(Pageable pageable);
 }

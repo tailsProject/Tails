@@ -95,7 +95,7 @@ public class ImageService {
     }
     // 리뷰 이미지 조회
     public List<ImageResponse> getByReview(Long reviewId) {
-        return imageRepository.findByReviewIdOrderByCreatedAtAsc(reviewId).stream()
+        return imageRepository.findByReview_ReviewIdOrderByCreatedAtAsc(reviewId).stream()
                 .map(ImageResponse::from)
                 .toList();
     }
