@@ -11,13 +11,14 @@ import com.tails.member.MemberRepository;
 import com.tails.notification.event.CommentCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 // 게시글 댓글 비즈니스 로직
 @Service
@@ -62,24 +63,17 @@ public class CommentService {
         return commentId;
     }
 
-    // 최상위 댓글 기준으로 답글을 묶어 반환
-    public List<CommentResponse> getList(Long boardId) {
-        List<Comment> comments = commentRepository.findByBoardIdOrderByCreatedAtAsc(boardId);
+    // 최상위 댓글 기준으로 페이징하고, 그 페이지의 답글만 별도로 모아 트리로 묶어 반환
+    public Page<CommentResponse> getList(Long boardId, Pageable pageable) {
+        Page<Comment> roots = commentRepository.findByBoardIdAndParentIsNull(boardId, pageable);
 
-        // 부모 댓글과 답글을 분리
-        Map<Long, List<Comment>> repliesByParentId = new HashMap<>();
-        List<Comment> roots = new ArrayList<>();
-        for (Comment comment : comments) {
-            if (comment.getParent() == null) {
-                roots.add(comment);
-            } else {
-                repliesByParentId.computeIfAbsent(comment.getParent().getId(), key -> new ArrayList<>()).add(comment);
-            }
-        }
+        List<Long> rootIds = roots.getContent().stream().map(Comment::getId).toList();
+        Map<Long, List<Comment>> repliesByParentId = rootIds.isEmpty()
+                ? Map.of()
+                : commentRepository.findByParentIdInOrderByCreatedAtAsc(rootIds).stream()
+                        .collect(Collectors.groupingBy(comment -> comment.getParent().getId()));
 
-        return roots.stream()
-                .map(root -> CommentResponse.of(root, toResponses(repliesByParentId.getOrDefault(root.getId(), List.of()))))
-                .toList();
+        return roots.map(root -> CommentResponse.of(root, toResponses(repliesByParentId.getOrDefault(root.getId(), List.of()))));
     }
 
     // 작성자 본인만 수정 가능
