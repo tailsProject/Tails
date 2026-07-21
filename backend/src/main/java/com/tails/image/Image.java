@@ -16,7 +16,10 @@ import java.time.LocalDateTime;
 
 // 게시글/후기 이미지 정보를 관리하는 엔티티
 @Entity
-@Table(name = "image")
+@Table(name = "image", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"board_id", "sequence"}),
+        @UniqueConstraint(columnNames = {"review_id", "sequence"})
+})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
@@ -47,15 +50,24 @@ public class Image {
     @Column(name = "original_file_name", nullable = false, length = 300)
     private String originalFileName;
 
+    // 이미지 순서/대표 이미지 지정. 0이 대표 이미지
+    @Column(nullable = false, columnDefinition = "INT NOT NULL DEFAULT 0")
+    private int sequence;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Builder
-    public Image(Board board, Review review, String storedFileName, String originalFileName) {
+    public Image(Board board, Review review, String storedFileName, String originalFileName, int sequence) {
         this.board = board;
         this.review = review;
         this.storedFileName = storedFileName;
         this.originalFileName = originalFileName;
+        this.sequence = sequence;
+    }
+
+    public void changeSequence(int sequence) {
+        this.sequence = sequence;
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 
 // 게시글/리뷰 이미지 업로드, 조회, 삭제 비즈니스 로직
@@ -39,14 +40,16 @@ public class ImageService {
             throw new CustomException(ErrorCode.NOT_IMAGE_OWNER);
         }
 
+        AtomicInteger sequence = new AtomicInteger((int) imageRepository.countByBoardId(boardId));
         return storeAndSave(files, (storedFileName, originalFileName) -> Image.builder()
                 .board(board)
                 .storedFileName(storedFileName)
                 .originalFileName(originalFileName)
+                .sequence(sequence.getAndIncrement())
                 .build());
     }
 
-    // 리뷰 작성자 본인만 업로드 가능. 
+    // 리뷰 작성자 본인만 업로드 가능.
     @Transactional
     public List<ImageResponse> uploadForReview(Long memberId, Long reviewId, List<MultipartFile> files) {
         Review review = reviewRepository.findById(reviewId)
@@ -55,10 +58,12 @@ public class ImageService {
             throw new CustomException(ErrorCode.NOT_IMAGE_OWNER);
         }
 
+        AtomicInteger sequence = new AtomicInteger((int) imageRepository.countByReview_ReviewId(reviewId));
         return storeAndSave(files, (storedFileName, originalFileName) -> Image.builder()
                 .review(review)
                 .storedFileName(storedFileName)
                 .originalFileName(originalFileName)
+                .sequence(sequence.getAndIncrement())
                 .build());
     }
 
@@ -87,9 +92,9 @@ public class ImageService {
             throw e;
         }
     }
-    // 게시글 이미지 조회
+    // 게시글 이미지 조회 - sequence 기준(대표 이미지가 항상 먼저 보임)
     public List<ImageResponse> getByBoard(Long boardId) {
-        return imageRepository.findByBoardIdOrderByCreatedAtAsc(boardId).stream()
+        return imageRepository.findByBoardIdOrderBySequenceAsc(boardId).stream()
                 .map(ImageResponse::from)
                 .toList();
     }
