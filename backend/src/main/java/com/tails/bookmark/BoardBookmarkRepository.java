@@ -16,4 +16,7 @@ public interface BoardBookmarkRepository extends JpaRepository<BoardBookmark, Lo
 
     @Query("select b from BoardBookmark bb join bb.board b left join fetch b.member where bb.member.id = :memberId order by bb.createdAt desc")
     Page<Board> findBookmarkedBoardsByMemberId(@Param("memberId") Long memberId, Pageable pageable);
+
+    // 게시글 삭제 전 북마크 기록 정리 - BoardLikeRepository.deleteByBoardId와 동일한 이유
+    void deleteByBoardId(Long boardId);
 }

@@ -8,6 +8,7 @@ import com.tails.board.dto.LikeToggleResponse;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.common.util.FileStorage;
+import com.tails.bookmark.BoardBookmarkRepository;
 import com.tails.image.Image;
 import com.tails.image.ImageRepository;
 import com.tails.member.MemberRepository;
@@ -27,6 +28,7 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final BoardLikeRepository boardLikeRepository;
+    private final BoardBookmarkRepository boardBookmarkRepository;
     private final MemberRepository memberRepository;
     private final ImageRepository imageRepository;
     private final FileStorage fileStorage;
@@ -110,6 +112,8 @@ public class BoardService {
             fileStorage.deleteAfterCommit(image.getStoredFileName());
         }
 
+        boardLikeRepository.deleteByBoardId(boardId);
+        boardBookmarkRepository.deleteByBoardId(boardId);
         boardRepository.delete(board);
     }
 
