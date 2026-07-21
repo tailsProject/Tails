@@ -88,8 +88,10 @@ public class BoardController {
             summary = "게시글 상세 조회",
             description = "boardId에 해당하는 게시글 상세 정보를 조회합니다. 로그인 불필요."
     )
-    public ApiResponse<BoardDetailResponse> getDetail(@PathVariable Long boardId) {
-        return ApiResponse.success(boardService.getDetail(boardId));
+    public ApiResponse<BoardDetailResponse> getDetail(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                       @PathVariable Long boardId) {
+        Long currentMemberId = userDetails != null ? userDetails.getMemberId() : null;
+        return ApiResponse.success(boardService.getDetail(boardId, currentMemberId));
     }
 
     @PatchMapping("/{boardId}")

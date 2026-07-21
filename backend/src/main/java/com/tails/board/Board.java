@@ -84,6 +84,14 @@ public class Board {
         return status == BoardStatus.DRAFT;
     }
 
+    // DRAFT는 작성자 본인에게만, PUBLISHED는 누구나 볼 수 있음
+    public boolean isVisibleTo(Long currentMemberId) {
+        if (!isDraft()) {
+            return true;
+        }
+        return currentMemberId != null && member != null && member.getId().equals(currentMemberId);
+    }
+
     public void increaseLikeCount() {
         this.likeCount++;
     }

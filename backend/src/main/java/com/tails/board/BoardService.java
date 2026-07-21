@@ -82,10 +82,13 @@ public class BoardService {
         return boardRepository.findByMemberIdAndStatus(memberId, BoardStatus.DRAFT, pageable).map(BoardResponse::from);
     }
 
-    // 게시글 상세 조회 + 조회수 1 증가
+    // 게시글 상세 조회 + 조회수 1 증가. DRAFT는 작성자 본인만 조회 가능(그 외엔 BOARD_NOT_FOUND)
     @Transactional
-    public BoardDetailResponse getDetail(Long boardId) {
+    public BoardDetailResponse getDetail(Long boardId, Long currentMemberId) {
         Board board = getBoardOrThrow(boardId);
+        if (!board.isVisibleTo(currentMemberId)) {
+            throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
+        }
         boardRepository.increaseViewCount(boardId);
         return BoardDetailResponse.of(board, board.getViewCount() + 1);
     }
@@ -114,6 +117,9 @@ public class BoardService {
     @Transactional
     public LikeToggleResponse toggleLike(Long memberId, Long boardId) {
         Board board = getBoardOrThrow(boardId);
+        if (!board.isVisibleTo(memberId)) {
+            throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
+        }
 
         boolean liked = boardLikeRepository.findByBoardIdAndMemberId(boardId, memberId)
                 .map(existing -> {
