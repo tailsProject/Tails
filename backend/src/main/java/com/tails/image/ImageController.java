@@ -2,9 +2,11 @@ package com.tails.image;
 
 import com.tails.common.response.ApiResponse;
 import com.tails.common.security.CustomUserDetails;
+import com.tails.image.dto.ImageOrderRequest;
 import com.tails.image.dto.ImageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +34,15 @@ public class ImageController {
     @Operation(summary = "게시글 이미지 목록 조회", description = "게시글에 첨부된 이미지 목록을 조회합니다. 로그인 불필요.")
     public ApiResponse<List<ImageResponse>> getBoardImages(@PathVariable Long boardId) {
         return ApiResponse.success(imageService.getByBoard(boardId));
+    }
+
+    @PatchMapping("/api/boards/{boardId}/images/order")
+    @Operation(summary = "게시글 이미지 순서 변경", description = "이미지 순서를 재배정합니다(첫 번째가 대표 이미지). 게시글 작성자 본인만 가능.")
+    public ApiResponse<Void> reorderBoardImages(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                 @PathVariable Long boardId,
+                                                 @Valid @RequestBody ImageOrderRequest request) {
+        imageService.reorderBoardImages(userDetails.getMemberId(), boardId, request.imageIds());
+        return ApiResponse.success();
     }
 
     @PostMapping(value = "/api/reviews/{reviewId}/images", consumes = "multipart/form-data")

@@ -14,7 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 
@@ -118,6 +120,41 @@ public class ImageService {
 
         imageRepository.delete(image);
         fileStorage.deleteAfterCommit(image.getStoredFileName());
+    }
+
+    // 게시글 작성자 본인만 순서 변경 가능. imageIds는 전체 이미지를 원하는 순서로 나열한 목록
+    @Transactional
+    public void reorderBoardImages(Long memberId, Long boardId, List<Long> imageIds) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        if (board.getMember() == null || !board.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.NOT_IMAGE_OWNER);
+        }
+
+        List<Image> currentImages = imageRepository.findByBoardIdOrderBySequenceAsc(boardId);
+        if (currentImages.size() != imageIds.size()) {
+            throw new CustomException(ErrorCode.IMAGE_ORDER_MISMATCH);
+        }
+
+        Map<Long, Image> imageById = new LinkedHashMap<>();
+        currentImages.forEach(image -> imageById.put(image.getId(), image));
+        for (Long imageId : imageIds) {
+            if (!imageById.containsKey(imageId)) {
+                throw new CustomException(ErrorCode.IMAGE_ORDER_MISMATCH);
+            }
+        }
+
+        // 1단계: (board_id, sequence) 유니크 제약 충돌을 피하기 위해 전부 음수 임시값으로 옮기고 flush
+        int temp = -1;
+        for (Image image : currentImages) {
+            image.changeSequence(temp--);
+        }
+        imageRepository.flush();
+
+        // 2단계: 요청받은 순서대로 최종 sequence(0부터) 부여
+        for (int i = 0; i < imageIds.size(); i++) {
+            imageById.get(imageIds.get(i)).changeSequence(i);
+        }
     }
 
     // 이미지 소유자의 회원 id 조회

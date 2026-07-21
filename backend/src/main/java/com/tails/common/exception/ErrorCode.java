@@ -38,6 +38,7 @@ public enum ErrorCode {
 
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다."),
     NOT_IMAGE_OWNER(HttpStatus.FORBIDDEN, "본인 게시글/리뷰의 이미지만 업로드/삭제할 수 있습니다."),
+    IMAGE_ORDER_MISMATCH(HttpStatus.BAD_REQUEST, "이미지 순서 목록이 실제 이미지 구성과 일치하지 않습니다."),
     EMPTY_FILE(HttpStatus.BAD_REQUEST, "업로드할 파일이 없습니다."),
     INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "이미지 파일(jpg, png, gif, webp)만 업로드할 수 있습니다."),
     FILE_TOO_LARGE(HttpStatus.BAD_REQUEST, "파일 크기가 너무 큽니다. (최대 5MB)"),
