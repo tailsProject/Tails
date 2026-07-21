@@ -2,6 +2,9 @@ package com.tails.review;
 
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
+import com.tails.common.util.FileStorage;
+import com.tails.image.Image;
+import com.tails.image.ImageRepository;
 import com.tails.member.MemberRepository;
 import com.tails.place.Place;
 import com.tails.place.PlaceRepository;
@@ -25,6 +28,8 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final PlaceRepository placeRepository;
     private final MemberRepository memberRepository;
+    private final ImageRepository imageRepository;
+    private final FileStorage fileStorage;
 
     // 리뷰 작성. 이미 이 장소에 리뷰를 작성한 회원이면 409(DUPLICATE_REVIEW)
     @Transactional
@@ -72,6 +77,12 @@ public class ReviewService {
     public void delete(Long memberId, Long placeId, Long reviewId) {
         Review review = getReviewInPlaceOrThrow(placeId, reviewId);
         requireOwner(review, memberId);
+
+        // DB에서 삭제되지 않는 파일은 직접 삭제
+        for (Image image : imageRepository.findByReview_ReviewIdOrderByCreatedAtAsc(reviewId)) {
+            fileStorage.deleteAfterCommit(image.getStoredFileName());
+        }
+
         reviewRepository.delete(review);
     }
 
