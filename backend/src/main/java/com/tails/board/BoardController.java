@@ -51,6 +51,16 @@ public class BoardController {
         return ApiResponse.success(boardService.getList(pageable, keyword, sortBy));
     }
 
+    @PostMapping("/draft")
+    @Operation(
+            summary = "게시글 임시저장",
+            description = "작성 중인 글을 임시저장(DRAFT)합니다. 목록에는 노출되지 않습니다. 로그인 필요."
+    )
+    public ApiResponse<Long> createDraft(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                          @Valid @RequestBody BoardCreateRequest request) {
+        return ApiResponse.success(boardService.createDraft(userDetails.getMemberId(), request));
+    }
+
     @GetMapping("/{boardId}")
     @Operation(
             summary = "게시글 상세 조회",

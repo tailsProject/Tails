@@ -21,19 +21,22 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     @Query("update Board b set b.likeCount = case when b.likeCount > 0 then b.likeCount - 1 else 0 end where b.id in :boardIds")
     void decreaseLikeCountBulk(@Param("boardIds") List<Long> boardIds);
 
-    @Query(value = "select b from Board b left join fetch b.member",
-            countQuery = "select count(b) from Board b")
+    @Query(value = "select b from Board b left join fetch b.member where b.status = com.tails.board.BoardStatus.PUBLISHED",
+            countQuery = "select count(b) from Board b where b.status = com.tails.board.BoardStatus.PUBLISHED")
     Page<Board> findAllWithMember(Pageable pageable);
 
     // 제목/내용에 keyword가 포함된 게시글 검색
     @Query(value = "select b from Board b left join fetch b.member "
-            + "where (b.title like concat('%', :keyword, '%') or b.content like concat('%', :keyword, '%'))",
+            + "where b.status = com.tails.board.BoardStatus.PUBLISHED "
+            + "and (b.title like concat('%', :keyword, '%') or b.content like concat('%', :keyword, '%'))",
             countQuery = "select count(b) from Board b "
-                    + "where (b.title like concat('%', :keyword, '%') or b.content like concat('%', :keyword, '%'))")
+                    + "where b.status = com.tails.board.BoardStatus.PUBLISHED "
+                    + "and (b.title like concat('%', :keyword, '%') or b.content like concat('%', :keyword, '%'))")
     Page<Board> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
     // 좋아요 수 기준 인기순 정렬
-    @Query(value = "select b from Board b left join fetch b.member order by b.likeCount desc",
-            countQuery = "select count(b) from Board b")
+    @Query(value = "select b from Board b left join fetch b.member "
+            + "where b.status = com.tails.board.BoardStatus.PUBLISHED order by b.likeCount desc",
+            countQuery = "select count(b) from Board b where b.status = com.tails.board.BoardStatus.PUBLISHED")
     Page<Board> findAllOrderByPopularity(Pageable pageable);
 }

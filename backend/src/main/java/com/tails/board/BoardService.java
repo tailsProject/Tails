@@ -38,6 +38,19 @@ public class BoardService {
                 .member(memberRepository.getReferenceById(memberId))
                 .title(request.title())
                 .content(request.content())
+                .status(BoardStatus.PUBLISHED)
+                .build();
+        return boardRepository.save(board).getId();
+    }
+
+    // 목록/검색/인기순에 노출되지 않는 초안으로 저장
+    @Transactional
+    public Long createDraft(Long memberId, BoardCreateRequest request) {
+        Board board = Board.builder()
+                .member(memberRepository.getReferenceById(memberId))
+                .title(request.title())
+                .content(request.content())
+                .status(BoardStatus.DRAFT)
                 .build();
         return boardRepository.save(board).getId();
     }
