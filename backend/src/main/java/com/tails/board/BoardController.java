@@ -51,6 +51,16 @@ public class BoardController {
         return ApiResponse.success(boardService.getList(pageable, keyword, sortBy));
     }
 
+    @GetMapping("/my")
+    @Operation(
+            summary = "내가 쓴 글 목록 조회",
+            description = "로그인한 회원이 작성한 게시글 목록을 조회합니다(마이페이지). 로그인 필요."
+    )
+    public ApiResponse<Page<BoardResponse>> getMyBoards(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                         @PageableDefault(size = 10) Pageable pageable) {
+        return ApiResponse.success(boardService.getMyBoards(userDetails.getMemberId(), pageable));
+    }
+
     @PostMapping("/draft")
     @Operation(
             summary = "게시글 임시저장",
