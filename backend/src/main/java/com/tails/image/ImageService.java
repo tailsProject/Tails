@@ -157,11 +157,14 @@ public class ImageService {
         }
     }
 
-    // 이미지 소유자의 회원 id 조회
+    // 이미지 소유자의 회원 id 조회. board/review 둘 다 null이면 불변식 위반이라 명확한 예외로 처리
     private Long resolveOwnerId(Image image) {
         if (image.getBoard() != null) {
             return image.getBoard().getMember() != null ? image.getBoard().getMember().getId() : null;
         }
-        return image.getReview().getMember() != null ? image.getReview().getMember().getId() : null;
+        if (image.getReview() != null) {
+            return image.getReview().getMember() != null ? image.getReview().getMember().getId() : null;
+        }
+        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
     }
 }
