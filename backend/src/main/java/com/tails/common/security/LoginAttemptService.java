@@ -26,8 +26,8 @@ public class LoginAttemptService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recordFailure(Long memberId) {
+        memberRepository.incrementFailedLoginCount(memberId);
         memberRepository.findById(memberId).ifPresent(member -> {
-            member.increaseFailedLoginCount();
             if (member.getFailedLoginCount() >= maxAttempts) {
                 member.lock(LocalDateTime.now().plusMinutes(lockDurationMinutes));
             }

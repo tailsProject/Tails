@@ -136,10 +136,6 @@ public class Member {
         this.emailVerified = true;
     }
 
-    public void increaseFailedLoginCount() {
-        this.failedLoginCount++;
-    }
-
     public void resetFailedLoginCount() {
         this.failedLoginCount = 0;
         this.lockedUntil = null;
