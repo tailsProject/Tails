@@ -10,6 +10,8 @@ public record MemberJoinRequest(
 
         @NotBlank(message = "이메일을 입력해주세요.")
         @Email(message = "올바른 이메일 형식으로 입력해주세요.")
+        // Member.email 컬럼 길이(100)와 맞춤 - 없으면 DB INSERT 단계에서 DataIntegrityViolationException이 나 DUPLICATE_RESOURCE로 잘못 응답됨
+        @Size(max = 100, message = "이메일은 100자를 넘을 수 없습니다.")
         String email,
 
         @NotBlank(message = "비밀번호를 입력해주세요.")
