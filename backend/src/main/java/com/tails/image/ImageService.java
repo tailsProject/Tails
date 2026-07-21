@@ -95,7 +95,12 @@ public class ImageService {
         }
     }
     // 게시글 이미지 조회 - sequence 기준(대표 이미지가 항상 먼저 보임)
-    public List<ImageResponse> getByBoard(Long boardId) {
+    public List<ImageResponse> getByBoard(Long boardId, Long currentMemberId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        if (!board.isVisibleTo(currentMemberId)) {
+            throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
+        }
         return imageRepository.findByBoardIdOrderBySequenceAsc(boardId).stream()
                 .map(ImageResponse::from)
                 .toList();

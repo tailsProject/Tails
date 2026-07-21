@@ -34,9 +34,11 @@ public class CommentController {
 
     @GetMapping
     @Operation(summary = "댓글 목록 조회", description = "게시글의 댓글 목록을 페이지 단위로 조회합니다. 로그인 불필요.")
-    public ApiResponse<Page<CommentResponse>> getList(@PathVariable Long boardId,
+    public ApiResponse<Page<CommentResponse>> getList(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                        @PathVariable Long boardId,
                                                         @PageableDefault(size = 10) Pageable pageable) {
-        return ApiResponse.success(commentService.getList(boardId, pageable));
+        Long currentMemberId = userDetails != null ? userDetails.getMemberId() : null;
+        return ApiResponse.success(commentService.getList(boardId, currentMemberId, pageable));
     }
 
     @PatchMapping("/{commentId}")
