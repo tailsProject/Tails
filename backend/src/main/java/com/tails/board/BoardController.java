@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -36,13 +37,18 @@ public class BoardController {
         return ApiResponse.success(boardService.create(userDetails.getMemberId(), request));
     }
 
+    // keyword로 검색, sortBy=popular로 인기순 정렬(keyword와 동시 사용 시 keyword 우선)
+    // 정렬 파라미터명이 sort가 아니라 sortBy인 이유: sort는 Spring Data Pageable의 예약어라 충돌함
     @GetMapping
     @Operation(
             summary = "게시글 목록 조회",
-            description = "게시글 목록을 페이지 단위로 조회합니다. 로그인 불필요."
+            description = "게시글 목록을 페이지 단위로 조회합니다. keyword로 검색, sortBy=popular로 인기순 정렬. 로그인 불필요."
     )
-    public ApiResponse<Page<BoardResponse>> getList(@PageableDefault(size = 10) Pageable pageable) {
-        return ApiResponse.success(boardService.getList(pageable));
+    public ApiResponse<Page<BoardResponse>> getList(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String sortBy) {
+        return ApiResponse.success(boardService.getList(pageable, keyword, sortBy));
     }
 
     @GetMapping("/{boardId}")

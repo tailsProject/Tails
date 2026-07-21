@@ -24,4 +24,16 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     @Query(value = "select b from Board b left join fetch b.member",
             countQuery = "select count(b) from Board b")
     Page<Board> findAllWithMember(Pageable pageable);
+
+    // 제목/내용에 keyword가 포함된 게시글 검색
+    @Query(value = "select b from Board b left join fetch b.member "
+            + "where (b.title like concat('%', :keyword, '%') or b.content like concat('%', :keyword, '%'))",
+            countQuery = "select count(b) from Board b "
+                    + "where (b.title like concat('%', :keyword, '%') or b.content like concat('%', :keyword, '%'))")
+    Page<Board> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    // 좋아요 수 기준 인기순 정렬
+    @Query(value = "select b from Board b left join fetch b.member order by b.likeCount desc",
+            countQuery = "select count(b) from Board b")
+    Page<Board> findAllOrderByPopularity(Pageable pageable);
 }

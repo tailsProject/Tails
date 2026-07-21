@@ -42,7 +42,14 @@ public class BoardService {
         return boardRepository.save(board).getId();
     }
 
-    public Page<BoardResponse> getList(Pageable pageable) {
+    // keyword가 있으면 검색, sortBy=popular면 인기순, 둘 다 없으면 기존 최신순 목록
+    public Page<BoardResponse> getList(Pageable pageable, String keyword, String sortBy) {
+        if (keyword != null && !keyword.isBlank()) {
+            return boardRepository.searchByKeyword(keyword.trim(), pageable).map(BoardResponse::from);
+        }
+        if ("popular".equals(sortBy)) {
+            return boardRepository.findAllOrderByPopularity(pageable).map(BoardResponse::from);
+        }
         return boardRepository.findAllWithMember(pageable).map(BoardResponse::from);
     }
 
