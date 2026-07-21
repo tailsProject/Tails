@@ -6,6 +6,7 @@ import com.tails.member.MemberRepository;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -74,7 +75,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .providerId(profile.providerId())
                 .build();
         member.markEmailVerified();
-        return memberRepository.save(member);
+        // existsByEmail 확인과 save 사이의 TOCTOU로 동시 요청 시 unique 제약 위반이 날 수 있음 - 원본 예외 대신 동일한 에러로 변환
+        try {
+            return memberRepository.save(member);
+        } catch (DataIntegrityViolationException e) {
+            throw authError(ErrorCode.OAUTH_EMAIL_ALREADY_REGISTERED.name(), ErrorCode.OAUTH_EMAIL_ALREADY_REGISTERED.getMessage());
+        }
     }
 
     private String uniqueNickname(String base) {
