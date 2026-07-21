@@ -52,7 +52,7 @@ public class PlaceService {
     // 통합 검색 — 키워드/카테고리/지역/반경(좌표) 조건을 자유롭게 조합. keyword만 넘기면 기존 장소명 검색과 동일하게 동작
     // 반경 검색은 2단계: 경계 상자로 DB에서 후보를 크게 줄인 뒤(GeoUtil.latDelta/lngDelta),
     // Haversine으로 정확한 거리를 계산해 반경 밖을 제외하고 가까운 순 정렬
-    // @throws CustomException {@link ErrorCode#INVALID_SEARCH_CONDITION} 조건이 하나도 없거나, 좌표 3종(lat/lng/radius) 중 일부만 왔거나, radius가 0 이하인 경우
+    // @throws CustomException {@link ErrorCode#INVALID_SEARCH_CONDITION} 조건이 하나도 없거나, 좌표 3종(lat/lng/radius) 중 일부만 왔거나, radius가 0 이하이거나, lat/lng가 유효 범위(-90~90/-180~180)를 벗어난 경우
     public List<PlaceSearchResponse> searchPlaces(String keyword, String cat1, String cat2,
             String region, Double lat, Double lng, Double radiusMeters) {
         keyword = blankToNull(keyword);
@@ -62,7 +62,10 @@ public class PlaceService {
 
         boolean anyGeo = lat != null || lng != null || radiusMeters != null;
         boolean allGeo = lat != null && lng != null && radiusMeters != null;
-        if (anyGeo && (!allGeo || radiusMeters <= 0)) {
+        // radius > 0만 확인하고 lat/lng 자체의 유효 범위(-90~90, -180~180)는 확인하지 않으면
+        // 범위 밖 좌표가 통과돼 경계상자/Haversine 거리 계산이 무의미해짐
+        boolean invalidGeoRange = allGeo && (lat < -90 || lat > 90 || lng < -180 || lng > 180);
+        if (anyGeo && (!allGeo || radiusMeters <= 0 || invalidGeoRange)) {
             throw new CustomException(ErrorCode.INVALID_SEARCH_CONDITION);
         }
         if (!allGeo && keyword == null && cat1 == null && cat2 == null && region == null) {
