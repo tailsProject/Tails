@@ -17,6 +17,10 @@ import java.util.Optional;
 @Component
 public class JwtProvider {
 
+    // Access/Refresh를 구분하는 클레임 - 서명 키가 같아 이 구분 없이는 Refresh Token을 그대로 Access Token처럼 쓸 수 있음
+    private static final String TYPE_ACCESS = "access";
+    private static final String TYPE_REFRESH = "refresh";
+
     private final SecretKey key;
     private final long expiration;
     private final long refreshExpiration;
@@ -39,6 +43,7 @@ public class JwtProvider {
         return Jwts.builder()
                 .subject(String.valueOf(memberId))
                 .claim("email", email)
+                .claim("type", TYPE_ACCESS)
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(key)
@@ -52,10 +57,21 @@ public class JwtProvider {
 
         return Jwts.builder()
                 .subject(String.valueOf(memberId))
+                .claim("type", TYPE_REFRESH)
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(key)
                 .compact();
+    }
+
+    // type 클레임이 Access Token인지 확인
+    public boolean isAccessToken(Claims claims) {
+        return TYPE_ACCESS.equals(claims.get("type", String.class));
+    }
+
+    // type 클레임이 Refresh Token인지 확인
+    public boolean isRefreshToken(Claims claims) {
+        return TYPE_REFRESH.equals(claims.get("type", String.class));
     }
 
     // 서명 검증 + 파싱, 실패 시 Optional.empty()

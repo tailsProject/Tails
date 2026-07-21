@@ -32,7 +32,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (token != null) {
             Optional<Claims> claims = jwtProvider.parseClaims(token);
-            if (claims.isPresent()) {
+            // Refresh Token은 서명이 유효해도 인증 처리하지 않음 - 탈취된 Refresh Token을 헤더에 그대로 넣어 API를 호출하는 것을 막음
+            if (claims.isPresent() && jwtProvider.isAccessToken(claims.get())) {
                 authenticate(jwtProvider.getMemberId(claims.get()));
             }
         }

@@ -70,6 +70,10 @@ public class AuthService {
     public IssuedTokens reissue(String refreshToken) {
         Claims claims = jwtProvider.parseClaims(refreshToken)
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REFRESH_TOKEN));
+        // Access Token으로 재발급을 요청하는 것을 방지
+        if (!jwtProvider.isRefreshToken(claims)) {
+            throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
         Long memberId = jwtProvider.getMemberId(claims);
 
         String saved = refreshTokenStore.find(memberId)
