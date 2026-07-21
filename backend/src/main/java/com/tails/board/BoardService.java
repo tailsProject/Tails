@@ -38,18 +38,57 @@ public class BoardService {
                 .member(memberRepository.getReferenceById(memberId))
                 .title(request.title())
                 .content(request.content())
+                .status(BoardStatus.PUBLISHED)
                 .build();
         return boardRepository.save(board).getId();
     }
 
-    public Page<BoardResponse> getList(Pageable pageable) {
+    // 목록/검색/인기순에 노출되지 않는 초안으로 저장
+    @Transactional
+    public Long createDraft(Long memberId, BoardCreateRequest request) {
+        Board board = Board.builder()
+                .member(memberRepository.getReferenceById(memberId))
+                .title(request.title())
+                .content(request.content())
+                .status(BoardStatus.DRAFT)
+                .build();
+        return boardRepository.save(board).getId();
+    }
+
+    // keyword가 있으면 검색, sortBy=popular면 인기순, 둘 다 없으면 기존 최신순 목록
+    public Page<BoardResponse> getList(Pageable pageable, String keyword, String sortBy) {
+        if (keyword != null && !keyword.isBlank()) {
+            return boardRepository.searchByKeyword(keyword.trim(), pageable).map(BoardResponse::from);
+        }
+        if ("popular".equals(sortBy)) {
+            return boardRepository.findAllOrderByPopularity(pageable).map(BoardResponse::from);
+        }
         return boardRepository.findAllWithMember(pageable).map(BoardResponse::from);
     }
 
-    // 게시글 상세 조회 + 조회수 1 증가
+    // 임시저장 글을 이어쓰기 내용과 함께 발행 전환. 이미 발행된 글이면 거절
     @Transactional
-    public BoardDetailResponse getDetail(Long boardId) {
+    public void publish(Long memberId, Long boardId, BoardUpdateRequest request) {
         Board board = getBoardOrThrow(boardId);
+        requireOwner(board, memberId);
+        if (!board.isDraft()) {
+            throw new CustomException(ErrorCode.ALREADY_PUBLISHED);
+        }
+        board.changeTitleAndContent(request.title(), request.content());
+        board.publish();
+    }
+
+    public Page<BoardResponse> getMyDrafts(Long memberId, Pageable pageable) {
+        return boardRepository.findByMemberIdAndStatus(memberId, BoardStatus.DRAFT, pageable).map(BoardResponse::from);
+    }
+
+    // 게시글 상세 조회 + 조회수 1 증가. DRAFT는 작성자 본인만 조회 가능(그 외엔 BOARD_NOT_FOUND)
+    @Transactional
+    public BoardDetailResponse getDetail(Long boardId, Long currentMemberId) {
+        Board board = getBoardOrThrow(boardId);
+        if (!board.isVisibleTo(currentMemberId)) {
+            throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
+        }
         boardRepository.increaseViewCount(boardId);
         return BoardDetailResponse.of(board, board.getViewCount() + 1);
     }
@@ -78,6 +117,9 @@ public class BoardService {
     @Transactional
     public LikeToggleResponse toggleLike(Long memberId, Long boardId) {
         Board board = getBoardOrThrow(boardId);
+        if (!board.isVisibleTo(memberId)) {
+            throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
+        }
 
         boolean liked = boardLikeRepository.findByBoardIdAndMemberId(boardId, memberId)
                 .map(existing -> {

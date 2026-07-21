@@ -30,6 +30,9 @@ public class BoardBookmarkService {
     public boolean toggleBookmark(Long memberId, Long boardId) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        if (!board.isVisibleTo(memberId)) {
+            throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
+        }
 
         return boardBookmarkRepository.findByBoardIdAndMemberId(boardId, memberId)
                 .map(existing -> {

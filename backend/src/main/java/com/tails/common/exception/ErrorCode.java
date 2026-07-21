@@ -34,6 +34,7 @@ public enum ErrorCode {
     // ===== 게시글(Board) 관련 =====
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
     NOT_BOARD_OWNER(HttpStatus.FORBIDDEN, "본인 게시글만 수정/삭제할 수 있습니다."),
+    ALREADY_PUBLISHED(HttpStatus.BAD_REQUEST, "이미 발행된 게시글입니다."),
 
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다."),
     NOT_IMAGE_OWNER(HttpStatus.FORBIDDEN, "본인 게시글/리뷰의 이미지만 업로드/삭제할 수 있습니다."),
