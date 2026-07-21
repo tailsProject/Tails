@@ -12,6 +12,8 @@ public record MemberResponse(
         String email,
         String nickname,
         String profileImg,
+        boolean emailVerified,
+        String provider,
         LocalDateTime createdAt,
         List<PetResponse> pets
 ) {
@@ -21,6 +23,8 @@ public record MemberResponse(
                 member.getEmail(),
                 member.getNickname(),
                 member.getProfileImg(),
+                member.isEmailVerified(),
+                member.getProvider(),
                 member.getCreatedAt(),
                 member.getPets().stream().map(PetResponse::from).toList()
         );
