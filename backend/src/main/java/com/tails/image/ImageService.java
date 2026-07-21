@@ -78,6 +78,8 @@ public class ImageService {
         if (files.size() > MAX_FILE_COUNT) {
             throw new CustomException(ErrorCode.TOO_MANY_FILES);
         }
+        // 저장 시작 전에 전부 미리 검증 - 뒤쪽 파일이 무효해도 앞쪽 파일이 디스크에 썼다가 지워지는 걸 방지
+        files.forEach(fileStorage::validate);
 
         List<String> storedFileNames = new ArrayList<>();
         try {
