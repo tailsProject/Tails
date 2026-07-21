@@ -61,6 +61,28 @@ public class BoardController {
         return ApiResponse.success(boardService.createDraft(userDetails.getMemberId(), request));
     }
 
+    @GetMapping("/drafts")
+    @Operation(
+            summary = "내 임시저장 목록 조회",
+            description = "로그인한 회원의 임시저장(DRAFT) 게시글 목록을 조회합니다. 로그인 필요."
+    )
+    public ApiResponse<Page<BoardResponse>> getMyDrafts(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                         @PageableDefault(size = 10) Pageable pageable) {
+        return ApiResponse.success(boardService.getMyDrafts(userDetails.getMemberId(), pageable));
+    }
+
+    @PutMapping("/{boardId}/publish")
+    @Operation(
+            summary = "임시저장 글 발행",
+            description = "boardId 임시저장 글을 수정 내용과 함께 발행(PUBLISHED)합니다. 작성자 본인만 가능."
+    )
+    public ApiResponse<Void> publish(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                      @PathVariable Long boardId,
+                                      @Valid @RequestBody BoardUpdateRequest request) {
+        boardService.publish(userDetails.getMemberId(), boardId, request);
+        return ApiResponse.success();
+    }
+
     @GetMapping("/{boardId}")
     @Operation(
             summary = "게시글 상세 조회",

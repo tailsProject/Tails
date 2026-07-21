@@ -66,6 +66,22 @@ public class BoardService {
         return boardRepository.findAllWithMember(pageable).map(BoardResponse::from);
     }
 
+    // 임시저장 글을 이어쓰기 내용과 함께 발행 전환. 이미 발행된 글이면 거절
+    @Transactional
+    public void publish(Long memberId, Long boardId, BoardUpdateRequest request) {
+        Board board = getBoardOrThrow(boardId);
+        requireOwner(board, memberId);
+        if (!board.isDraft()) {
+            throw new CustomException(ErrorCode.ALREADY_PUBLISHED);
+        }
+        board.changeTitleAndContent(request.title(), request.content());
+        board.publish();
+    }
+
+    public Page<BoardResponse> getMyDrafts(Long memberId, Pageable pageable) {
+        return boardRepository.findByMemberIdAndStatus(memberId, BoardStatus.DRAFT, pageable).map(BoardResponse::from);
+    }
+
     // 게시글 상세 조회 + 조회수 1 증가
     @Transactional
     public BoardDetailResponse getDetail(Long boardId) {

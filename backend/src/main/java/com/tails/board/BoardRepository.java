@@ -39,4 +39,7 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
             + "where b.status = com.tails.board.BoardStatus.PUBLISHED order by b.likeCount desc",
             countQuery = "select count(b) from Board b where b.status = com.tails.board.BoardStatus.PUBLISHED")
     Page<Board> findAllOrderByPopularity(Pageable pageable);
+
+    // 내 임시저장 목록
+    Page<Board> findByMemberIdAndStatus(Long memberId, BoardStatus status, Pageable pageable);
 }
