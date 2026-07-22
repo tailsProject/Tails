@@ -1,0 +1,14 @@
+# application-prod.properties 템플릿
+#   cp application-prod.properties.example application-prod.properties
+# 활성화: SPRING_PROFILES_ACTIVE=prod
+
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql=false
+
+cookie.secure=true
+
+# 값은 서버 환경변수로만 주입
+spring.datasource.url=${SPRING_DATASOURCE_URL}
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+jwt.secret=${JWT_SECRET}
