@@ -52,3 +52,8 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// Dockerfile이 build/libs/*.jar를 복사하므로 plain jar 생성은 비활성화하고 bootJar만 남김
+tasks.named('jar') {
+	enabled = false
+}
