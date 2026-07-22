@@ -78,6 +78,8 @@ public class ImageService {
         if (files.size() > MAX_FILE_COUNT) {
             throw new CustomException(ErrorCode.TOO_MANY_FILES);
         }
+        // 저장 시작 전에 전부 미리 검증 - 뒤쪽 파일이 무효해도 앞쪽 파일이 디스크에 썼다가 지워지는 걸 방지
+        files.forEach(fileStorage::validate);
 
         List<String> storedFileNames = new ArrayList<>();
         try {
@@ -95,7 +97,12 @@ public class ImageService {
         }
     }
     // 게시글 이미지 조회 - sequence 기준(대표 이미지가 항상 먼저 보임)
-    public List<ImageResponse> getByBoard(Long boardId) {
+    public List<ImageResponse> getByBoard(Long boardId, Long currentMemberId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        if (!board.isVisibleTo(currentMemberId)) {
+            throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
+        }
         return imageRepository.findByBoardIdOrderBySequenceAsc(boardId).stream()
                 .map(ImageResponse::from)
                 .toList();

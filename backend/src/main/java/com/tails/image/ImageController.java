@@ -32,8 +32,10 @@ public class ImageController {
 
     @GetMapping("/api/boards/{boardId}/images")
     @Operation(summary = "게시글 이미지 목록 조회", description = "게시글에 첨부된 이미지 목록을 조회합니다. 로그인 불필요.")
-    public ApiResponse<List<ImageResponse>> getBoardImages(@PathVariable Long boardId) {
-        return ApiResponse.success(imageService.getByBoard(boardId));
+    public ApiResponse<List<ImageResponse>> getBoardImages(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                             @PathVariable Long boardId) {
+        Long currentMemberId = userDetails != null ? userDetails.getMemberId() : null;
+        return ApiResponse.success(imageService.getByBoard(boardId, currentMemberId));
     }
 
     @PatchMapping("/api/boards/{boardId}/images/order")

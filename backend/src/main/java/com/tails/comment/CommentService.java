@@ -36,6 +36,9 @@ public class CommentService {
     public Long create(Long memberId, Long boardId, CommentCreateRequest request) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        if (!board.isVisibleTo(memberId)) {
+            throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
+        }
 
         Comment parent = null;
         if (request.parentId() != null) {
@@ -64,7 +67,12 @@ public class CommentService {
     }
 
     // 최상위 댓글 기준으로 페이징하고, 그 페이지의 답글만 별도로 모아 트리로 묶어 반환
-    public Page<CommentResponse> getList(Long boardId, Pageable pageable) {
+    public Page<CommentResponse> getList(Long boardId, Long currentMemberId, Pageable pageable) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        if (!board.isVisibleTo(currentMemberId)) {
+            throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
+        }
         Page<Comment> roots = commentRepository.findByBoardIdAndParentIsNull(boardId, pageable);
 
         List<Long> rootIds = roots.getContent().stream().map(Comment::getId).toList();
