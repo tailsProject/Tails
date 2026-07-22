@@ -1,6 +1,7 @@
 package com.tails.board.dto;
 
 import com.tails.board.Board;
+import com.tails.board.BoardStatus;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +14,7 @@ public record BoardDetailResponse(
         String authorNickname,
         int viewCount,
         int likeCount,
+        BoardStatus status,
         boolean liked,
         boolean bookmarked,
         LocalDateTime createdAt,
@@ -30,6 +32,7 @@ public record BoardDetailResponse(
                 authorNickname,
                 viewCount,
                 board.getLikeCount(),
+                board.getStatus(),
                 liked,
                 bookmarked,
                 board.getCreatedAt(),

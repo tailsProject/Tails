@@ -34,8 +34,7 @@ public class CommentService {
     // 답글에는 다시 답글을 달 수 없도록 항상 최상위 댓글을 부모로 설정
     @Transactional
     public Long create(Long memberId, Long boardId, CommentCreateRequest request) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        Board board = getBoardOrThrow(boardId);
         if (!board.isVisibleTo(memberId)) {
             throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
         }
@@ -68,8 +67,7 @@ public class CommentService {
 
     // 최상위 댓글 기준으로 페이징하고, 그 페이지의 답글만 별도로 모아 트리로 묶어 반환
     public Page<CommentResponse> getList(Long boardId, Long currentMemberId, Pageable pageable) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        Board board = getBoardOrThrow(boardId);
         if (!board.isVisibleTo(currentMemberId)) {
             throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
         }
@@ -84,11 +82,14 @@ public class CommentService {
         return roots.map(root -> CommentResponse.of(root, toResponses(repliesByParentId.getOrDefault(root.getId(), List.of()))));
     }
 
-    // 작성자 본인만 수정 가능
+    // 작성자 본인만 수정 가능, 삭제된 댓글은 수정 불가
     @Transactional
     public void update(Long memberId, Long boardId, Long commentId, CommentUpdateRequest request) {
         Comment comment = getCommentInBoardOrThrow(boardId, commentId);
         requireOwner(comment, memberId);
+        if (comment.isDeleted()) {
+            throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
+        }
         comment.changeContent(request.content());
     }
 
@@ -108,6 +109,11 @@ public class CommentService {
         if (comment.getMember() == null || !comment.getMember().getId().equals(memberId)) {
             throw new CustomException(ErrorCode.NOT_COMMENT_OWNER);
         }
+    }
+
+    private Board getBoardOrThrow(Long boardId) {
+        return boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
     }
 
     // commentId로 조회하고 URL의 boardId와 다른 게시글 소속이면 못 찾은 것처럼 처리
