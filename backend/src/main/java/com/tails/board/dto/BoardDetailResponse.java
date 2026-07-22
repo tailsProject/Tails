@@ -13,11 +13,13 @@ public record BoardDetailResponse(
         String authorNickname,
         int viewCount,
         int likeCount,
+        boolean liked,
+        boolean bookmarked,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    
-    public static BoardDetailResponse of(Board board, int viewCount) {
+
+    public static BoardDetailResponse of(Board board, int viewCount, boolean liked, boolean bookmarked) {
         Long authorId = board.getMember() != null ? board.getMember().getId() : null;
         String authorNickname = board.getMember() != null ? board.getMember().getNickname() : "탈퇴한 회원";
         return new BoardDetailResponse(
@@ -28,6 +30,8 @@ public record BoardDetailResponse(
                 authorNickname,
                 viewCount,
                 board.getLikeCount(),
+                liked,
+                bookmarked,
                 board.getCreatedAt(),
                 board.getUpdatedAt()
         );

@@ -42,4 +42,7 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     // 내 임시저장 목록
     Page<Board> findByMemberIdAndStatus(Long memberId, BoardStatus status, Pageable pageable);
+
+    // 내가 쓴 글 목록 - DRAFT/PUBLISHED 구분 없이 전부 보임
+    Page<Board> findByMemberId(Long memberId, Pageable pageable);
 }

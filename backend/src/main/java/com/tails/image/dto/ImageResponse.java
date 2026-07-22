@@ -10,6 +10,7 @@ public record ImageResponse(
         Long imageId,
         String imageUrl,
         String originalFileName,
+        int sequence,
         LocalDateTime createdAt
 ) {
     // 저장된 파일명으로 이미지 접근 경로 생성
@@ -20,6 +21,7 @@ public record ImageResponse(
                 image.getId(),
                 URL_PREFIX + image.getStoredFileName(),
                 image.getOriginalFileName(),
+                image.getSequence(),
                 image.getCreatedAt()
         );
     }
