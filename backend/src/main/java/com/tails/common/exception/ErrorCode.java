@@ -89,7 +89,10 @@ public enum ErrorCode {
 
     // ===== 반려동물(Pet) 관련 =====
     PET_NOT_FOUND(HttpStatus.NOT_FOUND, "반려동물을 찾을 수 없습니다."),
-    NOT_PET_OWNER(HttpStatus.FORBIDDEN, "본인의 반려동물만 수정/삭제할 수 있습니다.");
+    NOT_PET_OWNER(HttpStatus.FORBIDDEN, "본인의 반려동물만 수정/삭제할 수 있습니다."),
+
+    // ===== 관리자(Admin) 관련 =====
+    CANNOT_CHANGE_OWN_ROLE(HttpStatus.BAD_REQUEST, "자기 자신의 권한은 변경할 수 없습니다.");
 
     private final HttpStatus status;
     private final String message;
