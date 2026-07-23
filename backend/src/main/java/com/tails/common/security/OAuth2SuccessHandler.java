@@ -39,6 +39,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         AuthService.IssuedTokens tokens = authService.issueTokens(member);
         response.addHeader(HttpHeaders.SET_COOKIE, tokens.refreshCookie().toString());
 
-        getRedirectStrategy().sendRedirect(request, response, successRedirectUrl);
+        // 신규 가입이면 가입완료 화면으로 보내도록 표시
+        String redirectUrl = principal.isNewMember() ? successRedirectUrl + "?new=true" : successRedirectUrl;
+        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 }

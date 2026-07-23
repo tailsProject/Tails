@@ -30,13 +30,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         SocialProfile profile = extractProfile(provider, oAuth2User.getAttributes());
 
+        boolean[] isNewMember = {false};
         Member member = memberRepository.findByProviderAndProviderId(provider, profile.providerId())
-                .orElseGet(() -> join(provider, profile));
+                .orElseGet(() -> {
+                    isNewMember[0] = true;
+                    return join(provider, profile);
+                });
 
-        return new OAuth2UserPrincipal(member.getId(), oAuth2User.getAttributes());
+        return new OAuth2UserPrincipal(member.getId(), isNewMember[0], oAuth2User.getAttributes());
     }
 
-    // provider마다 사용자 정보 응답 구조가 달라서 (providerId, email, nickname) 공통 형태로 맞춘다
+    // provider별 응답 구조를 (providerId, email, nickname) 공통 형태로 변환
     private SocialProfile extractProfile(String provider, Map<String, Object> attributes) {
         if ("kakao".equals(provider)) {
             Map<String, Object> account = castMap(attributes.get("kakao_account"));
@@ -61,7 +65,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         throw authError("unsupported_provider", "지원하지 않는 소셜 로그인입니다: " + provider);
     }
 
-    // 소셜 계정 첫 로그인 = 자동 회원가입. 이미 일반 가입된 이메일이면 자동 연동하지 않고 막는다
+    // 소셜 계정 첫 로그인은 자동 회원가입. 이메일이 이미 일반가입돼 있으면 거부
     private Member join(String provider, SocialProfile profile) {
         String email = profile.email().trim().toLowerCase();
         if (memberRepository.existsByEmail(email)) {
@@ -75,7 +79,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .providerId(profile.providerId())
                 .build();
         member.markEmailVerified();
-        // existsByEmail 확인과 save 사이의 TOCTOU로 동시 요청 시 unique 제약 위반이 날 수 있음 - 원본 예외 대신 동일한 에러로 변환
+        // existsByEmail-save 사이 TOCTOU 대비 - 동일 에러로 변환
         try {
             return memberRepository.save(member);
         } catch (DataIntegrityViolationException e) {
@@ -105,8 +109,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return profile;
     }
 
-    // 시큐리티 필터 내부라 GlobalExceptionHandler가 못 잡음 - OAuth2AuthenticationException으로 던져야
-    // OAuth2FailureHandler로 넘어간다
+    // 필터 내부 예외라 GlobalExceptionHandler 대신 OAuth2FailureHandler가 처리
     private OAuth2AuthenticationException authError(String code, String description) {
         return new OAuth2AuthenticationException(new OAuth2Error(code, description, null));
     }
