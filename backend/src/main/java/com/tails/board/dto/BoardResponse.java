@@ -1,6 +1,7 @@
 package com.tails.board.dto;
 
 import com.tails.board.Board;
+import com.tails.board.BoardStatus;
 
 import java.time.LocalDateTime;
 
@@ -11,6 +12,7 @@ public record BoardResponse(
         String authorNickname,
         int viewCount,
         int likeCount,
+        BoardStatus status,
         LocalDateTime createdAt
 ) {
     // 탈퇴한 작성자는 "탈퇴한 회원"으로 표시
@@ -22,6 +24,7 @@ public record BoardResponse(
                 authorNickname,
                 board.getViewCount(),
                 board.getLikeCount(),
+                board.getStatus(),
                 board.getCreatedAt()
         );
     }
