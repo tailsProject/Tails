@@ -35,6 +35,11 @@ public class MailService {
                         + emailVerifyUrl + "?token=" + token);
     }
 
+    public void sendSignupCodeMail(String to, String code) {
+        send(to, "[Tails] 회원가입 인증번호",
+                "아래 인증번호를 입력해주세요. (5분간 유효)\n\n" + code);
+    }
+
     public void sendPasswordResetMail(String to, String token) {
         send(to, "[Tails] 비밀번호 재설정 안내",
                 "아래 링크에서 새 비밀번호를 설정해주세요. (30분간 유효)\n"

@@ -7,6 +7,7 @@ import com.tails.common.security.dto.AccessTokenResponse;
 import com.tails.common.security.dto.EmailVerifyRequest;
 import com.tails.common.security.dto.PasswordResetConfirmRequest;
 import com.tails.common.security.dto.PasswordResetRequest;
+import com.tails.common.security.dto.SignupCodeVerifyRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -51,6 +52,20 @@ public class AuthController {
             HttpServletResponse response) {
         authService.logout(refreshToken);
         response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.createExpiredRefreshTokenCookie().toString());
+        return ApiResponse.success();
+    }
+
+    @PostMapping("/email/signup-code")
+    @Operation(summary = "회원가입 인증번호 발송", description = "입력한 이메일로 6자리 인증번호를 발송합니다. 5분간 유효.")
+    public ApiResponse<Void> sendSignupCode(@Valid @RequestBody EmailVerifyRequest request) {
+        authService.sendSignupVerificationCode(request.email());
+        return ApiResponse.success();
+    }
+
+    @PostMapping("/email/signup-code/verify")
+    @Operation(summary = "회원가입 인증번호 확인", description = "발송된 인증번호를 검증합니다. 통과해야 회원가입이 가능합니다.")
+    public ApiResponse<Void> verifySignupCode(@Valid @RequestBody SignupCodeVerifyRequest request) {
+        authService.verifySignupCode(request.email(), request.code());
         return ApiResponse.success();
     }
 

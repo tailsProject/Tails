@@ -55,14 +55,20 @@ public class MemberService {
         if (isNicknameDuplicated(nickname)) {
             throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
         }
+        if (!authService.isSignupEmailVerified(email)) {
+            throw new CustomException(ErrorCode.EMAIL_NOT_VERIFIED);
+        }
 
         Member member = Member.builder()
                 .email(email)
                 .password(passwordEncoder.encode(request.password()))
                 .nickname(nickname)
                 .build();
+        member.markEmailVerified();
 
-        return memberRepository.save(member).getId();
+        Long memberId = memberRepository.save(member).getId();
+        authService.clearSignupVerification(email);
+        return memberId;
     }
 
     // 컨트롤러가 본문(LoginResponse)과 별개로 Refresh Token 쿠키를 Set-Cookie에 실어야 해서 묶어서 반환
