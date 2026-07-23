@@ -3,6 +3,7 @@ package com.tails.common.security;
 import com.tails.common.mail.EmailToken;
 import com.tails.common.mail.EmailTokenRepository;
 import com.tails.common.mail.EmailTokenType;
+import com.tails.common.mail.EmailVerificationCodeRepository;
 import com.tails.member.Member;
 import com.tails.member.MemberRepository;
 import com.tails.support.AbstractIntegrationTest;
@@ -29,10 +30,13 @@ class EmailAuthIntegrationTest extends AbstractIntegrationTest {
     private MemberRepository memberRepository;
     @Autowired
     private EmailTokenRepository emailTokenRepository;
+    @Autowired
+    private EmailVerificationCodeRepository emailVerificationCodeRepository;
     @MockitoBean
     private JavaMailSender javaMailSender;
 
     private void join(String email, String nickname) throws Exception {
+        markSignupEmailVerified(email);
         mockMvc.perform(post("/api/members/join")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -65,8 +69,13 @@ class EmailAuthIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void 이메일_인증_요청후_토큰으로_검증하면_emailVerified가_true가_된다() throws Exception {
+        // 링크 기반 재인증은 미인증(레거시) 회원을 직접 만들어 검증
         String email = "verify-flow@test.com";
-        join(email, "verifyflow");
+        memberRepository.save(Member.builder()
+                .email(email)
+                .password("encoded")
+                .nickname("verifyflow")
+                .build());
 
         mockMvc.perform(post("/api/auth/email/verify-request")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -130,5 +139,64 @@ class EmailAuthIntegrationTest extends AbstractIntegrationTest {
                                 {"email":"%s","password":"NewPass1234!"}
                                 """.formatted(email)))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void 이메일_인증번호_확인_없이_가입하면_EMAIL_NOT_VERIFIED() throws Exception {
+        mockMvc.perform(post("/api/members/join")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"no-code@test.com","password":"Test1234!","passwordConfirm":"Test1234!","nickname":"nocode"}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code").value("EMAIL_NOT_VERIFIED"));
+    }
+
+    @Test
+    void 인증번호_발송후_확인하면_가입이_성공하고_emailVerified가_true다() throws Exception {
+        String email = "code-flow@test.com";
+        mockMvc.perform(post("/api/auth/email/signup-code")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"%s"}
+                                """.formatted(email)))
+                .andExpect(status().isOk());
+
+        String code = emailVerificationCodeRepository.findByEmail(email).orElseThrow().getCode();
+
+        mockMvc.perform(post("/api/auth/email/signup-code/verify")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"%s","code":"%s"}
+                                """.formatted(email, code)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/members/join")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"%s","password":"Test1234!","passwordConfirm":"Test1234!","nickname":"codeflow"}
+                                """.formatted(email)))
+                .andExpect(status().isOk());
+
+        assertThat(memberRepository.findByEmail(email).orElseThrow().isEmailVerified()).isTrue();
+    }
+
+    @Test
+    void 틀린_인증번호로_확인하면_EMAIL_CODE_INVALID() throws Exception {
+        String email = "wrong-code@test.com";
+        mockMvc.perform(post("/api/auth/email/signup-code")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"%s"}
+                                """.formatted(email)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/auth/email/signup-code/verify")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"%s","code":"000000"}
+                                """.formatted(email)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code").value("EMAIL_CODE_INVALID"));
     }
 }

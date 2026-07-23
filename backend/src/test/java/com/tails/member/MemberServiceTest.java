@@ -101,6 +101,7 @@ class MemberServiceTest {
         MemberJoinRequest request = new MemberJoinRequest(" Test@Mail.com ", "Test1234!", "Test1234!", "tester");
         when(memberRepository.existsByEmail("test@mail.com")).thenReturn(false);
         when(memberRepository.existsByNickname("tester")).thenReturn(false);
+        when(authService.isSignupEmailVerified("test@mail.com")).thenReturn(true);
         when(passwordEncoder.encode("Test1234!")).thenReturn("encoded");
         when(memberRepository.save(any(Member.class))).thenAnswer(invocation -> invocation.getArgument(0));
 

@@ -45,6 +45,7 @@ class BoardDraftVisibilityIntegrationTest extends AbstractIntegrationTest {
     }
 
     private String join(String email, String nickname) throws Exception {
+        markSignupEmailVerified(email);
         mockMvc.perform(post("/api/members/join")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""

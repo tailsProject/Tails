@@ -19,6 +19,7 @@ class LoginAttemptIntegrationTest extends AbstractIntegrationTest {
     private static final int MAX_ATTEMPTS = 5;
 
     private void join(String email, String nickname) throws Exception {
+        markSignupEmailVerified(email);
         mockMvc.perform(post("/api/members/join")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""

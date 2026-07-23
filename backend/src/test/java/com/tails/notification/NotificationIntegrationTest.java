@@ -22,6 +22,7 @@ class NotificationIntegrationTest extends AbstractIntegrationTest {
     private ObjectMapper objectMapper;
 
     private String join(String email, String nickname) throws Exception {
+        markSignupEmailVerified(email);
         mockMvc.perform(post("/api/members/join")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""

@@ -27,6 +27,7 @@ class RefreshTokenIntegrationTest extends AbstractIntegrationTest {
     }
 
     private LoginResult join(String email, String nickname) throws Exception {
+        markSignupEmailVerified(email);
         mockMvc.perform(post("/api/members/join")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""

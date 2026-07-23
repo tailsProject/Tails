@@ -30,6 +30,7 @@ class AuthFlowIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void 가입후_로그인하면_토큰이_발급되고_그_토큰으로_내정보_조회가_된다() throws Exception {
+        markSignupEmailVerified("authflow@test.com");
         mockMvc.perform(post("/api/members/join")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -56,6 +57,7 @@ class AuthFlowIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void 잘못된_비밀번호로_로그인하면_LOGIN_FAILED_에러를_받는다() throws Exception {
+        markSignupEmailVerified("wrongpw@test.com");
         mockMvc.perform(post("/api/members/join")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
