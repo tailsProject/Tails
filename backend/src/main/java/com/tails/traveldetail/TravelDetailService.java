@@ -174,7 +174,7 @@ public class TravelDetailService {
 
         for (TravelDetail detail : details) {
             Place place = detail.getPlace();
-            if (place.getLatitude() == null || place.getLongitude() == null) {
+            if (place == null || place.getLatitude() == null || place.getLongitude() == null) {
                 throw new CustomException(ErrorCode.PLACE_LOCATION_MISSING);
             }
         }
