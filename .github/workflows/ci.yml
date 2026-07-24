@@ -33,6 +33,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      # application.properties는 gitignore 대상이라 저장소에 없음 - 안전한 기본값이 든
+      # example 파일을 그대로 복사해서 씀 (Testcontainers가 DB/Redis는 알아서 덮어씀)
+      - name: Create application.properties from example
+        run: cp src/main/resources/application.properties.example src/main/resources/application.properties
+
       - name: Run tests
         run: ./gradlew test --no-daemon
 
