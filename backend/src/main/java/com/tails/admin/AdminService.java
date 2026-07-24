@@ -19,7 +19,10 @@ public class AdminService {
 
     // 최초 관리자 계정은 이 API로 만들 수 없다(닭과 달걀 문제) - DB에서 직접 UPDATE로 지정
     @Transactional
-    public void changeMemberRole(Long memberId, MemberRole role) {
+    public void changeMemberRole(Long currentMemberId, Long memberId, MemberRole role) {
+        if (currentMemberId.equals(memberId)) {
+            throw new CustomException(ErrorCode.CANNOT_CHANGE_OWN_ROLE);
+        }
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         member.changeRole(role);

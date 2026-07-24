@@ -2,6 +2,7 @@ package com.tails.admin;
 
 import com.tails.admin.dto.RoleChangeRequest;
 import com.tails.common.response.ApiResponse;
+import com.tails.common.security.CustomUserDetails;
 import com.tails.report.ReportService;
 import com.tails.report.ReportStatus;
 import com.tails.report.dto.AdminReportResponse;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,9 +35,10 @@ public class AdminController {
     @PatchMapping("/members/{memberId}/role")
     @Operation(summary = "회원 권한 변경", description = "대상 회원의 권한을 USER/ADMIN으로 변경합니다. ADMIN 권한 필요.")
     public ApiResponse<Void> changeMemberRole(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long memberId,
             @Valid @RequestBody RoleChangeRequest request) {
-        adminService.changeMemberRole(memberId, request.role());
+        adminService.changeMemberRole(userDetails.getMemberId(), memberId, request.role());
         return ApiResponse.success();
     }
 
