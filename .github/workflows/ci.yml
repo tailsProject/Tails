@@ -43,11 +43,7 @@ jobs:
           done
 
       - name: Run tests
-        run: |
-          echo "MAIL_HOST=[$MAIL_HOST]"
-          ./gradlew test --no-daemon --stacktrace --rerun
-        env:
-          MAIL_HOST: smtp.gmail.com
+        run: ./gradlew test --no-daemon --stacktrace
 
       - name: Upload test results
         if: always()
