@@ -33,8 +33,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Debug - JDK/mail dependency info
+        run: |
+          java -version
+          ./gradlew -q dependencies --configuration testRuntimeClasspath | grep -i "mail\|autoconfigure" || true
+          echo "--- AutoConfiguration.imports (mail 관련 줄만) ---"
+          find ~/.gradle -name "spring-boot-autoconfigure-*.jar" | while read -r jar; do
+            unzip -p "$jar" META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports 2>/dev/null | grep -i mail
+          done
+
       - name: Run tests
-        run: ./gradlew test --no-daemon
+        run: ./gradlew test --no-daemon --stacktrace
 
       - name: Upload test results
         if: always()
