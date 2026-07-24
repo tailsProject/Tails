@@ -4,6 +4,7 @@ package com.tails.member.dto;
 public record LoginResponse(
         String accessToken,
         Long memberId,
-        String nickname
+        String nickname,
+        String role
 ) {
 }
