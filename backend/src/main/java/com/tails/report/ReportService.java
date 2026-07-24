@@ -66,6 +66,9 @@ public class ReportService {
             case BOARD -> {
                 Board board = boardRepository.findById(targetId)
                         .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+                if (!board.isVisibleTo(memberId)) {
+                    throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
+                }
                 if (board.getMember() != null && board.getMember().getId().equals(memberId)) {
                     throw new CustomException(ErrorCode.CANNOT_REPORT_SELF);
                 }

@@ -156,8 +156,12 @@ public class BoardService {
         return new LikeToggleResponse(liked, board.getLikeCount());
     }
 
-    // 작성자 본인인지 확인
+    // 작성자 본인인지 확인. DRAFT 글은 먼저 isVisibleTo로 존재 자체를 숨겨서(404), 조회/좋아요와
+    // 마찬가지로 남의 DRAFT 글에 대한 쓰기 시도에서도 존재 여부가 403으로 새지 않도록 한다
     private void requireOwner(Board board, Long memberId) {
+        if (!board.isVisibleTo(memberId)) {
+            throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
+        }
         if (board.getMember() == null || !board.getMember().getId().equals(memberId)) {
             throw new CustomException(ErrorCode.NOT_BOARD_OWNER);
         }
