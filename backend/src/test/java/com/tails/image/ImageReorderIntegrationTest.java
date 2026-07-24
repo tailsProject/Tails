@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// 게시글 이미지 순서 변경 회귀테스트 - 2단계(음수 임시값→최종값) 처리로 UNIQUE 제약 위반 없이 성공하는지 확인
+// 게시글 이미지 순서 변경 회귀테스트 - UNIQUE 제약 위반 없이 재배정되는지 확인
 class ImageReorderIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
@@ -30,6 +30,7 @@ class ImageReorderIntegrationTest extends AbstractIntegrationTest {
 
     @BeforeEach
     void setUp() throws Exception {
+        markSignupEmailVerified("image-reorder@test.com");
         mockMvc.perform(post("/api/members/join")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""

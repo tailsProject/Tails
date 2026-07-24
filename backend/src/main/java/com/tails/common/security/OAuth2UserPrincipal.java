@@ -6,20 +6,25 @@ import java.util.Map;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-// 소셜 로그인 성공 직후의 인증 주체. CustomOAuth2UserService가 회원 매핑을 끝낸 뒤 memberId를 담아
-// 넘기면, OAuth2SuccessHandler가 여기서 memberId만 꺼내 JWT를 발급한다.
+// 소셜 로그인 성공 후 인증 주체. memberId와 신규가입 여부를 담는다.
 public class OAuth2UserPrincipal implements OAuth2User {
 
     private final Long memberId;
+    private final boolean newMember;
     private final Map<String, Object> attributes;
 
-    public OAuth2UserPrincipal(Long memberId, Map<String, Object> attributes) {
+    public OAuth2UserPrincipal(Long memberId, boolean newMember, Map<String, Object> attributes) {
         this.memberId = memberId;
+        this.newMember = newMember;
         this.attributes = attributes;
     }
 
     public Long getMemberId() {
         return memberId;
+    }
+
+    public boolean isNewMember() {
+        return newMember;
     }
 
     @Override

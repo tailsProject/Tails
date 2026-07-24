@@ -31,6 +31,8 @@ public enum ErrorCode {
     OAUTH_EMAIL_ALREADY_REGISTERED(HttpStatus.CONFLICT, "이미 일반 가입된 이메일입니다. 이메일/비밀번호로 로그인해주세요."),
     EMAIL_TOKEN_INVALID(HttpStatus.BAD_REQUEST, "유효하지 않거나 만료된 인증 링크입니다."),
     EMAIL_ALREADY_VERIFIED(HttpStatus.BAD_REQUEST, "이미 인증된 이메일입니다."),
+    EMAIL_CODE_INVALID(HttpStatus.BAD_REQUEST, "인증번호가 올바르지 않거나 만료되었습니다."),
+    EMAIL_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "이메일 인증을 먼저 완료해주세요."),
 
     // ===== 게시글(Board) 관련 =====
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),

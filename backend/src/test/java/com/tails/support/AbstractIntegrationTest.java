@@ -1,5 +1,9 @@
 package com.tails.support;
 
+import com.tails.common.mail.EmailVerificationCode;
+import com.tails.common.mail.EmailVerificationCodeRepository;
+import java.time.LocalDateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -23,5 +27,19 @@ public abstract class AbstractIntegrationTest {
     static {
         MYSQL.start();
         REDIS.start();
+    }
+
+    @Autowired
+    private EmailVerificationCodeRepository emailVerificationCodeRepository;
+
+    // 메일 발송 없이 곧장 인증된 상태로 만드는 헬퍼(회원가입 인증번호 확인 우회)
+    protected void markSignupEmailVerified(String email) {
+        EmailVerificationCode verification = EmailVerificationCode.builder()
+                .email(email.trim().toLowerCase())
+                .code("000000")
+                .expiredAt(LocalDateTime.now().plusMinutes(5))
+                .build();
+        verification.markVerified();
+        emailVerificationCodeRepository.save(verification);
     }
 }
