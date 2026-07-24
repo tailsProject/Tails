@@ -43,7 +43,9 @@ jobs:
           done
 
       - name: Run tests
-        run: ./gradlew test --no-daemon --stacktrace
+        run: |
+          echo "MAIL_HOST=[$MAIL_HOST]"
+          ./gradlew test --no-daemon --stacktrace --rerun
         env:
           MAIL_HOST: smtp.gmail.com
 
