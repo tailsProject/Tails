@@ -44,6 +44,8 @@ jobs:
 
       - name: Run tests
         run: ./gradlew test --no-daemon --stacktrace
+        env:
+          MAIL_HOST: smtp.gmail.com
 
       - name: Upload test results
         if: always()
