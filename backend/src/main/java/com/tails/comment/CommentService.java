@@ -7,7 +7,9 @@ import com.tails.comment.dto.CommentResponse;
 import com.tails.comment.dto.CommentUpdateRequest;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
+import com.tails.member.Member;
 import com.tails.member.MemberRepository;
+import com.tails.member.MemberRole;
 import com.tails.notification.event.CommentCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -93,11 +95,11 @@ public class CommentService {
         comment.changeContent(request.content());
     }
 
-    // 작성자 본인만 삭제 가능. 실제로 지우지 않고 "삭제된 댓글입니다"로만 표시
+    // 작성자 본인 또는 ADMIN이 삭제 가능. 실제로 지우지 않고 "삭제된 댓글입니다"로만 표시
     @Transactional
     public void delete(Long memberId, Long boardId, Long commentId) {
         Comment comment = getCommentInBoardOrThrow(boardId, commentId);
-        requireOwner(comment, memberId);
+        requireOwnerOrAdmin(comment, memberId);
         comment.softDelete();
     }
 
@@ -107,6 +109,18 @@ public class CommentService {
 
     private void requireOwner(Comment comment, Long memberId) {
         if (comment.getMember() == null || !comment.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.NOT_COMMENT_OWNER);
+        }
+    }
+
+    // 삭제는 작성자 본인 또는 ADMIN이 할 수 있음 (신고된 댓글 강제 삭제 용도)
+    private void requireOwnerOrAdmin(Comment comment, Long memberId) {
+        if (comment.getMember() != null && comment.getMember().getId().equals(memberId)) {
+            return;
+        }
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_COMMENT_OWNER));
+        if (member.getRole() != MemberRole.ADMIN) {
             throw new CustomException(ErrorCode.NOT_COMMENT_OWNER);
         }
     }
