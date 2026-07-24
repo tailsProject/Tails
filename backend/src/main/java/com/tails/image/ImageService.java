@@ -14,9 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 
@@ -145,8 +147,9 @@ public class ImageService {
 
         Map<Long, Image> imageById = new LinkedHashMap<>();
         currentImages.forEach(image -> imageById.put(image.getId(), image));
+        Set<Long> seenIds = new HashSet<>();
         for (Long imageId : imageIds) {
-            if (!imageById.containsKey(imageId)) {
+            if (!imageById.containsKey(imageId) || !seenIds.add(imageId)) {
                 throw new CustomException(ErrorCode.IMAGE_ORDER_MISMATCH);
             }
         }
