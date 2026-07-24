@@ -3,6 +3,7 @@ package com.tails.common.exception;
 import com.tails.common.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -66,6 +67,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException e) {
         return ResponseEntity.status(ErrorCode.FILE_TOO_LARGE.getStatus())
                 .body(ApiResponse.error(ErrorCode.FILE_TOO_LARGE));
+    }
+
+    // 존재하지 않거나 다른 엔티티 소속의 필드를 sort 파라미터로 넘긴 경우 처리
+    @ExceptionHandler(InvalidDataAccessApiUsageException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidDataAccessApiUsage(InvalidDataAccessApiUsageException e) {
+        return ResponseEntity.status(ErrorCode.INVALID_INPUT.getStatus())
+                .body(ApiResponse.error(ErrorCode.INVALID_INPUT));
     }
 
     // 필수 쿼리/폼 파라미터 누락 처리
