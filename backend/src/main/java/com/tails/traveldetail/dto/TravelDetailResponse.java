@@ -39,12 +39,15 @@ public class TravelDetailResponse {
 
     // TravelDetail 엔티티 → TravelDetailResponse 변환
     // travel/place가 LAZY라서 트랜잭션(@Transactional) 안에서 호출해야 함
+    // place는 현재 애플리케이션 로직상 항상 존재하지만, 향후 장소 삭제 기능 등으로 orphan이
+    // 생길 경우에 대비해 null이어도 NPE 없이 placeId/placeName만 비워서 응답한다
     public static TravelDetailResponse from(TravelDetail travelDetail) {
+        var place = travelDetail.getPlace();
         return new TravelDetailResponse(
                 travelDetail.getDetailId(),
                 travelDetail.getTravel().getTravelId(),
-                travelDetail.getPlace().getPlaceId(),
-                travelDetail.getPlace().getPlaceName(),
+                place != null ? place.getPlaceId() : null,
+                place != null ? place.getPlaceName() : null,
                 travelDetail.getTravelDate(),
                 travelDetail.getVisitTime(),
                 travelDetail.getMemo(),
