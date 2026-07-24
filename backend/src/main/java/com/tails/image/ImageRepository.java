@@ -1,6 +1,8 @@
 package com.tails.image;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -13,7 +15,12 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     // 후기 이미지 조회. Review의 PK 필드명이 reviewId(id가 아님)라서, "review 필드를 타고
     // 들어가 그 안의 reviewId 필드"라는 걸 언더스코어로 명시해야 한다
     List<Image> findByReview_ReviewIdOrderByCreatedAtAsc(Long reviewId);
-    // 새로 업로드되는 이미지의 시작 sequence(기존 개수만큼 이어붙임)
-    long countByBoardId(Long boardId);
-    long countByReview_ReviewId(Long reviewId);
+
+    // 새로 업로드되는 이미지의 시작 sequence 계산용. count 기반으로 하면 중간 이미지를 삭제한
+    // 뒤 업로드할 때 남아있는 sequence와 충돌할 수 있어 실제 최댓값 + 1을 써야 함
+    @Query("SELECT COALESCE(MAX(i.sequence), -1) FROM Image i WHERE i.board.id = :boardId")
+    Integer findMaxSequenceByBoardId(@Param("boardId") Long boardId);
+
+    @Query("SELECT COALESCE(MAX(i.sequence), -1) FROM Image i WHERE i.review.reviewId = :reviewId")
+    Integer findMaxSequenceByReviewId(@Param("reviewId") Long reviewId);
 }
