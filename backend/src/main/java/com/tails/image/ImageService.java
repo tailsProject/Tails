@@ -44,7 +44,7 @@ public class ImageService {
             throw new CustomException(ErrorCode.NOT_IMAGE_OWNER);
         }
 
-        AtomicInteger sequence = new AtomicInteger((int) imageRepository.countByBoardId(boardId));
+        AtomicInteger sequence = new AtomicInteger(imageRepository.findMaxSequenceByBoardId(boardId) + 1);
         return storeAndSave(files, (storedFileName, originalFileName) -> Image.builder()
                 .board(board)
                 .storedFileName(storedFileName)
@@ -62,7 +62,7 @@ public class ImageService {
             throw new CustomException(ErrorCode.NOT_IMAGE_OWNER);
         }
 
-        AtomicInteger sequence = new AtomicInteger((int) imageRepository.countByReview_ReviewId(reviewId));
+        AtomicInteger sequence = new AtomicInteger(imageRepository.findMaxSequenceByReviewId(reviewId) + 1);
         return storeAndSave(files, (storedFileName, originalFileName) -> Image.builder()
                 .review(review)
                 .storedFileName(storedFileName)
