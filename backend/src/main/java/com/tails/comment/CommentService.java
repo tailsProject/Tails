@@ -85,7 +85,7 @@ public class CommentService {
     // 작성자 본인만 수정 가능, 삭제된 댓글은 수정 불가
     @Transactional
     public void update(Long memberId, Long boardId, Long commentId, CommentUpdateRequest request) {
-        Comment comment = getCommentInBoardOrThrow(boardId, commentId);
+        Comment comment = getCommentInBoardOrThrow(boardId, commentId, memberId);
         requireOwner(comment, memberId);
         if (comment.isDeleted()) {
             throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
@@ -96,7 +96,7 @@ public class CommentService {
     // 작성자 본인만 삭제 가능. 실제로 지우지 않고 "삭제된 댓글입니다"로만 표시
     @Transactional
     public void delete(Long memberId, Long boardId, Long commentId) {
-        Comment comment = getCommentInBoardOrThrow(boardId, commentId);
+        Comment comment = getCommentInBoardOrThrow(boardId, commentId, memberId);
         requireOwner(comment, memberId);
         comment.softDelete();
     }
@@ -116,12 +116,17 @@ public class CommentService {
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
     }
 
-    // commentId로 조회하고 URL의 boardId와 다른 게시글 소속이면 못 찾은 것처럼 처리
-    private Comment getCommentInBoardOrThrow(Long boardId, Long commentId) {
+    // commentId로 조회하고 URL의 boardId와 다른 게시글 소속이면 못 찾은 것처럼 처리.
+    // 댓글이 달린 게시글이 DRAFT라 이 memberId에게 안 보이면(isVisibleTo) create()와 동일하게
+    // BOARD_NOT_FOUND로 처리해서, 남의 DRAFT 글 댓글에 403(존재 유출) 대신 404가 나가게 한다
+    private Comment getCommentInBoardOrThrow(Long boardId, Long commentId, Long memberId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
         if (!comment.getBoard().getId().equals(boardId)) {
             throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
+        }
+        if (!comment.getBoard().isVisibleTo(memberId)) {
+            throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
         }
         return comment;
     }
