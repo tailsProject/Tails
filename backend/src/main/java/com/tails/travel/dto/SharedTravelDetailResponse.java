@@ -28,10 +28,11 @@ public class SharedTravelDetailResponse {
     }
 
     public static SharedTravelDetailResponse from(TravelDetail travelDetail) {
+        var place = travelDetail.getPlace();
         return new SharedTravelDetailResponse(
                 travelDetail.getDetailId(),
-                travelDetail.getPlace().getPlaceId(),
-                travelDetail.getPlace().getPlaceName(),
+                place != null ? place.getPlaceId() : null,
+                place != null ? place.getPlaceName() : null,
                 travelDetail.getTravelDate(),
                 travelDetail.getVisitTime(),
                 travelDetail.getSequence()
