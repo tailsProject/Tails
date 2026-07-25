@@ -40,6 +40,9 @@ public class ImageService {
     public List<ImageResponse> uploadForBoard(Long memberId, Long boardId, List<MultipartFile> files) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        if (!board.isVisibleTo(memberId)) {
+            throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
+        }
         if (board.getMember() == null || !board.getMember().getId().equals(memberId)) {
             throw new CustomException(ErrorCode.NOT_IMAGE_OWNER);
         }
@@ -122,6 +125,10 @@ public class ImageService {
         Image image = imageRepository.findById(imageId)
                 .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_NOT_FOUND));
 
+        if (image.getBoard() != null && !image.getBoard().isVisibleTo(memberId)) {
+            throw new CustomException(ErrorCode.IMAGE_NOT_FOUND);
+        }
+
         Long ownerId = resolveOwnerId(image);
         if (ownerId == null || !ownerId.equals(memberId)) {
             throw new CustomException(ErrorCode.NOT_IMAGE_OWNER);
@@ -136,6 +143,9 @@ public class ImageService {
     public void reorderBoardImages(Long memberId, Long boardId, List<Long> imageIds) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+        if (!board.isVisibleTo(memberId)) {
+            throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
+        }
         if (board.getMember() == null || !board.getMember().getId().equals(memberId)) {
             throw new CustomException(ErrorCode.NOT_IMAGE_OWNER);
         }

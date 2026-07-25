@@ -15,6 +15,9 @@ public class TravelDetailResponse {
     private final Long travelId;
     private final Long placeId;
     private final String placeName;
+    private final String placeImageUrl;
+    private final Double placeLatitude;
+    private final Double placeLongitude;
     private final LocalDate travelDate;
     private final LocalTime visitTime;
     private final String memo;
@@ -22,13 +25,16 @@ public class TravelDetailResponse {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    private TravelDetailResponse(Long detailId, Long travelId, Long placeId, String placeName,
-            LocalDate travelDate, LocalTime visitTime, String memo, Integer sequence,
-            LocalDateTime createdAt, LocalDateTime updatedAt) {
+    private TravelDetailResponse(Long detailId, Long travelId, Long placeId, String placeName, String placeImageUrl,
+            Double placeLatitude, Double placeLongitude, LocalDate travelDate, LocalTime visitTime, String memo,
+            Integer sequence, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.detailId = detailId;
         this.travelId = travelId;
         this.placeId = placeId;
         this.placeName = placeName;
+        this.placeImageUrl = placeImageUrl;
+        this.placeLatitude = placeLatitude;
+        this.placeLongitude = placeLongitude;
         this.travelDate = travelDate;
         this.visitTime = visitTime;
         this.memo = memo;
@@ -48,6 +54,9 @@ public class TravelDetailResponse {
                 travelDetail.getTravel().getTravelId(),
                 place != null ? place.getPlaceId() : null,
                 place != null ? place.getPlaceName() : null,
+                place != null ? place.getImageUrl() : null,
+                place != null ? place.getLatitude() : null,
+                place != null ? place.getLongitude() : null,
                 travelDetail.getTravelDate(),
                 travelDetail.getVisitTime(),
                 travelDetail.getMemo(),
