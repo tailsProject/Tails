@@ -11,7 +11,9 @@ import com.tails.common.util.FileStorage;
 import com.tails.bookmark.BoardBookmarkRepository;
 import com.tails.image.Image;
 import com.tails.image.ImageRepository;
+import com.tails.member.Member;
 import com.tails.member.MemberRepository;
+import com.tails.member.MemberRole;
 import com.tails.notification.event.BoardLikedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -114,7 +116,7 @@ public class BoardService {
     @Transactional
     public void delete(Long memberId, Long boardId) {
         Board board = getBoardOrThrow(boardId);
-        requireOwner(board, memberId);
+        requireOwnerOrAdmin(board, memberId);
 
         // DB에서 삭제되지 않는 파일은 직접 삭제
         for (Image image : imageRepository.findByBoardIdOrderByCreatedAtAsc(boardId)) {
@@ -163,6 +165,18 @@ public class BoardService {
             throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
         }
         if (board.getMember() == null || !board.getMember().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.NOT_BOARD_OWNER);
+        }
+    }
+
+    // 삭제는 작성자 본인 또는 ADMIN이 할 수 있음 (신고된 게시글 강제 삭제 용도)
+    private void requireOwnerOrAdmin(Board board, Long memberId) {
+        if (board.getMember() != null && board.getMember().getId().equals(memberId)) {
+            return;
+        }
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_BOARD_OWNER));
+        if (member.getRole() != MemberRole.ADMIN) {
             throw new CustomException(ErrorCode.NOT_BOARD_OWNER);
         }
     }

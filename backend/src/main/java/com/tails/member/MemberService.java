@@ -93,7 +93,7 @@ public class MemberService {
 
         var tokens = authService.issueTokens(member);
         return new LoginResult(
-                new LoginResponse(tokens.accessToken(), member.getId(), member.getNickname()),
+                new LoginResponse(tokens.accessToken(), member.getId(), member.getNickname(), member.getRole().name()),
                 tokens.refreshCookie());
     }
 
