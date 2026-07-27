@@ -38,13 +38,15 @@ public class PlaceSyncController {
             summary = "카테고리 미리보기 (목록 + 상세 합침, 저장 안 함)",
             description = "contentTypeId 카테고리의 목록을 조회하고, 각 항목의 contentid로 detailPetTour2를 호출해서 "
                     + "상세정보를 합친 원본 데이터를 그대로 반환합니다. 이미 DB에 저장된 장소는 상세 조회를 생략하고 "
-                    + "alreadyExists=true로만 표시합니다. Place 엔티티 변환/저장은 하지 않습니다.")
+                    + "alreadyExists=true로만 표시합니다. Place 엔티티 변환/저장은 하지 않습니다. areaCode를 지정하면 "
+                    + "해당 시도 지역으로 한정해서 조회합니다.")
     public ApiResponse<List<PlacePreviewItem>> preview(
             @RequestParam(required = true) String contentTypeId,
+            @RequestParam(required = false) String areaCode,
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "5") int numOfRows) {
         PetTourContentType contentType = PetTourContentType.fromCode(contentTypeId);
-        return ApiResponse.success(placeSyncService.previewSync(contentType, pageNo, numOfRows));
+        return ApiResponse.success(placeSyncService.previewSync(contentType, areaCode, pageNo, numOfRows));
     }
 
     // 이미 저장된 항목은 건너뛰므로 재호출해도 중복 저장은 안 되지만, 실제로 DB에 사용
@@ -53,12 +55,14 @@ public class PlaceSyncController {
             summary = "⚠️ 카테고리 동기화 실행 (실제 DB 저장)",
             description = "contentTypeId 카테고리의 목록을 조회하고, 아직 저장되지 않은 항목만 상세정보(detailPetTour2)까지 "
                     + "조회해서 Place 테이블에 실제로 저장합니다. 이미 external_place_id로 저장된 항목은 건너뜁니다. "
-                    + "이 API는 조회 전용이 아니라 DB에 실제로 쓰기(INSERT)를 수행합니다.")
+                    + "이 API는 조회 전용이 아니라 DB에 실제로 쓰기(INSERT)를 수행합니다. areaCode를 지정하면 "
+                    + "해당 시도 지역으로 한정해서 동기화합니다.")
     public ApiResponse<SyncRunResponse> run(
             @RequestParam(required = true) String contentTypeId,
+            @RequestParam(required = false) String areaCode,
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "100") int numOfRows) {
         PetTourContentType contentType = PetTourContentType.fromCode(contentTypeId);
-        return ApiResponse.success(placeSyncService.syncCategory(contentType, pageNo, numOfRows));
+        return ApiResponse.success(placeSyncService.syncCategory(contentType, areaCode, pageNo, numOfRows));
     }
 }

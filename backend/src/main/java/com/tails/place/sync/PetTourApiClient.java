@@ -57,8 +57,10 @@ public class PetTourApiClient {
         this.tourApiProperties = tourApiProperties;
     }
 
-    // contentTypeId가 null이면 전체 카테고리 대상으로 조회
-    public List<PetTourListItem> fetchSyncList(String contentTypeId, int pageNo, int numOfRows) {
+    // contentTypeId가 null이면 전체 카테고리, areaCode가 null이면 전국 대상으로 조회
+    // areaCode: 시도 단위 지역코드(예: 1=서울, 32=강원, 39=제주 등) - 카테고리 하나가 특정
+    // 지역에 쏠려있을 때, 지역별로 나눠 받아 균등한 샘플을 뽑고 싶은 경우에 사용
+    public List<PetTourListItem> fetchSyncList(String contentTypeId, String areaCode, int pageNo, int numOfRows) {
         StringBuilder url = new StringBuilder(BASE_URL)
                 .append("/petTourSyncList2")
                 .append("?serviceKey=").append(tourApiProperties.serviceKey())
@@ -70,6 +72,9 @@ public class PetTourApiClient {
 
         if (contentTypeId != null) {
             url.append("&contentTypeId=").append(contentTypeId);
+        }
+        if (areaCode != null) {
+            url.append("&areaCode=").append(areaCode);
         }
 
         TourApiBody<PetTourListItem> body = fetchBody(
