@@ -25,7 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-// CommentService 단위테스트 - 답글의 답글 승격/타 게시글 답글 차단/삭제된 댓글 수정 차단
+// CommentService 단위테스트 - 답글의 답글 중첩/타 게시글 답글 차단/삭제된 댓글 수정 차단
 @ExtendWith(MockitoExtension.class)
 class CommentServiceTest {
 
@@ -60,7 +60,7 @@ class CommentServiceTest {
     }
 
     @Test
-    void 답글에_답글을_달면_최상위_댓글이_부모로_설정된다() {
+    void 답글에_답글을_달면_그_답글이_그대로_부모로_설정된다() {
         Board board = newBoard(1L);
         Comment root = newComment(10L, board, null);
         Comment reply = newComment(11L, board, root);
@@ -73,7 +73,7 @@ class CommentServiceTest {
 
         ArgumentCaptor<Comment> captor = ArgumentCaptor.forClass(Comment.class);
         verify(commentRepository).save(captor.capture());
-        assertThat(captor.getValue().getParent()).isEqualTo(root);
+        assertThat(captor.getValue().getParent()).isEqualTo(reply);
     }
 
     @Test

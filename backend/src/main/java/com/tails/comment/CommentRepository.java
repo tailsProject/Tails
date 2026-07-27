@@ -13,7 +13,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @EntityGraph(attributePaths = "member")
     Page<Comment> findByBoardIdAndParentIsNull(Long boardId, Pageable pageable);
 
-    // 페이징된 최상위 댓글들의 답글을 한 번에 조회(N+1 방지)
+    // 게시글의 전체 답글 조회 (N+1 방지)
     @EntityGraph(attributePaths = "member")
-    List<Comment> findByParentIdInOrderByCreatedAtAsc(List<Long> parentIds);
+    List<Comment> findByBoardIdAndParentIsNotNullOrderByCreatedAtAsc(Long boardId);
 }

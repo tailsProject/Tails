@@ -33,7 +33,7 @@ public class CommentService {
     private final MemberRepository memberRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    // 답글에는 다시 답글을 달 수 없도록 항상 최상위 댓글을 부모로 설정
+    // 답글에도 다시 답글을 달 수 있음 (depth 제한 없이 무한 중첩)
     @Transactional
     public Long create(Long memberId, Long boardId, CommentCreateRequest request) {
         Board board = getBoardOrThrow(boardId);
@@ -49,7 +49,7 @@ public class CommentService {
             if (!target.getBoard().getId().equals(boardId)) {
                 throw new CustomException(ErrorCode.PARENT_COMMENT_BOARD_MISMATCH);
             }
-            parent = target.getParent() != null ? target.getParent() : target;
+            parent = target;
         }
 
         Comment comment = Comment.builder()
@@ -67,7 +67,7 @@ public class CommentService {
         return commentId;
     }
 
-    // 최상위 댓글 기준으로 페이징하고, 그 페이지의 답글만 별도로 모아 트리로 묶어 반환
+    // 최상위 댓글 기준으로 페이징하고, 게시글 전체 답글(모든 depth)을 부모 id로 묶어 재귀적으로 트리를 구성해 반환
     public Page<CommentResponse> getList(Long boardId, Long currentMemberId, Pageable pageable) {
         Board board = getBoardOrThrow(boardId);
         if (!board.isVisibleTo(currentMemberId)) {
@@ -75,13 +75,18 @@ public class CommentService {
         }
         Page<Comment> roots = commentRepository.findByBoardIdAndParentIsNull(boardId, pageable);
 
-        List<Long> rootIds = roots.getContent().stream().map(Comment::getId).toList();
-        Map<Long, List<Comment>> repliesByParentId = rootIds.isEmpty()
-                ? Map.of()
-                : commentRepository.findByParentIdInOrderByCreatedAtAsc(rootIds).stream()
-                        .collect(Collectors.groupingBy(comment -> comment.getParent().getId()));
+        Map<Long, List<Comment>> childrenByParentId = commentRepository.findByBoardIdAndParentIsNotNullOrderByCreatedAtAsc(boardId).stream()
+                .collect(Collectors.groupingBy(comment -> comment.getParent().getId()));
 
-        return roots.map(root -> CommentResponse.of(root, toResponses(repliesByParentId.getOrDefault(root.getId(), List.of()))));
+        return roots.map(root -> toResponseWithReplies(root, childrenByParentId));
+    }
+
+    // 댓글 하나를 답글까지 재귀적으로 응답 DTO로 변환 (답글의 답글도 depth 제한 없이 포함)
+    private CommentResponse toResponseWithReplies(Comment comment, Map<Long, List<Comment>> childrenByParentId) {
+        List<CommentResponse> replies = childrenByParentId.getOrDefault(comment.getId(), List.of()).stream()
+                .map(child -> toResponseWithReplies(child, childrenByParentId))
+                .toList();
+        return CommentResponse.of(comment, replies);
     }
 
     // 작성자 본인만 수정 가능, 삭제된 댓글은 수정 불가
@@ -101,10 +106,6 @@ public class CommentService {
         Comment comment = getCommentInBoardOrThrow(boardId, commentId, memberId);
         requireOwnerOrAdmin(comment, memberId);
         comment.softDelete();
-    }
-
-    private List<CommentResponse> toResponses(List<Comment> comments) {
-        return comments.stream().map(comment -> CommentResponse.of(comment, List.of())).toList();
     }
 
     private void requireOwner(Comment comment, Long memberId) {
