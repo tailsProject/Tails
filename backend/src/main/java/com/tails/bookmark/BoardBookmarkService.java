@@ -3,10 +3,14 @@ package com.tails.bookmark;
 import com.tails.board.Board;
 import com.tails.board.BoardRepository;
 import com.tails.board.dto.BoardResponse;
+import com.tails.comment.CommentRepository;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.member.MemberRepository;
 import com.tails.notification.event.BoardBookmarkedEvent;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -23,6 +27,7 @@ public class BoardBookmarkService {
     private final BoardBookmarkRepository boardBookmarkRepository;
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
+    private final CommentRepository commentRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     // 이미 북마크했으면 취소, 안 했으면 추가
@@ -53,7 +58,10 @@ public class BoardBookmarkService {
     }
 
     public Page<BoardResponse> getMyBookmarks(Long memberId, Pageable pageable) {
-        return boardBookmarkRepository.findBookmarkedBoardsByMemberId(memberId, pageable)
-                .map(BoardResponse::from);
+        Page<Board> boards = boardBookmarkRepository.findBookmarkedBoardsByMemberId(memberId, pageable);
+        List<Long> boardIds = boards.getContent().stream().map(Board::getId).toList();
+        Map<Long, Integer> commentCounts = commentRepository.countByBoardIds(boardIds).stream()
+                .collect(Collectors.toMap(row -> (Long) row[0], row -> ((Long) row[1]).intValue()));
+        return boards.map(board -> BoardResponse.from(board, commentCounts.getOrDefault(board.getId(), 0)));
     }
 }

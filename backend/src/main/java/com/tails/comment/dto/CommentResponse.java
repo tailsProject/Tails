@@ -12,6 +12,7 @@ public record CommentResponse(
         Long parentId,
         Long authorId,
         String authorNickname,
+        String authorProfileImg,
         String content,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
@@ -20,6 +21,7 @@ public record CommentResponse(
     public static CommentResponse of(Comment comment, List<CommentResponse> replies) {
         Long authorId = comment.getMember() != null ? comment.getMember().getId() : null;
         String authorNickname = comment.getMember() != null ? comment.getMember().getNickname() : "탈퇴한 회원";
+        String authorProfileImg = comment.getMember() != null ? comment.getMember().getProfileImg() : null;
         Long parentId = comment.getParent() != null ? comment.getParent().getId() : null;
         String content = comment.isDeleted() ? "삭제된 댓글입니다." : comment.getContent();
         return new CommentResponse(
@@ -28,6 +30,7 @@ public record CommentResponse(
                 parentId,
                 authorId,
                 authorNickname,
+                authorProfileImg,
                 content,
                 comment.getCreatedAt(),
                 comment.getUpdatedAt(),
