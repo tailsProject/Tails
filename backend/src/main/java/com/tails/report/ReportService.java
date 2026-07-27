@@ -60,6 +60,14 @@ public class ReportService {
         report.markAsResolved();
     }
 
+    // 신고 기록만 삭제 - 신고 대상 게시글/댓글은 그대로 유지
+    @Transactional
+    public void delete(Long reportId) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REPORT_NOT_FOUND));
+        reportRepository.delete(report);
+    }
+
     // 자기 신고 방지: MEMBER 신고는 대상이 본인, BOARD/COMMENT 신고는 그 글/댓글 작성자가 본인인 경우
     private void requireTargetExistsAndNotSelf(Long memberId, ReportTargetType targetType, Long targetId) {
         switch (targetType) {

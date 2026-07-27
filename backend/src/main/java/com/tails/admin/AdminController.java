@@ -75,4 +75,11 @@ public class AdminController {
         reportService.resolve(reportId);
         return ApiResponse.success();
     }
+
+    @DeleteMapping("/reports/{reportId}")
+    @Operation(summary = "신고 기록 삭제", description = "신고 기록을 삭제합니다. 신고 대상 게시글/댓글은 유지됩니다. ADMIN 권한 필요.")
+    public ApiResponse<Void> deleteReport(@PathVariable Long reportId) {
+        reportService.delete(reportId);
+        return ApiResponse.success();
+    }
 }
