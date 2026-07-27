@@ -1,5 +1,7 @@
 package com.tails.member;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -11,6 +13,9 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByEmail(String email);
+
+    // 관리자 회원 검색 - 이메일 또는 닉네임에 keyword 포함
+    Page<Member> findByEmailContainingOrNicknameContaining(String email, String nickname, Pageable pageable);
 
     boolean existsByEmail(String email);
 

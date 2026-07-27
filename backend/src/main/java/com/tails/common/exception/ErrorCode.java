@@ -94,7 +94,8 @@ public enum ErrorCode {
     NOT_PET_OWNER(HttpStatus.FORBIDDEN, "본인의 반려동물만 수정/삭제할 수 있습니다."),
 
     // ===== 관리자(Admin) 관련 =====
-    CANNOT_CHANGE_OWN_ROLE(HttpStatus.BAD_REQUEST, "자기 자신의 권한은 변경할 수 없습니다.");
+    CANNOT_CHANGE_OWN_ROLE(HttpStatus.BAD_REQUEST, "자기 자신의 권한은 변경할 수 없습니다."),
+    CANNOT_EXPEL_SELF(HttpStatus.BAD_REQUEST, "자기 자신은 추방할 수 없습니다.");
 
     private final HttpStatus status;
     private final String message;

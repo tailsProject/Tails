@@ -1,5 +1,6 @@
 package com.tails.admin;
 
+import com.tails.admin.dto.AdminMemberResponse;
 import com.tails.admin.dto.RoleChangeRequest;
 import com.tails.common.response.ApiResponse;
 import com.tails.common.security.CustomUserDetails;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,6 +41,23 @@ public class AdminController {
             @PathVariable Long memberId,
             @Valid @RequestBody RoleChangeRequest request) {
         adminService.changeMemberRole(userDetails.getMemberId(), memberId, request.role());
+        return ApiResponse.success();
+    }
+
+    @GetMapping("/members")
+    @Operation(summary = "회원 검색/목록", description = "이메일/닉네임 keyword로 회원을 검색합니다. ADMIN 권한 필요.")
+    public ApiResponse<Page<AdminMemberResponse>> getMembers(
+            @RequestParam(required = false) String keyword,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ApiResponse.success(adminService.getMembers(keyword, pageable));
+    }
+
+    @DeleteMapping("/members/{memberId}")
+    @Operation(summary = "회원 강제 추방", description = "대상 회원을 강제 탈퇴시킵니다. 자기 자신은 불가. ADMIN 권한 필요.")
+    public ApiResponse<Void> expelMember(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long memberId) {
+        adminService.expelMember(userDetails.getMemberId(), memberId);
         return ApiResponse.success();
     }
 
