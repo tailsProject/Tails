@@ -13,11 +13,12 @@ public record BoardResponse(
         String authorProfileImg,
         int viewCount,
         int likeCount,
+        int commentCount,
         BoardStatus status,
         LocalDateTime createdAt
 ) {
-    // 탈퇴한 작성자는 "탈퇴한 회원"으로 표시
-    public static BoardResponse from(Board board) {
+    // 탈퇴한 작성자는 "탈퇴한 회원"으로 표시, commentCount는 배치 조회 결과를 별도 인자로 받음
+    public static BoardResponse from(Board board, int commentCount) {
         String authorNickname = board.getMember() != null ? board.getMember().getNickname() : "탈퇴한 회원";
         String authorProfileImg = board.getMember() != null ? board.getMember().getProfileImg() : null;
         return new BoardResponse(
@@ -27,6 +28,7 @@ public record BoardResponse(
                 authorProfileImg,
                 board.getViewCount(),
                 board.getLikeCount(),
+                commentCount,
                 board.getStatus(),
                 board.getCreatedAt()
         );

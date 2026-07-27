@@ -5,6 +5,7 @@ import com.tails.board.dto.BoardDetailResponse;
 import com.tails.board.dto.BoardResponse;
 import com.tails.board.dto.BoardUpdateRequest;
 import com.tails.board.dto.LikeToggleResponse;
+import com.tails.comment.CommentRepository;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.common.util.FileStorage;
@@ -15,6 +16,9 @@ import com.tails.member.Member;
 import com.tails.member.MemberRepository;
 import com.tails.member.MemberRole;
 import com.tails.notification.event.BoardLikedEvent;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -33,6 +37,7 @@ public class BoardService {
     private final BoardBookmarkRepository boardBookmarkRepository;
     private final MemberRepository memberRepository;
     private final ImageRepository imageRepository;
+    private final CommentRepository commentRepository;
     private final FileStorage fileStorage;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -62,12 +67,12 @@ public class BoardService {
     // keyword가 있으면 검색, sortBy=popular면 인기순, 둘 다 없으면 기존 최신순 목록
     public Page<BoardResponse> getList(Pageable pageable, String keyword, String sortBy) {
         if (keyword != null && !keyword.isBlank()) {
-            return boardRepository.searchByKeyword(keyword.trim(), pageable).map(BoardResponse::from);
+            return withCommentCounts(boardRepository.searchByKeyword(keyword.trim(), pageable));
         }
         if ("popular".equals(sortBy)) {
-            return boardRepository.findAllOrderByPopularity(pageable).map(BoardResponse::from);
+            return withCommentCounts(boardRepository.findAllOrderByPopularity(pageable));
         }
-        return boardRepository.findAllWithMember(pageable).map(BoardResponse::from);
+        return withCommentCounts(boardRepository.findAllWithMember(pageable));
     }
 
     // 임시저장 글을 이어쓰기 내용과 함께 발행 전환. 이미 발행된 글이면 거절
@@ -83,12 +88,20 @@ public class BoardService {
     }
 
     public Page<BoardResponse> getMyDrafts(Long memberId, Pageable pageable) {
-        return boardRepository.findByMemberIdAndStatus(memberId, BoardStatus.DRAFT, pageable).map(BoardResponse::from);
+        return withCommentCounts(boardRepository.findByMemberIdAndStatus(memberId, BoardStatus.DRAFT, pageable));
     }
 
     // 내가 쓴 글 목록 - DRAFT/PUBLISHED 구분 없이 전부 보임(마이페이지)
     public Page<BoardResponse> getMyBoards(Long memberId, Pageable pageable) {
-        return boardRepository.findByMemberId(memberId, pageable).map(BoardResponse::from);
+        return withCommentCounts(boardRepository.findByMemberId(memberId, pageable));
+    }
+
+    // 게시글 목록에 댓글 수 배치 조회 후 반영
+    private Page<BoardResponse> withCommentCounts(Page<Board> boards) {
+        List<Long> boardIds = boards.getContent().stream().map(Board::getId).toList();
+        Map<Long, Integer> commentCounts = commentRepository.countByBoardIds(boardIds).stream()
+                .collect(Collectors.toMap(row -> (Long) row[0], row -> ((Long) row[1]).intValue()));
+        return boards.map(board -> BoardResponse.from(board, commentCounts.getOrDefault(board.getId(), 0)));
     }
 
     // 게시글 상세 조회 + 조회수 1 증가. DRAFT는 작성자 본인만 조회 가능(그 외엔 BOARD_NOT_FOUND)
