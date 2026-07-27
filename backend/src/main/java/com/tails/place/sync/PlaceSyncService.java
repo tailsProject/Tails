@@ -32,8 +32,8 @@ public class PlaceSyncService {
             new PetInfoField("관련렌탈품목", PetTourDetailItem::relaRntlPrdlst),
             new PetInfoField("동반시필요사항", PetTourDetailItem::acmpyNeedMtr));
 
-    // 예상 소요일수 계산용 가정치(하루 처리 가능 건수) 실측치 아님 — 나중에 조정 가능
-    private static final int DAILY_PROCESS_CAPACITY = 900;
+    // data.go.kr 활용신청 키의 실제 하루 호출 한도
+    private static final int DAILY_PROCESS_CAPACITY = 1000;
 
     private final PetTourApiClient petTourApiClient;
     private final PlaceRepository placeRepository;

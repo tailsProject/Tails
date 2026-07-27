@@ -27,7 +27,7 @@ public class PlaceSyncController {
     @Operation(
             summary = "카테고리별 TourAPI 전체 건수 확인",
             description = "7개 contentTypeId(관광지/문화시설/행사공연축제/레포츠/숙박/쇼핑/음식점) 각각의 totalCount를 조회해서, "
-                    + "카테고리별 건수 + 전체 합계 + 하루 900건 처리 가정 시 예상 소요일수를 반환합니다. 지역 필터 없이 전국 대상입니다.")
+                    + "카테고리별 건수 + 전체 합계 + 하루 1000건 처리 가정 시 예상 소요일수를 반환합니다. 지역 필터 없이 전국 대상입니다.")
     public ApiResponse<CategoryCountSummaryResponse> getCategoryCounts() {
         return ApiResponse.success(placeSyncService.getCategoryCounts());
     }
