@@ -10,6 +10,7 @@ public record BoardResponse(
         Long boardId,
         String title,
         String authorNickname,
+        String authorProfileImg,
         int viewCount,
         int likeCount,
         BoardStatus status,
@@ -18,10 +19,12 @@ public record BoardResponse(
     // 탈퇴한 작성자는 "탈퇴한 회원"으로 표시
     public static BoardResponse from(Board board) {
         String authorNickname = board.getMember() != null ? board.getMember().getNickname() : "탈퇴한 회원";
+        String authorProfileImg = board.getMember() != null ? board.getMember().getProfileImg() : null;
         return new BoardResponse(
                 board.getId(),
                 board.getTitle(),
                 authorNickname,
+                authorProfileImg,
                 board.getViewCount(),
                 board.getLikeCount(),
                 board.getStatus(),
