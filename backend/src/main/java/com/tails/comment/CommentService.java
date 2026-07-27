@@ -11,6 +11,7 @@ import com.tails.member.Member;
 import com.tails.member.MemberRepository;
 import com.tails.member.MemberRole;
 import com.tails.notification.event.CommentCreatedEvent;
+import com.tails.notification.event.CommentRepliedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -62,6 +63,10 @@ public class CommentService {
 
         if (board.getMember() != null && !board.getMember().getId().equals(memberId)) {
             eventPublisher.publishEvent(new CommentCreatedEvent(board.getMember().getId(), memberId, boardId));
+        }
+        // 답글 대상 댓글 작성자에게 알림
+        if (parent != null && parent.getMember() != null && !parent.getMember().getId().equals(memberId)) {
+            eventPublisher.publishEvent(new CommentRepliedEvent(parent.getMember().getId(), memberId, boardId));
         }
 
         return commentId;
