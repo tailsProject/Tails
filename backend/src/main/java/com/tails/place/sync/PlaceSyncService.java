@@ -32,8 +32,14 @@ public class PlaceSyncService {
             new PetInfoField("관련렌탈품목", PetTourDetailItem::relaRntlPrdlst),
             new PetInfoField("동반시필요사항", PetTourDetailItem::acmpyNeedMtr));
 
-    // 예상 소요일수 계산용 가정치(하루 처리 가능 건수) 실측치 아님 — 나중에 조정 가능
-    private static final int DAILY_PROCESS_CAPACITY = 900;
+    // data.go.kr 활용신청 키의 실제 하루 호출 한도
+    private static final int DAILY_PROCESS_CAPACITY = 1000;
+
+    // 쇼핑(38) 카테고리 안에서 "여행지"라 보기 애매한 하위분류(SH04=개별 상점, SH07=편의점/마트)는
+    // 상세/사진 API 호출 전에 걸러서 API 호출 자체를 아낀다. 반려동물 동반여행 서비스 취지상
+    // 약국/개별 브랜드 매장/편의점보다는 대형 쇼핑몰·아울렛(SH02)·전통시장(SH06) 위주로 채운다
+    private static final String SHOPPING_CONTENT_TYPE = "38";
+    private static final List<String> EXCLUDED_SHOPPING_SUBCATEGORIES = List.of("SH04", "SH07");
 
     private final PetTourApiClient petTourApiClient;
     private final PlaceRepository placeRepository;
@@ -55,10 +61,11 @@ public class PlaceSyncService {
     }
 
     // 이미 저장된 장소는 detailPetTour2 호출을 생략(불필요한 외부 API 호출 절약)
-    public List<PlacePreviewItem> previewSync(PetTourContentType contentType, int pageNo, int numOfRows) {
-        List<PetTourListItem> listItems = petTourApiClient.fetchSyncList(contentType.getCode(), pageNo, numOfRows);
+    public List<PlacePreviewItem> previewSync(PetTourContentType contentType, String areaCode, int pageNo, int numOfRows) {
+        List<PetTourListItem> listItems = petTourApiClient.fetchSyncList(contentType.getCode(), areaCode, pageNo, numOfRows);
 
         return listItems.stream()
+                .filter(listItem -> !isExcludedShoppingSubcategory(listItem))
                 .map(this::toPreviewItem)
                 .toList();
     }
@@ -73,16 +80,22 @@ public class PlaceSyncService {
 
     // 메서드 전체에 @Transactional을 걸지 않음 — 걸면 한 항목 실패가 전체 롤백으로
     // 번질 수 있어서, save()마다 개별 트랜잭션으로 커밋되게 두고 항목별 try-catch로 부분 실패를 흡수
-    public SyncRunResponse syncCategory(PetTourContentType contentType, int pageNo, int numOfRows) {
-        List<PetTourListItem> listItems = petTourApiClient.fetchSyncList(contentType.getCode(), pageNo, numOfRows);
+    public SyncRunResponse syncCategory(PetTourContentType contentType, String areaCode, int pageNo, int numOfRows) {
+        List<PetTourListItem> listItems = petTourApiClient.fetchSyncList(contentType.getCode(), areaCode, pageNo, numOfRows);
 
         int newlySaved = 0;
         int skippedAlreadyExists = 0;
+        int excludedBySubcategory = 0;
         int failed = 0;
         List<String> failedDetails = new ArrayList<>();
 
         for (PetTourListItem listItem : listItems) {
             try {
+                if (isExcludedShoppingSubcategory(listItem)) {
+                    excludedBySubcategory++;
+                    continue;
+                }
+
                 if (placeRepository.findByExternalPlaceId(listItem.contentid()).isPresent()) {
                     skippedAlreadyExists++;
                     continue;
@@ -99,7 +112,12 @@ public class PlaceSyncService {
 
         return new SyncRunResponse(
                 contentType.getCode(), pageNo, numOfRows, listItems.size(),
-                newlySaved, skippedAlreadyExists, failed, failedDetails);
+                newlySaved, skippedAlreadyExists, excludedBySubcategory, failed, failedDetails);
+    }
+
+    private boolean isExcludedShoppingSubcategory(PetTourListItem listItem) {
+        return SHOPPING_CONTENT_TYPE.equals(listItem.contenttypeid())
+                && EXCLUDED_SHOPPING_SUBCATEGORIES.contains(listItem.lclsSystm2());
     }
 
     private Place toPlaceEntity(PetTourListItem listItem, PetTourDetailItem detail) {
@@ -127,10 +145,12 @@ public class PlaceSyncService {
                 .build();
     }
 
-    // 좌표를 모르는 항목은 mapx/mapy가 빈 문자열로 내려옴
-    // 그대로 parseDouble하면 NumberFormatException이라 빈 값은 null로 반환
+    // 좌표를 모르는 항목은 mapx/mapy가 빈 문자열로 내려옴 - 그대로 parseDouble하면
+    // NumberFormatException이라 빈 값은 null로 반환. 드물게 "0"이 오는 경우도 있는데,
+    // (0, 0)은 대서양 한가운데라 국내 장소 좌표로는 있을 수 없는 값 - 이 값이 그대로 들어가면
+    // 지도에서 전체 범위(bounds) 계산이 지구 반대편까지 걸쳐 깨지므로 마찬가지로 null 처리한다
     private Double parseCoordinate(String value) {
-        if (value == null || value.isBlank()) {
+        if (value == null || value.isBlank() || "0".equals(value.trim())) {
             return null;
         }
         return Double.parseDouble(value);
