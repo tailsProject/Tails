@@ -11,12 +11,15 @@ import com.tails.member.MemberRole;
 import com.tails.place.Place;
 import com.tails.place.PlaceRepository;
 import com.tails.review.dto.MyReviewResponse;
+import com.tails.review.dto.RecentReviewResponse;
 import com.tails.review.dto.ReviewCreateRequest;
 import com.tails.review.dto.ReviewListResponse;
 import com.tails.review.dto.ReviewResponse;
 import com.tails.review.dto.ReviewUpdateRequest;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,6 +89,13 @@ public class ReviewService {
         }
 
         reviewRepository.delete(review);
+    }
+
+    // 메인페이지 "최근 리뷰" 미리보기
+    public List<RecentReviewResponse> getRecentReviews(int size) {
+        return reviewRepository.findRecentWithMemberAndPlace(PageRequest.of(0, size)).stream()
+                .map(RecentReviewResponse::from)
+                .toList();
     }
 
     // 내가 작성한 리뷰 목록
