@@ -1,6 +1,7 @@
 package com.tails.place.sync;
 
 import com.tails.place.Place;
+import com.tails.place.PlaceImageRepository;
 import com.tails.place.PlaceRepository;
 import com.tails.place.sync.dto.CategoryCountSummaryResponse;
 import com.tails.place.sync.dto.PetTourListItem;
@@ -25,7 +26,8 @@ class PlaceSyncServiceTest {
 
     private PetTourApiClient petTourApiClient = mock(PetTourApiClient.class);
     private PlaceRepository placeRepository = mock(PlaceRepository.class);
-    private PlaceSyncService service = new PlaceSyncService(petTourApiClient, placeRepository);
+    private PlaceImageRepository placeImageRepository = mock(PlaceImageRepository.class);
+    private PlaceSyncService service = new PlaceSyncService(petTourApiClient, placeRepository, placeImageRepository);
 
     private PetTourListItem listItem(String contentId, String contentTypeId, String lclsSystm2,
                                       String mapx, String mapy) {

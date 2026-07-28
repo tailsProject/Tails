@@ -1,10 +1,13 @@
 package com.tails.place.sync;
 
 import com.tails.place.Place;
+import com.tails.place.PlaceImage;
+import com.tails.place.PlaceImageRepository;
 import com.tails.place.PlaceRepository;
 import com.tails.place.sync.dto.CategoryCountItem;
 import com.tails.place.sync.dto.CategoryCountSummaryResponse;
 import com.tails.place.sync.dto.PetTourDetailItem;
+import com.tails.place.sync.dto.PetTourImageItem;
 import com.tails.place.sync.dto.PetTourListItem;
 import com.tails.place.sync.dto.PlacePreviewItem;
 import com.tails.place.sync.dto.SyncRunResponse;
@@ -43,6 +46,7 @@ public class PlaceSyncService {
 
     private final PetTourApiClient petTourApiClient;
     private final PlaceRepository placeRepository;
+    private final PlaceImageRepository placeImageRepository;
 
     public CategoryCountSummaryResponse getCategoryCounts() {
         List<CategoryCountItem> categories = Arrays.stream(PetTourContentType.values())
@@ -96,14 +100,22 @@ public class PlaceSyncService {
                     continue;
                 }
 
-                if (placeRepository.findByExternalPlaceId(listItem.contentid()).isPresent()) {
+                var existing = placeRepository.findByExternalPlaceId(listItem.contentid());
+                if (existing.isPresent()) {
                     skippedAlreadyExists++;
+                    // 예전에(이 기능 추가 전) 이미 저장된 장소는 사진이 없을 수 있어 보강해준다.
+                    // 사진 보강이 실패해도(예: 트래픽 초과) 이미 세어둔 skippedAlreadyExists를
+                    // failed로 다시 잘못 세지 않도록 별도로 감싸서 흡수한다
+                    trySyncImagesIfMissing(existing.get(), listItem.contentid());
                     continue;
                 }
 
                 PetTourDetailItem detail = petTourApiClient.fetchDetail(listItem.contentid());
-                placeRepository.save(toPlaceEntity(listItem, detail));
+                Place saved = placeRepository.save(toPlaceEntity(listItem, detail));
                 newlySaved++;
+                // 장소 저장 자체는 성공했으므로, 사진만 못 받아온 경우 newlySaved를 그대로 인정하고
+                // 실패로 잘못 세지 않는다(사진은 다음 sync 때 syncImagesIfMissing이 다시 채워줌)
+                trySyncImagesIfMissing(saved, listItem.contentid());
             } catch (Exception exception) {
                 failed++;
                 failedDetails.add(listItem.contentid() + ": " + exception.getMessage());
@@ -118,6 +130,36 @@ public class PlaceSyncService {
     private boolean isExcludedShoppingSubcategory(PetTourListItem listItem) {
         return SHOPPING_CONTENT_TYPE.equals(listItem.contenttypeid())
                 && EXCLUDED_SHOPPING_SUBCATEGORIES.contains(listItem.lclsSystm2());
+    }
+
+    // 사진 API 호출 실패(트래픽 초과 등)가 장소 저장 성공/스킵 집계에 섞이지 않도록 감싼다.
+    // 실패해도 장소 자체는 이미 저장/확인된 상태이므로 그냥 넘어가고, 사진은 다음 sync 때 재시도된다
+    private void trySyncImagesIfMissing(Place place, String contentId) {
+        try {
+            syncImagesIfMissing(place, contentId);
+        } catch (Exception ignored) {
+            // 사진만 못 받아온 것 - 장소 저장 자체의 성공 여부에는 영향 없음
+        }
+    }
+
+    // 이미 이미지가 저장돼 있으면 다시 안 부름(불필요한 외부 API 호출 절약 + 중복 저장 방지)
+    private void syncImagesIfMissing(Place place, String contentId) {
+        if (placeImageRepository.existsByPlace_PlaceId(place.getPlaceId())) {
+            return;
+        }
+
+        List<PetTourImageItem> images = petTourApiClient.fetchImages(contentId);
+        int sequence = 0;
+        for (PetTourImageItem image : images) {
+            if (image.originimgurl() == null || image.originimgurl().isBlank()) {
+                continue;
+            }
+            placeImageRepository.save(PlaceImage.builder()
+                    .place(place)
+                    .imageUrl(image.originimgurl())
+                    .sequence(sequence++)
+                    .build());
+        }
     }
 
     private Place toPlaceEntity(PetTourListItem listItem, PetTourDetailItem detail) {

@@ -3,6 +3,7 @@ package com.tails.place.sync;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tails.place.sync.dto.PetTourDetailItem;
+import com.tails.place.sync.dto.PetTourImageItem;
 import com.tails.place.sync.dto.PetTourListItem;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -116,6 +117,24 @@ public class PetTourApiClient {
                 });
 
         return body.items() == null ? null : body.items().item().getFirst();
+    }
+
+    // 장소 하나에 딸린 추가 사진 목록 조회. 사진이 없는 항목은 detailPetTour2와 마찬가지로
+    // items가 빈 문자열로 내려와서 null 처리됨(ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+    public List<PetTourImageItem> fetchImages(String contentId) {
+        String url = BASE_URL + "/detailImage2"
+                + "?serviceKey=" + tourApiProperties.serviceKey()
+                + "&MobileOS=" + MOBILE_OS
+                + "&MobileApp=" + MOBILE_APP
+                + "&_type=json"
+                + "&contentId=" + contentId
+                + "&imageYN=Y";
+
+        TourApiBody<PetTourImageItem> body = fetchBody(
+                url, new ParameterizedTypeReference<TourApiEnvelope<PetTourImageItem>>() {
+                });
+
+        return body.items() == null ? List.of() : body.items().item();
     }
 
     // HTTP 호출 + envelope 해체 + resultCode 검증 공통 처리
