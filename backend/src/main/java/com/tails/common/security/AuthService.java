@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class AuthService {
 
-    private static final long EMAIL_TOKEN_TTL_MINUTES = 30;
+    private static final long EMAIL_TOKEN_TTL_MINUTES = 5;
     private static final long SIGNUP_CODE_TTL_MINUTES = 5;
 
     private final JwtProvider jwtProvider;
