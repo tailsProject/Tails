@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/boards", "/api/boards/{boardId:[0-9]+}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/boards/{boardId}/images", "/api/reviews/{reviewId}/images").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/recent").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/boards/{boardId:[0-9]+}/comments").permitAll()
                         // 업로드된 이미지 파일 자체(정적 리소스). 없으면 <img> 태그가 401을 맞음
                         .requestMatchers("/uploads/**").permitAll()
@@ -61,13 +62,6 @@ public class SecurityConfig {
                         // "/api/places/**" 하위 permitAll 규칙보다 먼저 선언해야 우선 매칭된다
                         .requestMatchers("/api/places/sync/**").hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        // 리뷰 작성/찜 토글/개인화 추천은 회원 전용 기능이라, 아래 /api/places/** permitAll보다
-                        // 먼저 선언해 우선 매칭되게 한다 (그러지 않으면 로그인 없이도 호출 가능해짐)
-                        .requestMatchers("/api/places/{placeId}/reviews/**").authenticated()
-                        .requestMatchers("/api/places/{placeId}/bookmark").authenticated()
-                        .requestMatchers("/api/places/recommendations").authenticated()
-                        // 장소 조회(지도)는 로그인 없이 누구나 가능해야 함
-                        .requestMatchers("/api/places/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)

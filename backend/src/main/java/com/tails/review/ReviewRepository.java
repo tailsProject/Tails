@@ -1,5 +1,6 @@
 package com.tails.review;
 
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,6 +9,10 @@ import org.springframework.data.repository.query.Param;
 
 // 장소 리뷰 데이터 관리 JPA Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
+
+    // 메인페이지 "최근 리뷰" 미리보기용 - 전체 장소를 통틀어 최신순 N건
+    @Query("select r from Review r left join fetch r.member left join fetch r.place order by r.createdAt desc")
+    List<Review> findRecentWithMemberAndPlace(Pageable pageable);
 
     // 이 회원이 이 장소에 이미 리뷰를 작성했는지 확인 (1인 1장소 1리뷰 중복 체크용)
     boolean existsByPlace_PlaceIdAndMember_Id(Long placeId, Long memberId);
