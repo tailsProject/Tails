@@ -60,4 +60,9 @@ public class NotificationService {
     public void markAllAsRead(Long memberId) {
         notificationRepository.markAllAsRead(memberId);
     }
+
+    @Transactional
+    public void deleteAll(Long memberId) {
+        notificationRepository.deleteAllByMemberId(memberId);
+    }
 }

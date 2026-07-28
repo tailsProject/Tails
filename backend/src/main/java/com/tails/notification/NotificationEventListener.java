@@ -3,6 +3,7 @@ package com.tails.notification;
 import com.tails.notification.event.BoardBookmarkedEvent;
 import com.tails.notification.event.BoardLikedEvent;
 import com.tails.notification.event.CommentCreatedEvent;
+import com.tails.notification.event.CommentRepliedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -19,6 +20,12 @@ public class NotificationEventListener {
     public void onCommentCreated(CommentCreatedEvent event) {
         notificationService.create(event.boardOwnerId(), NotificationType.COMMENT,
                 "회원님의 게시글에 새 댓글이 달렸습니다.", event.boardId());
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void onCommentReplied(CommentRepliedEvent event) {
+        notificationService.create(event.parentAuthorId(), NotificationType.REPLY,
+                "회원님의 댓글에 답글이 달렸습니다.", event.boardId());
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

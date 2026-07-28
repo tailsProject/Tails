@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,6 +51,14 @@ public class NotificationController {
     @Operation(summary = "전체 알림 읽음 처리", description = "읽지 않은 알림을 전부 읽음 상태로 변경합니다. 로그인 필요.")
     public ApiResponse<Void> markAllAsRead(@AuthenticationPrincipal CustomUserDetails userDetails) {
         notificationService.markAllAsRead(userDetails.getMemberId());
+        return ApiResponse.success();
+    }
+
+    // 전체 알림 삭제 - 로그인 필요
+    @DeleteMapping
+    @Operation(summary = "전체 알림 삭제", description = "내 알림을 전부 삭제합니다. 로그인 필요.")
+    public ApiResponse<Void> deleteAll(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        notificationService.deleteAll(userDetails.getMemberId());
         return ApiResponse.success();
     }
 }

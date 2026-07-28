@@ -15,6 +15,10 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @EntityGraph(attributePaths = "member")
     Page<Comment> findByBoardIdAndParentIsNull(Long boardId, Pageable pageable);
 
+    // 게시글의 전체 답글 조회 (N+1 방지)
+    @EntityGraph(attributePaths = "member")
+    List<Comment> findByBoardIdAndParentIsNotNullOrderByCreatedAtAsc(Long boardId);
+
     // 페이징된 최상위 댓글들의 답글을 한 번에 조회(N+1 방지)
     @EntityGraph(attributePaths = "member")
     List<Comment> findByParentIdInOrderByCreatedAtAsc(List<Long> parentIds);
@@ -22,4 +26,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     // 게시글별 댓글 수 배치 조회 (삭제 댓글 제외)
     @Query("select c.board.id, count(c) from Comment c where c.board.id in :boardIds and c.deleted = false group by c.board.id")
     List<Object[]> countByBoardIds(@Param("boardIds") List<Long> boardIds);
+
 }
