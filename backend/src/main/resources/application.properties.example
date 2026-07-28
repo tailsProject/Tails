@@ -16,6 +16,7 @@ spring.data.redis.port=${REDIS_PORT:6379}
 firebase.credentials-path=${FIREBASE_CREDENTIALS_PATH:}
 
 tour-api.service-key=${TOUR_API_KEY:YOUR_TOUR_API_SERVICE_KEY}
+tour2-api.service-key=${TOUR_API_KEY2:YOUR_TOUR2_API_SERVICE_KEY}
 
 jwt.secret=${JWT_SECRET:change-this-to-a-long-random-secret-key-at-least-256-bits-for-hs256}
 # Access 30분, Refresh 14일(httpOnly 쿠키)

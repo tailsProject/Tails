@@ -7,6 +7,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: "1234"
       MYSQL_DATABASE: tails
+      TZ: Asia/Seoul
     ports:
       - "3307:3306"
     volumes:
@@ -42,6 +43,7 @@ services:
       DB_PASSWORD: "1234"
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      TZ: Asia/Seoul
     volumes:
       - uploads_data:/app/uploads
       # Firebase 키 파일 마운트
