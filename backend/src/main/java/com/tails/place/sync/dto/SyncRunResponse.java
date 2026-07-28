@@ -2,7 +2,7 @@ package com.tails.place.sync.dto;
 
 import java.util.List;
 
-// /run 실행 결과 요약. totalFetched == newlySaved + skippedAlreadyExists + failed
+// /run 실행 결과 요약. totalFetched == newlySaved + skippedAlreadyExists + excludedBySubcategory + failed
 public record SyncRunResponse(
         String requestedContentType,
         int pageNo,
@@ -10,6 +10,7 @@ public record SyncRunResponse(
         int totalFetched,
         int newlySaved,
         int skippedAlreadyExists,
+        int excludedBySubcategory,
         int failed,
         List<String> failedDetails) {
 }

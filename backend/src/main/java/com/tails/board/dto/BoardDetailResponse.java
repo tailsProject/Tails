@@ -12,6 +12,7 @@ public record BoardDetailResponse(
         String content,
         Long authorId,
         String authorNickname,
+        String authorProfileImg,
         int viewCount,
         int likeCount,
         BoardStatus status,
@@ -24,12 +25,14 @@ public record BoardDetailResponse(
     public static BoardDetailResponse of(Board board, int viewCount, boolean liked, boolean bookmarked) {
         Long authorId = board.getMember() != null ? board.getMember().getId() : null;
         String authorNickname = board.getMember() != null ? board.getMember().getNickname() : "탈퇴한 회원";
+        String authorProfileImg = board.getMember() != null ? board.getMember().getProfileImg() : null;
         return new BoardDetailResponse(
                 board.getId(),
                 board.getTitle(),
                 board.getContent(),
                 authorId,
                 authorNickname,
+                authorProfileImg,
                 viewCount,
                 board.getLikeCount(),
                 board.getStatus(),

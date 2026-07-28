@@ -2,6 +2,7 @@ package com.tails.board;
 
 import com.tails.board.dto.LikeToggleResponse;
 import com.tails.bookmark.BoardBookmarkRepository;
+import com.tails.comment.CommentRepository;
 import com.tails.common.util.FileStorage;
 import com.tails.image.ImageRepository;
 import com.tails.member.Member;
@@ -38,6 +39,8 @@ class BoardServiceTest {
     @Mock
     private ImageRepository imageRepository;
     @Mock
+    private CommentRepository commentRepository;
+    @Mock
     private FileStorage fileStorage;
     @Mock
     private ApplicationEventPublisher eventPublisher;
@@ -58,7 +61,7 @@ class BoardServiceTest {
 
     private void setUpService() {
         boardService = new BoardService(boardRepository, boardLikeRepository, boardBookmarkRepository,
-                memberRepository, imageRepository, fileStorage, eventPublisher);
+                memberRepository, imageRepository, commentRepository, fileStorage, eventPublisher);
     }
 
     @Test
