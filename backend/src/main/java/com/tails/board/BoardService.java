@@ -104,19 +104,24 @@ public class BoardService {
         return boards.map(board -> BoardResponse.from(board, commentCounts.getOrDefault(board.getId(), 0)));
     }
 
-    // 게시글 상세 조회 + 조회수 1 증가. DRAFT는 작성자 본인만 조회 가능(그 외엔 BOARD_NOT_FOUND)
+    // 게시글 상세 조회. 작성자 본인/재조회(alreadyViewed)는 조회수 미증가
     @Transactional
-    public BoardDetailResponse getDetail(Long boardId, Long currentMemberId) {
+    public BoardDetailResponse getDetail(Long boardId, Long currentMemberId, boolean alreadyViewed) {
         Board board = getBoardOrThrow(boardId);
         if (!board.isVisibleTo(currentMemberId)) {
             throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
         }
-        boardRepository.increaseViewCount(boardId);
+
+        int viewCount = board.getViewCount();
+        if (!board.isAuthor(currentMemberId) && !alreadyViewed) {
+            boardRepository.increaseViewCount(boardId);
+            viewCount += 1;
+        }
 
         boolean liked = currentMemberId != null && boardLikeRepository.findByBoardIdAndMemberId(boardId, currentMemberId).isPresent();
         boolean bookmarked = currentMemberId != null && boardBookmarkRepository.findByBoardIdAndMemberId(boardId, currentMemberId).isPresent();
 
-        return BoardDetailResponse.of(board, board.getViewCount() + 1, liked, bookmarked);
+        return BoardDetailResponse.of(board, viewCount, liked, bookmarked);
     }
 
     @Transactional
