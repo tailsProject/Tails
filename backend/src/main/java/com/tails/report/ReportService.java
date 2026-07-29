@@ -7,10 +7,12 @@ import com.tails.comment.CommentRepository;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.member.MemberRepository;
+import com.tails.notification.event.ReportResolvedEvent;
 import com.tails.report.dto.AdminReportResponse;
 import com.tails.report.dto.ReportCreateRequest;
 import com.tails.report.dto.ReportResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class ReportService {
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public Long create(Long memberId, ReportCreateRequest request) {
@@ -50,7 +53,7 @@ public class ReportService {
 
     // 관리자 신고 처리 큐 조회. 기본으로 미처리(PENDING) 건만 보여준다
     public Page<AdminReportResponse> getReportsByStatus(ReportStatus status, Pageable pageable) {
-        return reportRepository.findByStatus(status, pageable).map(AdminReportResponse::from);
+        return reportRepository.findByStatus(status, pageable).map(this::toAdminResponse);
     }
 
     @Transactional
@@ -58,9 +61,29 @@ public class ReportService {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REPORT_NOT_FOUND));
         report.markAsResolved();
+        eventPublisher.publishEvent(new ReportResolvedEvent(report.getReporter().getId(), report.getId()));
     }
 
-    // 신고 기록만 삭제 - 신고 대상 게시글/댓글은 그대로 유지
+    // 신고 대상의 현재 내용을 미리보기로 붙여줌. 이미 삭제/탈퇴된 대상이면 안내 문구로 대체
+    private AdminReportResponse toAdminResponse(Report report) {
+        TargetPreview preview = switch (report.getTargetType()) {
+            case BOARD -> boardRepository.findById(report.getTargetId())
+                    .map(board -> new TargetPreview(board.getTitle(), null))
+                    .orElse(new TargetPreview("삭제된 게시글입니다.", null));
+            case COMMENT -> commentRepository.findById(report.getTargetId())
+                    .map(comment -> new TargetPreview(comment.getContent(), comment.getBoard().getId()))
+                    .orElse(new TargetPreview("삭제된 댓글입니다.", null));
+            case MEMBER -> memberRepository.findById(report.getTargetId())
+                    .map(member -> new TargetPreview(member.getNickname() + " (" + member.getEmail() + ")", null))
+                    .orElse(new TargetPreview("탈퇴한 회원입니다.", null));
+        };
+        return AdminReportResponse.from(report, preview.text(), preview.boardId());
+    }
+
+    private record TargetPreview(String text, Long boardId) {
+    }
+
+    // 신고 기록 자체를 삭제(처리 완료 후 큐 정리용). 신고 대상 게시글/댓글 삭제와는 무관
     @Transactional
     public void delete(Long reportId) {
         Report report = reportRepository.findById(reportId)
