@@ -14,7 +14,7 @@ class MemberJoinRequestValidationTest {
     private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     private MemberJoinRequest requestWithEmail(String email) {
-        return new MemberJoinRequest(email, "Test1234!", "Test1234!", "tester");
+        return new MemberJoinRequest(email, "Test1234!", "Test1234!", "tester", null);
     }
 
     @Test

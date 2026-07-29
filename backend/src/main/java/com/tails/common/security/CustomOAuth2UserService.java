@@ -1,6 +1,5 @@
 package com.tails.common.security;
 
-import com.tails.common.exception.ErrorCode;
 import com.tails.member.Member;
 import com.tails.member.MemberRepository;
 import java.util.Map;
@@ -32,46 +31,65 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         boolean[] isNewMember = {false};
         Member member = memberRepository.findByProviderAndProviderId(provider, profile.providerId())
-                .orElseGet(() -> {
-                    isNewMember[0] = true;
-                    return join(provider, profile);
-                });
+                .map(existing -> withProfileImageIfMissing(existing, profile))
+                .orElseGet(() -> resolveByEmail(provider, profile, isNewMember));
 
         return new OAuth2UserPrincipal(member.getId(), isNewMember[0], oAuth2User.getAttributes());
     }
 
-    // provider별 응답 구조를 (providerId, email, nickname) 공통 형태로 변환
+    // provider별 응답 구조를 (providerId, email, nickname, 프로필 사진 URL) 공통 형태로 변환
     private SocialProfile extractProfile(String provider, Map<String, Object> attributes) {
         if ("kakao".equals(provider)) {
             Map<String, Object> account = castMap(attributes.get("kakao_account"));
             Map<String, Object> profile = account != null ? castMap(account.get("profile")) : null;
             String email = account != null ? (String) account.get("email") : null;
             String nickname = profile != null ? (String) profile.get("nickname") : null;
-            return validated(new SocialProfile(String.valueOf(attributes.get("id")), email, nickname));
+            String profileImageUrl = profile != null ? (String) profile.get("profile_image_url") : null;
+            return validated(new SocialProfile(String.valueOf(attributes.get("id")), email, nickname, profileImageUrl));
         }
         if ("google".equals(provider)) {
             return validated(new SocialProfile(
                     (String) attributes.get("sub"),
                     (String) attributes.get("email"),
-                    (String) attributes.get("name")));
+                    (String) attributes.get("name"),
+                    (String) attributes.get("picture")));
         }
         if ("naver".equals(provider)) {
             Map<String, Object> response = castMap(attributes.get("response"));
             String id = response != null ? (String) response.get("id") : null;
             String email = response != null ? (String) response.get("email") : null;
             String name = response != null ? (String) response.get("name") : null;
-            return validated(new SocialProfile(id, email, name));
+            String profileImageUrl = response != null ? (String) response.get("profile_image") : null;
+            return validated(new SocialProfile(id, email, name, profileImageUrl));
         }
         throw authError("unsupported_provider", "지원하지 않는 소셜 로그인입니다: " + provider);
     }
 
-    // 소셜 계정 첫 로그인은 자동 회원가입. 이메일이 이미 일반가입돼 있으면 거부
-    private Member join(String provider, SocialProfile profile) {
+    // 이메일이 이미 가입돼 있으면 그 계정에 소셜 로그인을 연동, 없으면 신규가입
+    private Member resolveByEmail(String provider, SocialProfile profile, boolean[] isNewMember) {
         String email = profile.email().trim().toLowerCase();
-        if (memberRepository.existsByEmail(email)) {
-            throw authError(ErrorCode.OAUTH_EMAIL_ALREADY_REGISTERED.name(), ErrorCode.OAUTH_EMAIL_ALREADY_REGISTERED.getMessage());
-        }
+        return memberRepository.findByEmail(email)
+                .map(existing -> withProfileImageIfMissing(linkProvider(existing, provider, profile.providerId()), profile))
+                .orElseGet(() -> {
+                    isNewMember[0] = true;
+                    return join(provider, email, profile);
+                });
+    }
 
+    private Member linkProvider(Member member, String provider, String providerId) {
+        member.linkProvider(provider, providerId);
+        return member;
+    }
+
+    // 프로필 사진을 아직 등록 안 한 회원에게만 소셜 프로필 사진을 채워줌 - 직접 올린 사진은 덮어쓰지 않음
+    private Member withProfileImageIfMissing(Member member, SocialProfile profile) {
+        if (member.getProfileImg() == null && profile.profileImageUrl() != null) {
+            member.changeProfileImg(profile.profileImageUrl());
+        }
+        return member;
+    }
+
+    private Member join(String provider, String email, SocialProfile profile) {
         Member member = Member.builder()
                 .email(email)
                 .nickname(uniqueNickname(profile.nickname()))
@@ -79,11 +97,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .providerId(profile.providerId())
                 .build();
         member.markEmailVerified();
-        // existsByEmail-save 사이 TOCTOU 대비 - 동일 에러로 변환
+        member.changeProfileImg(profile.profileImageUrl());
+        // findByEmail-save 사이 TOCTOU 대비 - 그새 가입됐으면 연동으로 전환
         try {
             return memberRepository.save(member);
         } catch (DataIntegrityViolationException e) {
-            throw authError(ErrorCode.OAUTH_EMAIL_ALREADY_REGISTERED.name(), ErrorCode.OAUTH_EMAIL_ALREADY_REGISTERED.getMessage());
+            return memberRepository.findByEmail(email)
+                    .map(existing -> withProfileImageIfMissing(linkProvider(existing, provider, profile.providerId()), profile))
+                    .orElseThrow(() -> authError("join_failed", "회원가입에 실패했습니다. 다시 시도해주세요."));
         }
     }
 
@@ -119,6 +140,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return value instanceof Map ? (Map<String, Object>) value : null;
     }
 
-    private record SocialProfile(String providerId, String email, String nickname) {
+    private record SocialProfile(String providerId, String email, String nickname, String profileImageUrl) {
     }
 }

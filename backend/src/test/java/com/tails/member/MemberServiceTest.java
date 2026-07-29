@@ -59,12 +59,12 @@ class MemberServiceTest {
 
     @BeforeEach
     void setUp() {
-        joinRequest = new MemberJoinRequest("test@mail.com", "Test1234!", "Test1234!", "tester");
+        joinRequest = new MemberJoinRequest("test@mail.com", "Test1234!", "Test1234!", "tester", null);
     }
 
     @Test
     void 비밀번호와_비밀번호확인이_다르면_가입에_실패한다() {
-        MemberJoinRequest mismatched = new MemberJoinRequest("test@mail.com", "Test1234!", "Other1234!", "tester");
+        MemberJoinRequest mismatched = new MemberJoinRequest("test@mail.com", "Test1234!", "Other1234!", "tester", null);
 
         assertThatThrownBy(() -> memberService.join(mismatched))
                 .isInstanceOf(CustomException.class)
@@ -98,7 +98,7 @@ class MemberServiceTest {
 
     @Test
     void 이메일은_대소문자와_공백을_정규화해서_저장한다() {
-        MemberJoinRequest request = new MemberJoinRequest(" Test@Mail.com ", "Test1234!", "Test1234!", "tester");
+        MemberJoinRequest request = new MemberJoinRequest(" Test@Mail.com ", "Test1234!", "Test1234!", "tester", null);
         when(memberRepository.existsByEmail("test@mail.com")).thenReturn(false);
         when(memberRepository.existsByNickname("tester")).thenReturn(false);
         when(authService.isSignupEmailVerified("test@mail.com")).thenReturn(true);

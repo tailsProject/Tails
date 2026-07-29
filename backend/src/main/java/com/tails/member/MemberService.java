@@ -63,6 +63,7 @@ public class MemberService {
                 .email(email)
                 .password(passwordEncoder.encode(request.password()))
                 .nickname(nickname)
+                .marketingAgreed(Boolean.TRUE.equals(request.agreeMarketing()))
                 .build();
         member.markEmailVerified();
 
@@ -118,6 +119,9 @@ public class MemberService {
         }
         if (request.profileImg() != null) {
             member.changeProfileImg(request.profileImg());
+        }
+        if (request.marketingAgreed() != null) {
+            member.changeMarketingAgreed(request.marketingAgreed());
         }
     }
 

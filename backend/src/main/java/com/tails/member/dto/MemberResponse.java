@@ -15,6 +15,7 @@ public record MemberResponse(
         boolean emailVerified,
         String provider,
         String role,
+        boolean marketingAgreed,
         LocalDateTime createdAt,
         List<PetResponse> pets
 ) {
@@ -27,6 +28,7 @@ public record MemberResponse(
                 member.isEmailVerified(),
                 member.getProvider(),
                 member.getRole().name(),
+                member.isMarketingAgreed(),
                 member.getCreatedAt(),
                 member.getPets().stream().map(PetResponse::from).toList()
         );
