@@ -12,6 +12,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 // 반려동물 CRUD API. 전부 로그인 필요
 @RestController
@@ -49,6 +50,22 @@ public class PetController {
     public ApiResponse<Void> delete(@AuthenticationPrincipal CustomUserDetails userDetails,
                                      @PathVariable Long petId) {
         petService.delete(userDetails.getMemberId(), petId);
+        return ApiResponse.success();
+    }
+
+    @PostMapping(value = "/{petId}/photo", consumes = "multipart/form-data")
+    @Operation(summary = "반려동물 사진 업로드", description = "petId 반려동물의 사진을 업로드합니다(기존 사진은 교체됨). 본인 소유만 가능.")
+    public ApiResponse<String> uploadPhoto(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                            @PathVariable Long petId,
+                                            @RequestParam("file") MultipartFile file) {
+        return ApiResponse.success(petService.uploadPhoto(userDetails.getMemberId(), petId, file));
+    }
+
+    @DeleteMapping("/{petId}/photo")
+    @Operation(summary = "반려동물 사진 삭제", description = "petId 반려동물의 사진을 삭제하고 기본 상태로 되돌립니다. 본인 소유만 가능.")
+    public ApiResponse<Void> deletePhoto(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                          @PathVariable Long petId) {
+        petService.deletePhoto(userDetails.getMemberId(), petId);
         return ApiResponse.success();
     }
 }

@@ -34,6 +34,10 @@ public class Pet {
     @Column(name = "birth_date")
     private LocalDate birthDate;
 
+    // 반려동물 사진 URL - /uploads/ 접두사가 붙은 상대 경로. 없으면 null(기본 발바닥 아이콘 표시)
+    @Column(name = "photo_img")
+    private String photoImg;
+
     @Builder
     public Pet(Member member, String name, String species, LocalDate birthDate) {
         this.member = member;
@@ -46,5 +50,9 @@ public class Pet {
         this.name = name;
         this.species = species;
         this.birthDate = birthDate;
+    }
+
+    public void changePhotoImg(String photoImg) {
+        this.photoImg = photoImg;
     }
 }
