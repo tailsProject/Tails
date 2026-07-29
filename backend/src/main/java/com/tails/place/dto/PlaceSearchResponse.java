@@ -20,6 +20,8 @@ public class PlaceSearchResponse {
     private final String cat1;
     private final String cat2;
     private final String cat3;
+    // cat1이 비어있는 일부 장소도 이 값은 항상 있어서, 프론트 카테고리 배지의 폴백으로 쓴다
+    private final String contentTypeId;
     private final Double distanceMeters;
 
     private PlaceSearchResponse(Place place, Double distanceMeters) {
@@ -34,6 +36,7 @@ public class PlaceSearchResponse {
         this.cat1 = place.getCat1();
         this.cat2 = place.getCat2();
         this.cat3 = place.getCat3();
+        this.contentTypeId = place.getContentTypeId();
         this.distanceMeters = distanceMeters;
     }
 

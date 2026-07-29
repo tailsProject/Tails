@@ -12,6 +12,8 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     List<Image> findByBoardIdOrderByCreatedAtAsc(Long boardId);
     // 게시글 이미지 조회 - sequence 기준(대표 이미지가 항상 먼저 오도록)
     List<Image> findByBoardIdOrderBySequenceAsc(Long boardId);
+    // 게시글 목록에서 대표 이미지(sequence=0)만 배치로 조회(N+1 방지). 이미지가 없는 게시글은 결과에서 빠짐
+    List<Image> findByBoardIdInAndSequence(List<Long> boardIds, int sequence);
     // 후기 이미지 조회. Review의 PK 필드명이 reviewId(id가 아님)라서, "review 필드를 타고
     // 들어가 그 안의 reviewId 필드"라는 걸 언더스코어로 명시해야 한다
     List<Image> findByReview_ReviewIdOrderByCreatedAtAsc(Long reviewId);

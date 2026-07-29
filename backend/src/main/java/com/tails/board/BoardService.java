@@ -32,6 +32,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class BoardService {
 
+    // ImageResponse.URL_PREFIX와 동일한 규칙(저장된 파일명으로 접근 경로 생성)
+    private static final String IMAGE_URL_PREFIX = "/uploads/";
+
     private final BoardRepository boardRepository;
     private final BoardLikeRepository boardLikeRepository;
     private final BoardBookmarkRepository boardBookmarkRepository;
@@ -96,12 +99,15 @@ public class BoardService {
         return withCommentCounts(boardRepository.findByMemberId(memberId, pageable));
     }
 
-    // 게시글 목록에 댓글 수 배치 조회 후 반영
+    // 게시글 목록에 댓글 수/대표 이미지 배치 조회 후 반영
     private Page<BoardResponse> withCommentCounts(Page<Board> boards) {
         List<Long> boardIds = boards.getContent().stream().map(Board::getId).toList();
         Map<Long, Integer> commentCounts = commentRepository.countByBoardIds(boardIds).stream()
                 .collect(Collectors.toMap(row -> (Long) row[0], row -> ((Long) row[1]).intValue()));
-        return boards.map(board -> BoardResponse.from(board, commentCounts.getOrDefault(board.getId(), 0)));
+        Map<Long, String> thumbnailUrls = imageRepository.findByBoardIdInAndSequence(boardIds, 0).stream()
+                .collect(Collectors.toMap(image -> image.getBoard().getId(), image -> IMAGE_URL_PREFIX + image.getStoredFileName()));
+        return boards.map(board -> BoardResponse.from(
+                board, commentCounts.getOrDefault(board.getId(), 0), thumbnailUrls.get(board.getId())));
     }
 
     // 게시글 상세 조회. 작성자 본인/재조회(alreadyViewed)는 조회수 미증가
@@ -176,8 +182,7 @@ public class BoardService {
         return new LikeToggleResponse(liked, board.getLikeCount());
     }
 
-    // 작성자 본인인지 확인. DRAFT 글은 먼저 isVisibleTo로 존재 자체를 숨겨서(404), 조회/좋아요와
-    // 마찬가지로 남의 DRAFT 글에 대한 쓰기 시도에서도 존재 여부가 403으로 새지 않도록 한다
+    // 작성자 본인인지 확인.
     private void requireOwner(Board board, Long memberId) {
         if (!board.isVisibleTo(memberId)) {
             throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
@@ -187,7 +192,7 @@ public class BoardService {
         }
     }
 
-    // 삭제는 작성자 본인 또는 ADMIN이 할 수 있음 (신고된 게시글 강제 삭제 용도)
+    // 삭제는 작성자 본인 또는 ADMIN이 할 수 있음
     private void requireOwnerOrAdmin(Board board, Long memberId) {
         if (board.getMember() != null && board.getMember().getId().equals(memberId)) {
             return;
