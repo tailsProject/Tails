@@ -3,6 +3,7 @@ package com.tails.review;
 import com.tails.common.response.ApiResponse;
 import com.tails.common.security.CustomUserDetails;
 import com.tails.review.dto.MyReviewResponse;
+import com.tails.review.dto.PlaceRatingSummaryResponse;
 import com.tails.review.dto.RecentReviewResponse;
 import com.tails.review.dto.ReviewCreateRequest;
 import com.tails.review.dto.ReviewListResponse;
@@ -73,6 +74,14 @@ public class ReviewController {
     @Operation(summary = "최근 리뷰 미리보기", description = "전체 장소를 통틀어 최신순으로 리뷰 N건을 조회합니다. 메인페이지용, 로그인 불필요.")
     public ApiResponse<List<RecentReviewResponse>> getRecentReviews(@RequestParam(defaultValue = "4") int size) {
         return ApiResponse.success(reviewService.getRecentReviews(size));
+    }
+
+    @GetMapping("/api/reviews/rating-summary")
+    @Operation(summary = "여러 장소 평균 별점/리뷰 수 일괄 조회",
+            description = "placeIds에 해당하는 장소들의 평균 별점과 리뷰 수를 한 번에 조회합니다. "
+                    + "메인페이지 인기 장소 카드용, 로그인 불필요. 리뷰가 없는 장소는 결과에서 빠집니다.")
+    public ApiResponse<List<PlaceRatingSummaryResponse>> getRatingSummaries(@RequestParam List<Long> placeIds) {
+        return ApiResponse.success(reviewService.getRatingSummaries(placeIds));
     }
 
     @GetMapping("/api/reviews/me")

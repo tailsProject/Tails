@@ -52,7 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/boards", "/api/boards/{boardId:[0-9]+}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/boards/{boardId}/images", "/api/reviews/{reviewId}/images").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/reviews/recent").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/recent", "/api/reviews/rating-summary").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/boards/{boardId:[0-9]+}/comments").permitAll()
                         // 업로드된 이미지 파일 자체(정적 리소스). 없으면 <img> 태그가 401을 맞음
                         .requestMatchers("/uploads/**").permitAll()
