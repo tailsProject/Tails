@@ -28,6 +28,11 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     long countByPlace_PlaceId(Long placeId);
 
+    // 여러 장소의 평균 별점/리뷰 수를 한 번에 조회(N+1 방지). 리뷰가 없는 장소는 group by 결과에
+    // 아예 안 잡히므로 Service에서 조회되지 않은 placeId는 리뷰 없음으로 처리해야 함
+    @Query("select r.place.placeId, avg(r.rating), count(r) from Review r where r.place.placeId in :placeIds group by r.place.placeId")
+    List<Object[]> findRatingSummariesByPlaceIds(@Param("placeIds") List<Long> placeIds);
+
     // 내가 작성한 리뷰 목록. left join fetch로 장소를 함께 가져와 N+1 방지
     @Query(value = "select r from Review r left join fetch r.place where r.member.id = :memberId order by r.createdAt desc",
             countQuery = "select count(r) from Review r where r.member.id = :memberId")

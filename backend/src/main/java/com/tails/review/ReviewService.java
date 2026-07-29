@@ -11,6 +11,7 @@ import com.tails.member.MemberRole;
 import com.tails.place.Place;
 import com.tails.place.PlaceRepository;
 import com.tails.review.dto.MyReviewResponse;
+import com.tails.review.dto.PlaceRatingSummaryResponse;
 import com.tails.review.dto.RecentReviewResponse;
 import com.tails.review.dto.ReviewCreateRequest;
 import com.tails.review.dto.ReviewListResponse;
@@ -102,6 +103,17 @@ public class ReviewService {
     public Page<MyReviewResponse> getMyReviews(Long memberId, Pageable pageable) {
         return reviewRepository.findByMemberIdWithPlace(memberId, pageable)
                 .map(MyReviewResponse::from);
+    }
+
+    // 메인페이지 "인기 장소" 카드용 - 여러 장소의 평균 별점/리뷰 수를 한 번에 조회.
+    // 리뷰가 하나도 없는 장소는 결과에서 빠지므로(그룹 자체가 없음), 응답 목록에 없으면 리뷰 없음으로 보면 됨
+    public List<PlaceRatingSummaryResponse> getRatingSummaries(List<Long> placeIds) {
+        if (placeIds.isEmpty()) {
+            return List.of();
+        }
+        return reviewRepository.findRatingSummariesByPlaceIds(placeIds).stream()
+                .map(row -> new PlaceRatingSummaryResponse((Long) row[0], (Double) row[1], (Long) row[2]))
+                .toList();
     }
 
     // 작성자 본인인지 확인. 탈퇴한 회원(member == null)의 리뷰는 정당한 소유자가 없으므로 누구든 거부
