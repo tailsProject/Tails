@@ -26,6 +26,9 @@ public record MemberJoinRequest(
 
         @NotBlank(message = "닉네임을 입력해주세요.")
         @Size(min = 2, max = 20, message = "닉네임은 2~20자여야 합니다.")
-        String nickname
+        String nickname,
+
+        // 선택 항목이라 프론트가 안 보내도(null) 되고, 그 경우 미동의로 처리
+        Boolean agreeMarketing
 ) {
 }

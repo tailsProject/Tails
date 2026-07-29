@@ -63,6 +63,7 @@ public class MemberService {
                 .email(email)
                 .password(passwordEncoder.encode(request.password()))
                 .nickname(nickname)
+                .marketingAgreed(Boolean.TRUE.equals(request.agreeMarketing()))
                 .build();
         member.markEmailVerified();
 
@@ -93,7 +94,7 @@ public class MemberService {
 
         var tokens = authService.issueTokens(member);
         return new LoginResult(
-                new LoginResponse(tokens.accessToken(), member.getId(), member.getNickname(), member.getRole().name()),
+                new LoginResponse(tokens.accessToken(), member.getId(), member.getNickname(), member.getRole().name(), member.getProfileImg()),
                 tokens.refreshCookie());
     }
 
@@ -118,6 +119,9 @@ public class MemberService {
         }
         if (request.profileImg() != null) {
             member.changeProfileImg(request.profileImg());
+        }
+        if (request.marketingAgreed() != null) {
+            member.changeMarketingAgreed(request.marketingAgreed());
         }
     }
 
