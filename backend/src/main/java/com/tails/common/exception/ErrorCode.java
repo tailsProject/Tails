@@ -28,7 +28,6 @@ public enum ErrorCode {
     SAME_AS_OLD_PASSWORD(HttpStatus.BAD_REQUEST, "새 비밀번호가 기존 비밀번호와 같습니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "로그인이 만료되었습니다. 다시 로그인해주세요."),
     ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, "로그인 실패 횟수를 초과했습니다. 잠시 후 다시 시도해주세요."),
-    OAUTH_EMAIL_ALREADY_REGISTERED(HttpStatus.CONFLICT, "이미 일반 가입된 이메일입니다. 이메일/비밀번호로 로그인해주세요."),
     EMAIL_TOKEN_INVALID(HttpStatus.BAD_REQUEST, "유효하지 않거나 만료된 인증 링크입니다."),
     EMAIL_ALREADY_VERIFIED(HttpStatus.BAD_REQUEST, "이미 인증된 이메일입니다."),
     EMAIL_CODE_INVALID(HttpStatus.BAD_REQUEST, "인증번호가 올바르지 않거나 만료되었습니다."),

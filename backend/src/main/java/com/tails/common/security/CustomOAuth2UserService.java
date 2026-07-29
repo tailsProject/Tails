@@ -1,6 +1,5 @@
 package com.tails.common.security;
 
-import com.tails.common.exception.ErrorCode;
 import com.tails.member.Member;
 import com.tails.member.MemberRepository;
 import java.util.Map;
@@ -32,10 +31,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         boolean[] isNewMember = {false};
         Member member = memberRepository.findByProviderAndProviderId(provider, profile.providerId())
-                .orElseGet(() -> {
-                    isNewMember[0] = true;
-                    return join(provider, profile);
-                });
+                .orElseGet(() -> resolveByEmail(provider, profile, isNewMember));
 
         return new OAuth2UserPrincipal(member.getId(), isNewMember[0], oAuth2User.getAttributes());
     }
@@ -65,13 +61,23 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         throw authError("unsupported_provider", "지원하지 않는 소셜 로그인입니다: " + provider);
     }
 
-    // 소셜 계정 첫 로그인은 자동 회원가입. 이메일이 이미 일반가입돼 있으면 거부
-    private Member join(String provider, SocialProfile profile) {
+    // 이메일이 이미 가입돼 있으면 그 계정에 소셜 로그인을 연동, 없으면 신규가입
+    private Member resolveByEmail(String provider, SocialProfile profile, boolean[] isNewMember) {
         String email = profile.email().trim().toLowerCase();
-        if (memberRepository.existsByEmail(email)) {
-            throw authError(ErrorCode.OAUTH_EMAIL_ALREADY_REGISTERED.name(), ErrorCode.OAUTH_EMAIL_ALREADY_REGISTERED.getMessage());
-        }
+        return memberRepository.findByEmail(email)
+                .map(existing -> linkProvider(existing, provider, profile.providerId()))
+                .orElseGet(() -> {
+                    isNewMember[0] = true;
+                    return join(provider, email, profile);
+                });
+    }
 
+    private Member linkProvider(Member member, String provider, String providerId) {
+        member.linkProvider(provider, providerId);
+        return member;
+    }
+
+    private Member join(String provider, String email, SocialProfile profile) {
         Member member = Member.builder()
                 .email(email)
                 .nickname(uniqueNickname(profile.nickname()))
@@ -79,11 +85,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .providerId(profile.providerId())
                 .build();
         member.markEmailVerified();
-        // existsByEmail-save 사이 TOCTOU 대비 - 동일 에러로 변환
+        // findByEmail-save 사이 TOCTOU 대비 - 그새 가입됐으면 연동으로 전환
         try {
             return memberRepository.save(member);
         } catch (DataIntegrityViolationException e) {
-            throw authError(ErrorCode.OAUTH_EMAIL_ALREADY_REGISTERED.name(), ErrorCode.OAUTH_EMAIL_ALREADY_REGISTERED.getMessage());
+            return memberRepository.findByEmail(email)
+                    .map(existing -> linkProvider(existing, provider, profile.providerId()))
+                    .orElseThrow(() -> authError("join_failed", "회원가입에 실패했습니다. 다시 시도해주세요."));
         }
     }
 

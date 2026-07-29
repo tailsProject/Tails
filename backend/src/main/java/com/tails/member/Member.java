@@ -66,6 +66,10 @@ public class Member {
     @Column(name = "fcm_token", length = 255)
     private String fcmToken;
 
+    // 마케팅 정보 수신 동의 - 선택 항목, 마이페이지에서 언제든 변경 가능
+    @Column(name = "marketing_agreed", nullable = false, columnDefinition = "TINYINT(1) NOT NULL DEFAULT 0")
+    private boolean marketingAgreed;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -108,10 +112,23 @@ public class Member {
     private List<Notification> notifications = new ArrayList<>();
 
     @Builder
-    public Member(String email, String password, String nickname, String provider, String providerId) {
+    public Member(String email, String password, String nickname, String provider, String providerId,
+                  boolean marketingAgreed) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
+        this.provider = provider;
+        this.providerId = providerId;
+        this.marketingAgreed = marketingAgreed;
+    }
+
+    // 마케팅 정보 수신 동의 여부 변경
+    public void changeMarketingAgreed(boolean marketingAgreed) {
+        this.marketingAgreed = marketingAgreed;
+    }
+
+    // 일반 가입 계정에 소셜 로그인 수단 연동 (이메일 일치 시)
+    public void linkProvider(String provider, String providerId) {
         this.provider = provider;
         this.providerId = providerId;
     }
