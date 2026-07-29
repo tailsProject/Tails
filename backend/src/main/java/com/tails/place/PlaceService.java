@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PlaceService {
 
     private final PlaceRepository placeRepository;
+    private final PlaceImageRepository placeImageRepository;
     // 인기 랭킹 조회 전용. PlaceBookmark 테이블을 집계한 결과라 이 Service가 직접 참조 —
     // BookmarkService를 거치지 않는 이유는 집계 쿼리 하나만 필요할 뿐, 찜 토글 책임까지 끌어올 필요가 없어서
     private final PlaceBookmarkRepository placeBookmarkRepository;
@@ -40,7 +41,10 @@ public class PlaceService {
     public PlaceResponse getPlaceDetail(Long placeId) {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PLACE_NOT_FOUND));
-        return PlaceResponse.from(place);
+        List<String> imageUrls = placeImageRepository.findByPlace_PlaceIdOrderBySequenceAsc(placeId).stream()
+                .map(PlaceImage::getImageUrl)
+                .toList();
+        return PlaceResponse.from(place, imageUrls);
     }
 
     // 장소 목록 페이징 조회
