@@ -6,6 +6,7 @@ import com.tails.board.dto.BoardResponse;
 import com.tails.comment.CommentRepository;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
+import com.tails.image.ImageRepository;
 import com.tails.member.MemberRepository;
 import com.tails.notification.event.BoardBookmarkedEvent;
 import java.util.List;
@@ -24,10 +25,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class BoardBookmarkService {
 
+    // ImageResponse.URL_PREFIX와 동일한 규칙(저장된 파일명으로 접근 경로 생성)
+    private static final String IMAGE_URL_PREFIX = "/uploads/";
+
     private final BoardBookmarkRepository boardBookmarkRepository;
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
     private final CommentRepository commentRepository;
+    private final ImageRepository imageRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     // 이미 북마크했으면 취소, 안 했으면 추가
@@ -62,6 +67,9 @@ public class BoardBookmarkService {
         List<Long> boardIds = boards.getContent().stream().map(Board::getId).toList();
         Map<Long, Integer> commentCounts = commentRepository.countByBoardIds(boardIds).stream()
                 .collect(Collectors.toMap(row -> (Long) row[0], row -> ((Long) row[1]).intValue()));
-        return boards.map(board -> BoardResponse.from(board, commentCounts.getOrDefault(board.getId(), 0)));
+        Map<Long, String> thumbnailUrls = imageRepository.findByBoardIdInAndSequence(boardIds, 0).stream()
+                .collect(Collectors.toMap(image -> image.getBoard().getId(), image -> IMAGE_URL_PREFIX + image.getStoredFileName()));
+        return boards.map(board -> BoardResponse.from(
+                board, commentCounts.getOrDefault(board.getId(), 0), thumbnailUrls.get(board.getId())));
     }
 }

@@ -51,7 +51,7 @@ public class BoardController {
             description = "게시글 목록을 페이지 단위로 조회합니다. keyword로 검색, sortBy=popular로 인기순 정렬. 로그인 불필요."
     )
     public ApiResponse<Page<BoardResponse>> getList(
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @PageableDefault(size = 12, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String sortBy) {
         return ApiResponse.success(boardService.getList(pageable, keyword, sortBy));
