@@ -4,6 +4,7 @@ import com.tails.notification.event.BoardBookmarkedEvent;
 import com.tails.notification.event.BoardLikedEvent;
 import com.tails.notification.event.CommentCreatedEvent;
 import com.tails.notification.event.CommentRepliedEvent;
+import com.tails.notification.event.ReportResolvedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -38,5 +39,11 @@ public class NotificationEventListener {
     public void onBoardBookmarked(BoardBookmarkedEvent event) {
         notificationService.create(event.boardOwnerId(), NotificationType.BOOKMARK,
                 "회원님의 게시글이 북마크(찜)되었습니다.", event.boardId());
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void onReportResolved(ReportResolvedEvent event) {
+        notificationService.create(event.reporterId(), NotificationType.REPORT_RESOLVED,
+                "신고하신 내용이 처리되었습니다.", event.reportId());
     }
 }
