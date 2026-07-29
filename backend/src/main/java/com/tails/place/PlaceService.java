@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PlaceService {
 
     private final PlaceRepository placeRepository;
+    private final PlaceImageRepository placeImageRepository;
     // 인기 랭킹 조회 전용. PlaceBookmark 테이블을 집계한 결과라 이 Service가 직접 참조 —
     // BookmarkService를 거치지 않는 이유는 집계 쿼리 하나만 필요할 뿐, 찜 토글 책임까지 끌어올 필요가 없어서
     private final PlaceBookmarkRepository placeBookmarkRepository;
@@ -33,14 +34,21 @@ public class PlaceService {
     // ReviewService를 거치지 않는 이유는 집계 쿼리 하나만 필요할 뿐, 리뷰 CRUD 책임까지 끌어올 필요가 없어서
     private final ReviewRepository reviewRepository;
 
-    
+    // "이 지역에서 검색"처럼 지도를 축소한 상태로 반경 검색하면 결과가 수백~수천 건까지 잡힐 수 있어서,
+    // 거리순으로 가까운 것부터 이 개수만 반환(카카오맵/네이버맵 등 실제 지도 서비스도 결과 상한을 둠)
+    private static final int MAX_GEO_SEARCH_RESULTS = 100;
+
+
     // 장소 상세 조회.
     // @throws CustomException {@link ErrorCode#PLACE_NOT_FOUND} 해당 placeId의 장소가 없을 때
      
     public PlaceResponse getPlaceDetail(Long placeId) {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PLACE_NOT_FOUND));
-        return PlaceResponse.from(place);
+        List<String> imageUrls = placeImageRepository.findByPlace_PlaceIdOrderBySequenceAsc(placeId).stream()
+                .map(PlaceImage::getImageUrl)
+                .toList();
+        return PlaceResponse.from(place, imageUrls);
     }
 
     // 장소 목록 페이징 조회
@@ -102,6 +110,7 @@ public class PlaceService {
                         GeoUtil.distanceMeters(centerLat, centerLng, place.getLatitude(), place.getLongitude())))
                 .filter(response -> response.getDistanceMeters() <= radius)
                 .sorted(Comparator.comparing(PlaceSearchResponse::getDistanceMeters))
+                .limit(MAX_GEO_SEARCH_RESULTS)
                 .toList();
     }
 

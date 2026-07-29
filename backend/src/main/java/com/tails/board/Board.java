@@ -89,6 +89,11 @@ public class Board {
         if (!isDraft()) {
             return true;
         }
+        return isAuthor(currentMemberId);
+    }
+
+    // 작성자 본인 여부 확인
+    public boolean isAuthor(Long currentMemberId) {
         return currentMemberId != null && member != null && member.getId().equals(currentMemberId);
     }
 
