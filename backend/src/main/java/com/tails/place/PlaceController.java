@@ -34,9 +34,11 @@ public class PlaceController {
 
     // 장소 상세 조회 (GET /api/places/{placeId})
     @GetMapping("/{placeId}")
-    @Operation(summary = "장소 상세 조회", description = "placeId로 장소 하나의 상세 정보를 조회합니다.")
-    public ApiResponse<PlaceResponse> getPlaceDetail(@PathVariable Long placeId) {
-        return ApiResponse.success(placeService.getPlaceDetail(placeId));
+    @Operation(summary = "장소 상세 조회", description = "placeId로 장소 하나의 상세 정보를 조회합니다. 로그인 시 내 찜 여부도 함께 내려줍니다.")
+    public ApiResponse<PlaceResponse> getPlaceDetail(@AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long placeId) {
+        Long currentMemberId = userDetails != null ? userDetails.getMemberId() : null;
+        return ApiResponse.success(placeService.getPlaceDetail(placeId, currentMemberId));
     }
 
     // 장소 목록 페이징 조회 (기본값: 20개씩, placeId 오름차순)

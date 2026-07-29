@@ -39,16 +39,17 @@ public class PlaceService {
     private static final int MAX_GEO_SEARCH_RESULTS = 100;
 
 
-    // 장소 상세 조회.
+    // 장소 상세 조회. currentMemberId가 있으면 내 찜 여부도 함께 계산(비로그인이면 항상 false)
     // @throws CustomException {@link ErrorCode#PLACE_NOT_FOUND} 해당 placeId의 장소가 없을 때
-     
-    public PlaceResponse getPlaceDetail(Long placeId) {
+    public PlaceResponse getPlaceDetail(Long placeId, Long currentMemberId) {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PLACE_NOT_FOUND));
         List<String> imageUrls = placeImageRepository.findByPlace_PlaceIdOrderBySequenceAsc(placeId).stream()
                 .map(PlaceImage::getImageUrl)
                 .toList();
-        return PlaceResponse.from(place, imageUrls);
+        boolean bookmarked = currentMemberId != null
+                && placeBookmarkRepository.findByPlace_PlaceIdAndMemberId(placeId, currentMemberId).isPresent();
+        return PlaceResponse.from(place, imageUrls, bookmarked);
     }
 
     // 장소 목록 페이징 조회
