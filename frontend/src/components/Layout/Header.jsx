@@ -1,4 +1,4 @@
-// 전역 헤더. 로그인 상태, 알림 드롭다운 담당
+// 전역 헤더. 로그인 상태, 알림 드롭다운, 모바일 메뉴 담당
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -28,6 +28,7 @@ export default function Header() {
   const { isAuthenticated, member } = useAuth();
   const { notifications, unreadCount } = useNotifications();
   const [notifOpen, setNotifOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const notifRef = useRef(null);
   const navigate = useNavigate();
 
@@ -115,8 +116,31 @@ export default function Header() {
               로그인
             </Link>
           )}
+          <button
+            className={styles.menuToggle}
+            aria-label="메뉴"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            {menuOpen ? '✕' : '☰'}
+          </button>
         </div>
       </div>
+
+      {menuOpen && (
+        <nav className={styles.mobileNav}>
+          {NAV_LINKS.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.end}
+              onClick={() => setMenuOpen(false)}
+              className={({ isActive }) => (isActive ? styles.mobileNavActive : styles.mobileNavLink)}
+            >
+              {link.label}
+            </NavLink>
+          ))}
+        </nav>
+      )}
     </header>
   );
 }
