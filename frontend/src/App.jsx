@@ -1,3 +1,5 @@
+import Router from './routes/Router';
+
 export default function App() {
-  return <div>Tails</div>;
+  return <Router />;
 }
