@@ -1,14 +1,22 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Layout from '../components/Layout/Layout';
 import PrivateRoute from './PrivateRoute';
+import NotFoundPage from '../features/error/NotFoundPage';
+import RouteErrorPage from '../features/error/RouteErrorPage';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <Layout />,
     children: [
-      { index: true, element: <div>Tails</div> },
-      { element: <PrivateRoute />, children: [] },
+      {
+        errorElement: <RouteErrorPage />,
+        children: [
+          { index: true, element: <div>Tails</div> },
+          { element: <PrivateRoute />, children: [] },
+          { path: '*', element: <NotFoundPage /> },
+        ],
+      },
     ],
   },
 ]);
