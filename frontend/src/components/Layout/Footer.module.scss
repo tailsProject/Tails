@@ -1,0 +1,106 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.footer {
+  margin-top: v.$spacing-xxl;
+  border-top: 1px solid v.$color-border;
+  background-color: v.$color-bg-muted;
+}
+
+.inner {
+  max-width: v.$content-max-width;
+  margin: 0 auto;
+  padding: v.$spacing-xl v.$spacing-lg v.$spacing-lg;
+}
+
+.brand {
+  p {
+    margin-top: v.$spacing-sm;
+    color: v.$color-text-muted;
+    font-size: v.$font-size-sm;
+    line-height: 1.6;
+    white-space: nowrap;
+
+    @include m.mobile {
+      font-size: 11px;
+    }
+  }
+}
+
+.logoImage {
+  height: 32px;
+  width: auto;
+}
+
+.links {
+  margin-top: v.$spacing-sm;
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-md;
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
+
+  a:hover {
+    color: v.$color-primary;
+  }
+
+  a + a {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: calc(-1 * v.$spacing-md / 2);
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1px;
+      height: 10px;
+      background-color: v.$color-text-muted;
+    }
+  }
+}
+
+.bottomBar {
+  max-width: v.$content-max-width;
+  margin: 0 auto;
+  padding: v.$spacing-md v.$spacing-lg;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: v.$spacing-sm;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: v.$color-text-muted;
+
+  a {
+    color: inherit;
+
+    &:hover {
+      color: v.$color-primary;
+    }
+  }
+}
+
+.legalLinks {
+  display: flex;
+  gap: v.$spacing-md;
+
+  button:hover {
+    color: v.$color-primary;
+  }
+}
+
+.legalModal {
+  max-width: 480px;
+
+  h2 {
+    margin-bottom: v.$spacing-md;
+  }
+}
+
+.legalBody {
+  white-space: pre-wrap;
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+  margin-bottom: v.$spacing-lg;
+}
