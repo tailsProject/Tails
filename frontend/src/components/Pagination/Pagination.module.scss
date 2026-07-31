@@ -1,0 +1,35 @@
+@use '../../styles/variables' as v;
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: v.$spacing-xs;
+  margin-top: v.$spacing-lg;
+
+  button {
+    min-width: 32px;
+    padding: v.$spacing-xs v.$spacing-sm;
+    border: 1px solid v.$color-border;
+    border-radius: 6px;
+    color: v.$color-text-muted;
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+      border-color: v.$color-primary;
+      color: v.$color-primary;
+    }
+  }
+}
+
+.active {
+  background-color: v.$color-primary;
+  border-color: v.$color-primary !important;
+  color: #fff !important;
+  font-weight: 700;
+}
