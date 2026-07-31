@@ -1,15 +1,37 @@
 @use 'variables' as v;
 
+:root {
+  --color-primary: #{v.$color-primary};
+  --color-primary-dark: #{v.$color-primary-dark};
+  --color-text: #{v.$color-text};
+  --color-bg: #{v.$color-bg};
+  --color-border: #{v.$color-border};
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 html,
 body,
 #root {
   height: 100%;
+}
+
+::selection {
+  background-color: v.$color-primary-bg;
+  color: v.$color-primary-dark;
+}
+
+:focus-visible {
+  outline: 2px solid v.$color-primary;
+  outline-offset: 2px;
 }
 
 body {
