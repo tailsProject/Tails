@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { join, checkEmail, checkNickname, sendSignupCode, verifySignupCode } from './api';
+import { TERMS_CONTENT } from './termsContent';
 import { useToast } from '../../hooks/useToast';
 import Button from '../../components/Button/Button';
+import Modal from '../../components/Modal/Modal';
 import styles from './AuthPage.module.scss';
 
 // 백엔드 MemberJoinRequest 검증 규칙과 동일 (프론트에서 미리 걸러 UX 개선용, 최종 검증은 서버가 함)
@@ -22,8 +24,21 @@ export default function SignupPage() {
   const [isSendingCode, setIsSendingCode] = useState(false);
   const [isVerifyingCode, setIsVerifyingCode] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [agreePrivacy, setAgreePrivacy] = useState(false);
+  const [agreeMarketing, setAgreeMarketing] = useState(false);
+  const [openTerms, setOpenTerms] = useState(null); // null | 'terms' | 'privacy' | 'marketing'
   const { showToast } = useToast();
   const navigate = useNavigate();
+
+  const requiredAgreed = agreeTerms && agreePrivacy;
+  const allAgreed = requiredAgreed && agreeMarketing;
+
+  function handleAgreeAll(checked) {
+    setAgreeTerms(checked);
+    setAgreePrivacy(checked);
+    setAgreeMarketing(checked);
+  }
 
   // 이메일을 바꾸면 이전 인증 상태는 무효화
   useEffect(() => {
@@ -92,7 +107,7 @@ export default function SignupPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await join({ email, password, passwordConfirm, nickname });
+      await join({ email, password, passwordConfirm, nickname, agreeMarketing });
       showToast('회원가입이 완료됐습니다. 로그인해주세요.', 'success');
       navigate('/login');
     } catch (error) {
@@ -194,7 +209,47 @@ export default function SignupPage() {
           {nicknameAvailable === false && <span className={styles.hintError}>이미 사용 중인 닉네임입니다.</span>}
         </label>
 
-        <Button type="submit" disabled={isSubmitting || !codeVerified}>
+        <div className={styles.terms}>
+          <label className={styles.termsAll}>
+            <input type="checkbox" checked={allAgreed} onChange={(e) => handleAgreeAll(e.target.checked)} />
+            약관 전체 동의
+          </label>
+          <label className={styles.termsItem}>
+            <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} />
+            <span>[필수] 이용약관 동의</span>
+            <button type="button" className={styles.termsMore} onClick={() => setOpenTerms('terms')}>
+              더보기
+            </button>
+          </label>
+          <label className={styles.termsItem}>
+            <input type="checkbox" checked={agreePrivacy} onChange={(e) => setAgreePrivacy(e.target.checked)} />
+            <span>[필수] 개인정보 수집·이용 동의</span>
+            <button type="button" className={styles.termsMore} onClick={() => setOpenTerms('privacy')}>
+              더보기
+            </button>
+          </label>
+          <label className={styles.termsItem}>
+            <input type="checkbox" checked={agreeMarketing} onChange={(e) => setAgreeMarketing(e.target.checked)} />
+            <span>[선택] 마케팅 정보 수신 동의</span>
+            <button type="button" className={styles.termsMore} onClick={() => setOpenTerms('marketing')}>
+              더보기
+            </button>
+          </label>
+        </div>
+
+        <Modal open={openTerms !== null} onClose={() => setOpenTerms(null)}>
+          {openTerms && (
+            <div className={styles.termsModal}>
+              <h2>{TERMS_CONTENT[openTerms].title}</h2>
+              <p className={styles.termsBody}>{TERMS_CONTENT[openTerms].body}</p>
+              <Button type="button" onClick={() => setOpenTerms(null)}>
+                닫기
+              </Button>
+            </div>
+          )}
+        </Modal>
+
+        <Button type="submit" disabled={isSubmitting || !codeVerified || !requiredAgreed}>
           가입하기
         </Button>
       </form>
