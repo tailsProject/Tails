@@ -28,7 +28,11 @@ export default function OAuth2RedirectPage() {
     return (
       <div className={styles.wrapper}>
         <h1>로그인 실패</h1>
-        <p className={styles.hintError}>소셜 로그인 중 문제가 발생했습니다. 다시 시도해주세요.</p>
+        <p className={styles.hintError}>
+          {error === 'recently_withdrawn'
+            ? '탈퇴 후 24시간 동안은 같은 이메일로 재가입할 수 없습니다.'
+            : '소셜 로그인 중 문제가 발생했습니다. 다시 시도해주세요.'}
+        </p>
       </div>
     );
   }

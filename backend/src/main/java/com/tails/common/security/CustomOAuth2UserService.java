@@ -2,6 +2,8 @@ package com.tails.common.security;
 
 import com.tails.member.Member;
 import com.tails.member.MemberRepository;
+import com.tails.member.WithdrawnMemberRepository;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
+    // MemberService.WITHDRAWAL_COOLDOWN_HOURS와 동일 - 일반 회원가입(join)과 같은 24시간 제한을 소셜 로그인 신규가입에도 적용
+    private static final long WITHDRAWAL_COOLDOWN_HOURS = 24;
+
     private final MemberRepository memberRepository;
+    private final WithdrawnMemberRepository withdrawnMemberRepository;
 
     @Override
     @Transactional
@@ -71,9 +77,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return memberRepository.findByEmail(email)
                 .map(existing -> withProfileImageIfMissing(linkProvider(existing, provider, profile.providerId()), profile))
                 .orElseGet(() -> {
+                    if (isRecentlyWithdrawn(email)) {
+                        throw authError("recently_withdrawn", "탈퇴 후 24시간 동안은 같은 이메일로 재가입할 수 없습니다.");
+                    }
                     isNewMember[0] = true;
                     return join(provider, email, profile);
                 });
+    }
+
+    private boolean isRecentlyWithdrawn(String email) {
+        LocalDateTime cooldownStart = LocalDateTime.now().minusHours(WITHDRAWAL_COOLDOWN_HOURS);
+        return withdrawnMemberRepository.existsByEmailAndWithdrawnAtAfter(email, cooldownStart);
     }
 
     private Member linkProvider(Member member, String provider, String providerId) {

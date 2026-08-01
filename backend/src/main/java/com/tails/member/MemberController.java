@@ -59,7 +59,7 @@ public class MemberController {
             description = "입력한 이메일의 회원 가입 가능 여부를 확인합니다."
     )
     public ApiResponse<AvailabilityResponse> checkEmail(@RequestParam String email) {
-        boolean available = !memberService.isEmailDuplicated(email);
+        boolean available = !memberService.isEmailDuplicated(email) && !memberService.isRecentlyWithdrawn(email);
         return ApiResponse.success(new AvailabilityResponse(available));
     }
 
