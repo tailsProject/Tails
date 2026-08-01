@@ -80,6 +80,9 @@ export default function LoginPage() {
       <p className={styles.switchLink}>
         계정이 없으신가요? <Link to="/signup">회원가입</Link>
       </p>
+      <p className={styles.switchLink}>
+        <Link to="/forgot-password">비밀번호 찾기</Link>
+      </p>
     </div>
   );
 }

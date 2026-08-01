@@ -7,6 +7,8 @@ import LoginPage from '../features/auth/LoginPage';
 import SignupPage from '../features/auth/SignupPage';
 import OAuth2RedirectPage from '../features/auth/OAuth2RedirectPage';
 import CompleteProfilePage from '../features/auth/CompleteProfilePage';
+import ForgotPasswordPage from '../features/auth/ForgotPasswordPage';
+import ResetPasswordPage from '../features/auth/ResetPasswordPage';
 
 const router = createBrowserRouter([
   {
@@ -20,6 +22,8 @@ const router = createBrowserRouter([
           { path: 'login', element: <LoginPage /> },
           { path: 'signup', element: <SignupPage /> },
           { path: 'oauth2/redirect', element: <OAuth2RedirectPage /> },
+          { path: 'forgot-password', element: <ForgotPasswordPage /> },
+          { path: 'reset-password', element: <ResetPasswordPage /> },
           {
             element: <PrivateRoute />,
             children: [{ path: 'complete-profile', element: <CompleteProfilePage /> }],
