@@ -33,6 +33,15 @@
   }
 }
 
+.inlineField {
+  display: flex;
+  gap: v.$spacing-sm;
+
+  input {
+    flex: 1;
+  }
+}
+
 .hintOk {
   color: v.$color-success;
   font-size: v.$font-size-sm;
