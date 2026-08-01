@@ -10,6 +10,8 @@ import styles from './AuthPage.module.scss';
 // 백엔드 MemberJoinRequest 검증 규칙과 동일 (프론트에서 미리 걸러 UX 개선용, 최종 검증은 서버가 함)
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_PATTERN = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).+$/;
+// 공백과 자음/모음 단독 문자 차단, 특수문자와 이모지는 허용
+const NICKNAME_PATTERN = /^[^\sㄱ-ㆎ]+$/;
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -61,7 +63,7 @@ export default function SignupPage() {
   }, [email]);
 
   useEffect(() => {
-    if (nickname.length < 2 || nickname.length > 20) {
+    if (nickname.length < 2 || nickname.length > 20 || !NICKNAME_PATTERN.test(nickname)) {
       setNicknameAvailable(null);
       return;
     }
@@ -74,6 +76,7 @@ export default function SignupPage() {
 
   const passwordValid = password.length >= 8 && password.length <= 50 && PASSWORD_PATTERN.test(password);
   const passwordMatches = passwordConfirm.length > 0 && password === passwordConfirm;
+  const nicknameFormatValid = nickname.length === 0 || NICKNAME_PATTERN.test(nickname);
 
   async function handleSendCode() {
     setIsSendingCode(true);
@@ -205,8 +208,15 @@ export default function SignupPage() {
             maxLength={20}
             required
           />
-          {nicknameAvailable === true && <span className={styles.hintOk}>사용 가능한 닉네임입니다.</span>}
-          {nicknameAvailable === false && <span className={styles.hintError}>이미 사용 중인 닉네임입니다.</span>}
+          {!nicknameFormatValid && (
+            <span className={styles.hintError}>닉네임에 사용할 수 없는 문자가 포함되어 있습니다.</span>
+          )}
+          {nicknameFormatValid && nicknameAvailable === true && (
+            <span className={styles.hintOk}>사용 가능한 닉네임입니다.</span>
+          )}
+          {nicknameFormatValid && nicknameAvailable === false && (
+            <span className={styles.hintError}>이미 사용 중인 닉네임입니다.</span>
+          )}
         </label>
 
         <div className={styles.terms}>

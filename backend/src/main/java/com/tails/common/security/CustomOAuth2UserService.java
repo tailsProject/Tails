@@ -109,15 +109,21 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     private String uniqueNickname(String base) {
-        String name = (base == null || base.isBlank()) ? "여행자" : base.trim();
-        if (name.length() > 16) {
-            name = name.substring(0, 16);
-        }
+        String name = sanitizeNickname(base);
         String candidate = name;
         while (memberRepository.existsByNickname(candidate)) {
             candidate = name + UUID.randomUUID().toString().substring(0, 4);
         }
         return candidate;
+    }
+
+    // 소셜 프로필 닉네임에는 공백/제어문자/단독 자모가 섞여 올 수 있어 일반 가입과 동일한 규칙으로 정리. 특수문자/이모지는 유지
+    private String sanitizeNickname(String base) {
+        String cleaned = base == null ? "" : base.replaceAll("[\\s\\p{Cntrl}\\u3131-\\u318E]", "");
+        if (cleaned.length() < 2) {
+            return "여행자";
+        }
+        return cleaned.length() > 16 ? cleaned.substring(0, 16) : cleaned;
     }
 
     private SocialProfile validated(SocialProfile profile) {
