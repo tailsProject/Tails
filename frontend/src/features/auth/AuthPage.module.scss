@@ -1,0 +1,56 @@
+@use '../../styles/variables' as v;
+
+.wrapper {
+  max-width: 400px;
+  margin: v.$spacing-xl auto;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-md;
+  margin-top: v.$spacing-lg;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-xs;
+    font-size: v.$font-size-sm;
+    color: v.$color-text-muted;
+  }
+
+  input {
+    padding: v.$spacing-sm;
+    border: 1px solid v.$color-border;
+    border-radius: 6px;
+    font-size: v.$font-size-base;
+    color: v.$color-text;
+
+    &:focus {
+      outline: none;
+      border-color: v.$color-primary;
+    }
+  }
+}
+
+.hintOk {
+  color: v.$color-success;
+  font-size: v.$font-size-sm;
+}
+
+.hintError {
+  color: v.$color-error;
+  font-size: v.$font-size-sm;
+}
+
+.switchLink {
+  text-align: center;
+  margin-top: v.$spacing-lg;
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
+
+  a {
+    color: v.$color-primary;
+    font-weight: 600;
+  }
+}
