@@ -43,6 +43,43 @@
   font-size: v.$font-size-sm;
 }
 
+.socialDivider {
+  text-align: center;
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
+  margin: v.$spacing-lg 0 v.$spacing-md;
+}
+
+.socialButtons {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-sm;
+}
+
+.socialButton {
+  display: block;
+  text-align: center;
+  padding: v.$spacing-sm;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.kakao {
+  background-color: #fee500;
+  color: #191919;
+}
+
+.google {
+  background-color: #ffffff;
+  color: #191919;
+  border: 1px solid v.$color-border;
+}
+
+.naver {
+  background-color: #03c75a;
+  color: #ffffff;
+}
+
 .switchLink {
   text-align: center;
   margin-top: v.$spacing-lg;

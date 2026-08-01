@@ -5,6 +5,8 @@ import NotFoundPage from '../features/error/NotFoundPage';
 import RouteErrorPage from '../features/error/RouteErrorPage';
 import LoginPage from '../features/auth/LoginPage';
 import SignupPage from '../features/auth/SignupPage';
+import OAuth2RedirectPage from '../features/auth/OAuth2RedirectPage';
+import CompleteProfilePage from '../features/auth/CompleteProfilePage';
 
 const router = createBrowserRouter([
   {
@@ -17,7 +19,11 @@ const router = createBrowserRouter([
           { index: true, element: <div>Tails</div> },
           { path: 'login', element: <LoginPage /> },
           { path: 'signup', element: <SignupPage /> },
-          { element: <PrivateRoute />, children: [] },
+          { path: 'oauth2/redirect', element: <OAuth2RedirectPage /> },
+          {
+            element: <PrivateRoute />,
+            children: [{ path: 'complete-profile', element: <CompleteProfilePage /> }],
+          },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

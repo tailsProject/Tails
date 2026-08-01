@@ -5,6 +5,14 @@ import { useToast } from '../../hooks/useToast';
 import Button from '../../components/Button/Button';
 import styles from './AuthPage.module.scss';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+const SOCIAL_PROVIDERS = [
+  { id: 'kakao', label: '카카오로 로그인' },
+  { id: 'google', label: '구글로 로그인' },
+  { id: 'naver', label: '네이버로 로그인' },
+];
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -55,6 +63,20 @@ export default function LoginPage() {
           로그인
         </Button>
       </form>
+
+      <div className={styles.socialDivider}>또는</div>
+      <div className={styles.socialButtons}>
+        {SOCIAL_PROVIDERS.map((provider) => (
+          <a
+            key={provider.id}
+            href={`${API_BASE}/oauth2/authorization/${provider.id}`}
+            className={`${styles.socialButton} ${styles[provider.id]}`}
+          >
+            {provider.label}
+          </a>
+        ))}
+      </div>
+
       <p className={styles.switchLink}>
         계정이 없으신가요? <Link to="/signup">회원가입</Link>
       </p>
