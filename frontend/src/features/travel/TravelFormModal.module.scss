@@ -1,0 +1,60 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.modal {
+  width: 480px;
+  max-width: 100%;
+
+  h2 {
+    margin-bottom: v.$spacing-md;
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-md;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-xs;
+  }
+
+  input[type='text'],
+  input[type='date'] {
+    width: 100%;
+    padding: v.$spacing-sm v.$spacing-md;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-sm;
+    font-family: inherit;
+    font-size: v.$font-size-base;
+  }
+}
+
+.fieldLabel {
+  font-size: v.$font-size-sm;
+  font-weight: 700;
+  color: v.$color-text-muted;
+}
+
+.dateRow {
+  display: flex;
+  gap: v.$spacing-md;
+
+  label {
+    flex: 1;
+    min-width: 0;
+  }
+
+  @include m.mobile {
+    flex-direction: column;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: v.$spacing-sm;
+  margin-top: v.$spacing-sm;
+}

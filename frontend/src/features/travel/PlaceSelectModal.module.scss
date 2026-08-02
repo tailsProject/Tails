@@ -1,0 +1,69 @@
+@use '../../styles/variables' as v;
+
+.modal {
+  width: 420px;
+  max-width: 100%;
+
+  h2 {
+    margin-bottom: v.$spacing-md;
+  }
+}
+
+.searchRow {
+  display: flex;
+  gap: v.$spacing-sm;
+  margin-bottom: v.$spacing-md;
+
+  input {
+    flex: 1;
+    min-width: 0;
+    padding: v.$spacing-sm v.$spacing-md;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-sm;
+    font-size: v.$font-size-base;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-xs;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.empty {
+  padding: v.$spacing-lg 0;
+  text-align: center;
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+  width: 100%;
+  padding: v.$spacing-sm v.$spacing-md;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-sm;
+  text-align: left;
+
+  &:hover {
+    border-color: v.$color-primary;
+  }
+}
+
+.itemIcon {
+  color: v.$color-primary;
+}
+
+.itemName {
+  font-weight: 700;
+}
+
+.itemAddress {
+  margin-top: 2px;
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}

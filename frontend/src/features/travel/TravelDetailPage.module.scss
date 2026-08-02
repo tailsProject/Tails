@@ -1,0 +1,166 @@
+@use '../../styles/variables' as v;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-lg;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  h1 {
+    font-size: v.$font-size-xl;
+    font-weight: 800;
+  }
+}
+
+.dates {
+  margin-top: 4px;
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
+}
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-xs;
+  margin-bottom: v.$spacing-xs;
+}
+
+.ddayBadge {
+  padding: 2px 10px;
+  border-radius: v.$radius-pill;
+  font-size: 11px;
+  font-weight: 800;
+  background-color: v.$color-bg-muted;
+  color: v.$color-text;
+
+  &.ongoing {
+    background-color: v.$color-primary;
+    color: #fff;
+  }
+
+  &.done {
+    background-color: v.$color-bg-muted;
+    color: v.$color-text-muted;
+  }
+}
+
+.nightsLabel {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}
+
+.headerActions {
+  display: flex;
+  gap: v.$spacing-xs;
+}
+
+.headerActionBtn {
+  padding: v.$spacing-xs v.$spacing-sm;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-sm;
+  color: v.$color-text-muted;
+
+  &:hover {
+    color: v.$color-text;
+  }
+}
+
+.shareBox {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+  padding: v.$spacing-sm v.$spacing-md;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-sm;
+  background-color: v.$color-bg-muted;
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: none;
+    font-size: v.$font-size-sm;
+    color: v.$color-text-muted;
+  }
+}
+
+.shareBoxIcon {
+  color: v.$color-primary;
+}
+
+.copyBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px v.$spacing-sm;
+  border-radius: v.$radius-sm;
+  font-size: v.$font-size-sm;
+  font-weight: 700;
+  color: v.$color-primary;
+  flex-shrink: 0;
+}
+
+.copyBtnDone {
+  color: v.$color-success;
+}
+
+.shareBoxDivider {
+  width: 1px;
+  height: 16px;
+  background-color: v.$color-border;
+  flex-shrink: 0;
+}
+
+.unshareBtn {
+  color: v.$color-text-muted;
+  flex-shrink: 0;
+
+  &:hover {
+    color: v.$color-error;
+  }
+}
+
+.dayTabs {
+  display: flex;
+  gap: v.$spacing-xs;
+  overflow-x: auto;
+}
+
+.day,
+.dayActive {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: v.$spacing-sm v.$spacing-md;
+  border-radius: v.$radius-sm;
+  border: 1px solid v.$color-border;
+  flex-shrink: 0;
+  color: v.$color-text-muted;
+}
+
+.dayActive {
+  border-color: v.$color-primary;
+  background-color: v.$color-primary-bg;
+  color: v.$color-primary-dark;
+}
+
+.dayNum {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.dayDate {
+  font-size: v.$font-size-sm;
+
+  em {
+    font-style: normal;
+    opacity: 0.7;
+  }
+}
+
