@@ -1,13 +1,13 @@
 // 여행 일정 상세 페이지, 일자별 탭
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getTravelDetail, deleteTravel } from './api';
+import { getTravelDetail, deleteTravel, shareTravel, unshareTravel } from './api';
 import { useToast } from '../../hooks/useToast';
 import { useConfirm } from '../../hooks/useConfirm';
 import TravelFormModal from './TravelFormModal';
 import DaySchedule from './DaySchedule';
 import StateMessage from '../../components/StateMessage/StateMessage';
-import { SuitcaseIcon, PencilIcon, TrashIcon } from '../../components/Icon/Icon';
+import { SuitcaseIcon, PencilIcon, TrashIcon, LinkIcon, XMarkIcon, CheckIcon } from '../../components/Icon/Icon';
 import styles from './TravelDetailPage.module.scss';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -40,6 +40,9 @@ export default function TravelDetailPage() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [shareToken, setShareToken] = useState(null);
+  const [shareBoxOpen, setShareBoxOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   async function load() {
     try {
@@ -74,6 +77,40 @@ export default function TravelDetailPage() {
     load();
   }
 
+  async function handleShare() {
+    if (shareToken) {
+      setShareBoxOpen((prev) => !prev);
+      return;
+    }
+    try {
+      const res = await shareTravel(travelId);
+      setShareToken(res.data.data.shareToken);
+      setShareBoxOpen(true);
+    } catch (error) {
+      showToast(error.response?.data?.error?.message ?? '공유 링크 생성에 실패했습니다.', 'error');
+    }
+  }
+
+  async function handleUnshare() {
+    const ok = await confirm('공유를 중단하시겠습니까?\n기존에 전달한 공유 링크는 더 이상 사용할 수 없습니다.');
+    if (!ok) return;
+    try {
+      await unshareTravel(travelId);
+      setShareToken(null);
+      setShareBoxOpen(false);
+      showToast('공유가 중단되었습니다.', 'success');
+    } catch (error) {
+      showToast(error.response?.data?.error?.message ?? '공유 중단에 실패했습니다.', 'error');
+    }
+  }
+
+  async function handleCopyLink() {
+    await navigator.clipboard.writeText(shareUrl);
+    setCopied(true);
+    showToast('링크를 복사했습니다.', 'success');
+    setTimeout(() => setCopied(false), 1500);
+  }
+
   if (notFound) {
     return (
       <StateMessage
@@ -91,6 +128,7 @@ export default function TravelDetailPage() {
   }
 
   const dates = getDateRange(travel.startDate, travel.endDate);
+  const shareUrl = shareToken ? `${window.location.origin}/travels/shared/${shareToken}` : null;
 
   return (
     <div className={styles.wrapper}>
@@ -102,6 +140,14 @@ export default function TravelDetailPage() {
           </p>
         </div>
         <div className={styles.headerActions}>
+          <button
+            type="button"
+            className={styles.headerActionBtn}
+            onClick={handleShare}
+            aria-label={shareToken ? '공유 링크 보기' : '공유 링크 만들기'}
+          >
+            <LinkIcon />
+          </button>
           <button type="button" className={styles.headerActionBtn} onClick={() => setEditModalOpen(true)} aria-label="수정">
             <PencilIcon />
           </button>
@@ -110,6 +156,27 @@ export default function TravelDetailPage() {
           </button>
         </div>
       </div>
+
+      {shareBoxOpen && shareUrl && (
+        <div className={styles.shareBox}>
+          <span className={styles.shareBoxIcon}>
+            <LinkIcon />
+          </span>
+          <input type="text" value={shareUrl} readOnly onFocus={(e) => e.target.select()} />
+          <button
+            type="button"
+            onClick={handleCopyLink}
+            className={copied ? `${styles.copyBtn} ${styles.copyBtnDone}` : styles.copyBtn}
+          >
+            {copied ? <CheckIcon /> : null}
+            {copied ? '복사됨' : '복사'}
+          </button>
+          <span className={styles.shareBoxDivider} />
+          <button type="button" onClick={handleUnshare} className={styles.unshareBtn} aria-label="공유 중단">
+            <XMarkIcon />
+          </button>
+        </div>
+      )}
 
       <div className={styles.dayTabs}>
         {dates.map((date, index) => {

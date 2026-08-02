@@ -40,3 +40,15 @@ export function deleteTravelDetail(travelId, detailId) {
 export function reorderTravelDetails(travelId, { travelDate, detailIds }) {
   return client.patch(`/api/travels/${travelId}/details/order`, { travelDate, detailIds });
 }
+
+export function shareTravel(travelId) {
+  return client.post(`/api/travels/${travelId}/share`);
+}
+
+export function unshareTravel(travelId) {
+  return client.delete(`/api/travels/${travelId}/share`);
+}
+
+export function getSharedTravel(shareToken) {
+  return client.get(`/api/travels/shared/${shareToken}`);
+}

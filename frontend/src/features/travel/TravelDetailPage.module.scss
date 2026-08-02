@@ -39,6 +39,61 @@
   }
 }
 
+.shareBox {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+  padding: v.$spacing-sm v.$spacing-md;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-sm;
+  background-color: v.$color-bg-muted;
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: none;
+    font-size: v.$font-size-sm;
+    color: v.$color-text-muted;
+  }
+}
+
+.shareBoxIcon {
+  color: v.$color-primary;
+}
+
+.copyBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px v.$spacing-sm;
+  border-radius: v.$radius-sm;
+  font-size: v.$font-size-sm;
+  font-weight: 700;
+  color: v.$color-primary;
+  flex-shrink: 0;
+}
+
+.copyBtnDone {
+  color: v.$color-success;
+}
+
+.shareBoxDivider {
+  width: 1px;
+  height: 16px;
+  background-color: v.$color-border;
+  flex-shrink: 0;
+}
+
+.unshareBtn {
+  color: v.$color-text-muted;
+  flex-shrink: 0;
+
+  &:hover {
+    color: v.$color-error;
+  }
+}
+
 .dayTabs {
   display: flex;
   gap: v.$spacing-xs;

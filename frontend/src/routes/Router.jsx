@@ -5,6 +5,7 @@ import NotFoundPage from '../features/error/NotFoundPage';
 import RouteErrorPage from '../features/error/RouteErrorPage';
 import TravelListPage from '../features/travel/TravelListPage';
 import TravelDetailPage from '../features/travel/TravelDetailPage';
+import SharedTravelPage from '../features/travel/SharedTravelPage';
 
 const router = createBrowserRouter([
   {
@@ -15,6 +16,7 @@ const router = createBrowserRouter([
         errorElement: <RouteErrorPage />,
         children: [
           { index: true, element: <div>Tails</div> },
+          { path: 'travels/shared/:shareToken', element: <SharedTravelPage /> },
           {
             element: <PrivateRoute />,
             children: [
