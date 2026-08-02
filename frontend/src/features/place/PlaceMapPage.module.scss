@@ -39,6 +39,11 @@
     background: transparent;
     width: 100%;
   }
+
+  @include m.tablet {
+    flex-wrap: wrap;
+    border-radius: v.$radius-md;
+  }
 }
 
 .searchIcon {
@@ -49,6 +54,10 @@
   width: 1px;
   height: 20px;
   background-color: v.$color-border;
+
+  @include m.tablet {
+    display: none;
+  }
 }
 
 .keywordField {
@@ -120,6 +129,14 @@
 
 .regionDropdown {
   position: relative;
+
+  @include m.tablet {
+    width: 100%;
+    order: 3;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-pill;
+    padding: v.$spacing-xs v.$spacing-md;
+  }
 }
 
 .regionInput {
@@ -131,11 +148,48 @@
   text-align: left;
   cursor: pointer;
   color: v.$color-text;
+
+  @include m.tablet {
+    width: 100%;
+  }
 }
 
 .searchActions {
   display: flex;
   gap: v.$spacing-sm;
+
+  @include m.tablet {
+    width: 100%;
+    order: 4;
+    flex-wrap: wrap;
+
+    button:first-child {
+      flex-basis: 100%;
+    }
+
+    button:not(:first-child) {
+      flex: 1;
+    }
+  }
+
+  @include m.mobile {
+    flex-wrap: nowrap;
+
+    button {
+      flex: 1;
+      min-width: 0;
+      padding: v.$spacing-xs 6px;
+      font-size: 11px;
+      gap: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    button:first-child {
+      flex-basis: auto;
+    }
+  }
 }
 
 .regionMenu {
@@ -171,6 +225,11 @@
   gap: v.$spacing-sm;
   overflow-x: auto;
   padding-bottom: 2px;
+
+  @include m.tablet {
+    padding-right: v.$spacing-lg;
+    mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
+  }
 }
 
 .radiusLabel {
@@ -220,6 +279,10 @@
   grid-template-columns: 360px 1fr;
   gap: v.$spacing-md;
   min-height: 560px;
+
+  @include m.tablet {
+    grid-template-columns: 1fr;
+  }
 }
 
 .listPane {
@@ -229,6 +292,11 @@
   max-height: 71vh;
   overflow-y: auto;
   padding-bottom: v.$spacing-sm;
+
+  @include m.tablet {
+    max-height: 50vh;
+    order: 2;
+  }
 }
 
 .resultCount {
@@ -448,6 +516,15 @@
   border-radius: v.$radius-lg;
   overflow: hidden;
   border: 1px solid v.$color-border;
+
+  @include m.tablet {
+    order: 1;
+    height: 360px;
+  }
+
+  @include m.mobile {
+    height: 220px;
+  }
 }
 
 .detailOverlay {
@@ -463,6 +540,10 @@
   width: 100%;
   height: 100%;
   min-height: 400px;
+
+  @include m.mobile {
+    min-height: 0;
+  }
 }
 
 .sdkError {
