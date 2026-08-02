@@ -36,3 +36,7 @@ export function updateTravelDetail(travelId, detailId, { visitTime, memo }) {
 export function deleteTravelDetail(travelId, detailId) {
   return client.delete(`/api/travels/${travelId}/details/${detailId}`);
 }
+
+export function reorderTravelDetails(travelId, { travelDate, detailIds }) {
+  return client.patch(`/api/travels/${travelId}/details/order`, { travelDate, detailIds });
+}

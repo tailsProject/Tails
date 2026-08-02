@@ -1,13 +1,13 @@
 // 여행 일정 상세 페이지, 일자별 탭
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getTravelDetail, getTravelDetails, deleteTravel, deleteTravelDetail } from './api';
+import { getTravelDetail, deleteTravel } from './api';
 import { useToast } from '../../hooks/useToast';
 import { useConfirm } from '../../hooks/useConfirm';
 import TravelFormModal from './TravelFormModal';
-import PlaceSelectModal from './PlaceSelectModal';
+import DaySchedule from './DaySchedule';
 import StateMessage from '../../components/StateMessage/StateMessage';
-import { SuitcaseIcon, PencilIcon, TrashIcon, PlusIcon, MapPinIcon } from '../../components/Icon/Icon';
+import { SuitcaseIcon, PencilIcon, TrashIcon } from '../../components/Icon/Icon';
 import styles from './TravelDetailPage.module.scss';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -38,10 +38,8 @@ export default function TravelDetailPage() {
 
   const [travel, setTravel] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [details, setDetails] = useState([]);
   const [notFound, setNotFound] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [placeModalOpen, setPlaceModalOpen] = useState(false);
 
   async function load() {
     try {
@@ -54,21 +52,10 @@ export default function TravelDetailPage() {
     }
   }
 
-  async function loadDetails(date) {
-    if (!date) return;
-    const res = await getTravelDetails(travelId, date);
-    setDetails(res.data.data);
-  }
-
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [travelId]);
-
-  useEffect(() => {
-    loadDetails(selectedDate);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [travelId, selectedDate]);
 
   async function handleDelete() {
     const ok = await confirm('여행 일정을 삭제하시겠습니까?\n세부 일정도 함께 삭제되며 복구할 수 없습니다.');
@@ -82,25 +69,9 @@ export default function TravelDetailPage() {
     }
   }
 
-  async function handleDeleteDetail(detailId) {
-    const ok = await confirm('방문지를 삭제하시겠습니까?');
-    if (!ok) return;
-    try {
-      await deleteTravelDetail(travelId, detailId);
-      loadDetails(selectedDate);
-    } catch (error) {
-      showToast(error.response?.data?.error?.message ?? '삭제에 실패했습니다.', 'error');
-    }
-  }
-
   function handleEditSaved() {
     setEditModalOpen(false);
     load();
-  }
-
-  function handlePlaceAdded() {
-    setPlaceModalOpen(false);
-    loadDetails(selectedDate);
   }
 
   if (notFound) {
@@ -159,44 +130,13 @@ export default function TravelDetailPage() {
         })}
       </div>
 
-      <div className={styles.detailList}>
-        {details.map((detail) => (
-          <div key={detail.detailId} className={styles.detailItem}>
-            <span className={styles.detailIcon}>
-              <MapPinIcon />
-            </span>
-            <div className={styles.detailBody}>
-              <p className={styles.placeName}>{detail.placeName}</p>
-              {detail.memo && <p className={styles.memo}>{detail.memo}</p>}
-            </div>
-            <button
-              type="button"
-              className={styles.detailDeleteBtn}
-              onClick={() => handleDeleteDetail(detail.detailId)}
-              aria-label="방문지 삭제"
-            >
-              <TrashIcon />
-            </button>
-          </div>
-        ))}
-        <button type="button" className={styles.addPlaceBtn} onClick={() => setPlaceModalOpen(true)}>
-          <PlusIcon /> 방문지 추가
-        </button>
-      </div>
+      {selectedDate && <DaySchedule travelId={travelId} date={selectedDate} />}
 
       <TravelFormModal
         open={editModalOpen}
         onClose={() => setEditModalOpen(false)}
         travelId={travelId}
         onSaved={handleEditSaved}
-      />
-
-      <PlaceSelectModal
-        open={placeModalOpen}
-        onClose={() => setPlaceModalOpen(false)}
-        travelId={travelId}
-        travelDate={selectedDate}
-        onAdded={handlePlaceAdded}
       />
     </div>
   );
