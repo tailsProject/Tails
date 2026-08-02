@@ -52,3 +52,8 @@ export function unshareTravel(travelId) {
 export function getSharedTravel(shareToken) {
   return client.get(`/api/travels/shared/${shareToken}`);
 }
+
+// 장소 지도(박영준 트랙)가 아직 없어서 임시로 여기 둠. Place 프론트 구현 시 정리 필요.
+export function searchPlaces(keyword) {
+  return client.get('/api/places/search', { params: { keyword } });
+}

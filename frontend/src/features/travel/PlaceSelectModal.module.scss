@@ -9,10 +9,34 @@
   }
 }
 
+.searchRow {
+  display: flex;
+  gap: v.$spacing-sm;
+  margin-bottom: v.$spacing-md;
+
+  input {
+    flex: 1;
+    min-width: 0;
+    padding: v.$spacing-sm v.$spacing-md;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-sm;
+    font-size: v.$font-size-base;
+  }
+}
+
 .list {
   display: flex;
   flex-direction: column;
   gap: v.$spacing-xs;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.empty {
+  padding: v.$spacing-lg 0;
+  text-align: center;
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
 }
 
 .item {
