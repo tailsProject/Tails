@@ -8,6 +8,7 @@ import Button from '../../components/Button/Button';
 import { resolveImage } from '../../utils/resolveImage';
 import { CATEGORIES, getCategoryLabel, getCategoryIconUrl, toCat1Param } from '../../utils/placeCategory';
 import { parseSearchKeyword } from '../../utils/parseSearchKeyword';
+import PlaceDetailContent from './PlaceDetailContent';
 import StateMessage from '../../components/StateMessage/StateMessage';
 import { MagnifyingGlassIcon, MapIcon, MapPinIcon, PlusIcon, CheckIcon } from '../../components/Icon/Icon';
 import styles from './PlaceMapPage.module.scss';
@@ -85,6 +86,7 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
   const [ratingByPlaceId, setRatingByPlaceId] = useState({});
   const [sdkError, setSdkError] = useState(false);
   const [activeId, setActiveId] = useState(null);
+  const [selectedPlaceId, setSelectedPlaceId] = useState(null);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -366,6 +368,7 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
           return;
         }
         setActiveId(place.placeId);
+        setSelectedPlaceId(null);
         highlightMarker(place.placeId);
         showInfoOverlay(place);
         scrollListToPlace(place.placeId);
@@ -450,6 +453,11 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
   function buildInfoOverlayContent(place) {
     const wrapper = document.createElement('div');
     wrapper.className = styles.infoOverlay;
+    wrapper.onclick = (e) => {
+      e.stopPropagation();
+      focusPlace(place);
+      setSelectedPlaceId(place.placeId);
+    };
 
     const closeButton = document.createElement('button');
     closeButton.type = 'button';
@@ -511,12 +519,14 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
 
   function clearSelection() {
     setActiveId(null);
+    setSelectedPlaceId(null);
     highlightMarker(null);
     hideInfoOverlay();
   }
 
   function focusPlace(place) {
     setActiveId(place.placeId);
+    setSelectedPlaceId(null);
     if (!mapRef.current || place.latitude == null || place.longitude == null) return;
     const { kakao, map } = mapRef.current;
     highlightMarker(place.placeId);
@@ -892,6 +902,16 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
                       {place.address}
                       {place.distanceMeters != null && ` · ${Math.round(place.distanceMeters)}m`}
                     </span>
+                    <span
+                      className={styles.detailLink}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        focusPlace(place);
+                        setSelectedPlaceId(place.placeId);
+                      }}
+                    >
+                      자세히 보기 →
+                    </span>
                   </div>
                   {selectMode && (
                     <span
@@ -927,6 +947,11 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
             </div>
           ) : (
             <div ref={mapContainerRef} className={styles.map} />
+          )}
+          {selectedPlaceId && (
+            <div className={styles.detailOverlay}>
+              <PlaceDetailContent placeId={selectedPlaceId} onClose={() => setSelectedPlaceId(null)} />
+            </div>
           )}
         </div>
       </div>

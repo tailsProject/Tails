@@ -351,6 +351,14 @@
   @include m.ellipsis;
 }
 
+.detailLink {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 700;
+  color: v.$color-primary;
+  align-self: flex-start;
+}
+
 .rating {
   font-size: v.$font-size-sm;
   font-weight: 700;
@@ -440,6 +448,15 @@
   border-radius: v.$radius-lg;
   overflow: hidden;
   border: 1px solid v.$color-border;
+}
+
+.detailOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  overflow-y: auto;
+  background-color: v.$color-bg;
+  padding: v.$spacing-lg;
 }
 
 .map {
