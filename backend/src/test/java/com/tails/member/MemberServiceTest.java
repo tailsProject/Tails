@@ -51,6 +51,8 @@ class MemberServiceTest {
     private PlaceBookmarkRepository placeBookmarkRepository;
     @Mock
     private ReviewRepository reviewRepository;
+    @Mock
+    private WithdrawnMemberRepository withdrawnMemberRepository;
 
     @InjectMocks
     private MemberService memberService;
