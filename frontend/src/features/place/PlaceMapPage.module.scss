@@ -22,6 +22,198 @@
   }
 }
 
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+  padding: v.$spacing-sm v.$spacing-md;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-pill;
+  background-color: v.$color-bg;
+  box-shadow: v.$shadow-card;
+
+  input {
+    border: none;
+    outline: none;
+    font-size: v.$font-size-base;
+    background: transparent;
+    width: 100%;
+  }
+}
+
+.searchIcon {
+  color: v.$color-text-muted;
+}
+
+.divider {
+  width: 1px;
+  height: 20px;
+  background-color: v.$color-border;
+}
+
+.keywordField {
+  position: relative;
+  flex: 1;
+  min-width: 120px;
+}
+
+// 지역/카테고리/장소명 자동완성 후보 목록 - regionMenu와 같은 톤의 드롭다운
+.suggestList {
+  position: absolute;
+  top: calc(100% + v.$spacing-xs);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 320px;
+  overflow-y: auto;
+  background-color: v.$color-bg;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  box-shadow: v.$shadow-card;
+  padding: v.$spacing-xs 0;
+
+  li button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: v.$spacing-sm;
+    width: 100%;
+    padding: v.$spacing-xs v.$spacing-md;
+    text-align: left;
+    font-size: v.$font-size-base;
+    color: v.$color-text;
+
+    &:hover {
+      background-color: v.$color-bg-muted;
+    }
+  }
+}
+
+// 방향키로 짚고 있는 후보 - 마우스 hover와 같은 톤으로 표시
+.suggestHighlighted {
+  background-color: v.$color-bg-muted;
+}
+
+.suggestLabel {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  @include m.ellipsis;
+}
+
+.suggestAddress {
+  font-size: 12px;
+  font-weight: 400;
+  color: v.$color-text-muted;
+  @include m.ellipsis;
+}
+
+.suggestType {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: v.$radius-pill;
+  background-color: v.$color-primary-bg;
+  color: v.$color-primary-dark;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.regionDropdown {
+  position: relative;
+}
+
+.regionInput {
+  width: 140px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: v.$font-size-base;
+  text-align: left;
+  cursor: pointer;
+  color: v.$color-text;
+}
+
+.searchActions {
+  display: flex;
+  gap: v.$spacing-sm;
+}
+
+.regionMenu {
+  position: absolute;
+  top: calc(100% + v.$spacing-xs);
+  left: 0;
+  z-index: 20;
+  min-width: 140px;
+  max-height: 280px;
+  overflow-y: auto;
+  background-color: v.$color-bg;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  box-shadow: v.$shadow-card;
+  padding: v.$spacing-xs 0;
+
+  li button {
+    display: block;
+    width: 100%;
+    padding: v.$spacing-xs v.$spacing-md;
+    text-align: left;
+    font-size: v.$font-size-base;
+    color: v.$color-text;
+
+    &:hover {
+      background-color: v.$color-bg-muted;
+    }
+  }
+}
+
+.categoryChips {
+  display: flex;
+  gap: v.$spacing-sm;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.radiusLabel {
+  align-self: center;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: v.$color-text-muted;
+}
+
+.chip,
+.chipActive {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: v.$spacing-xs v.$spacing-md;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-pill;
+  font-size: v.$font-size-sm;
+  font-weight: 600;
+  color: v.$color-text-muted;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background-color 0.15s ease;
+
+  &:hover {
+    border-color: v.$color-primary;
+    color: v.$color-primary;
+  }
+}
+
+.chipActive {
+  background-color: v.$color-primary;
+  border-color: v.$color-primary;
+  color: #fff;
+
+  &:hover {
+    color: #fff;
+  }
+}
+
 .wrapper {
   flex: 1;
   display: grid;

@@ -1,12 +1,14 @@
-// 카카오맵 기반 장소 지도 페이지, 목록 연동 담당
+// 카카오맵 기반 장소 지도 페이지, 검색과 필터, 목록 연동 담당
 import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { loadKakaoMaps } from './kakaoLoader';
-import { getPlaces, getPlaceRatingSummaries } from './api';
+import { getPlaces, searchPlaces, getPlaceRatingSummaries, autocompletePlaces } from './api';
 import Button from '../../components/Button/Button';
 import { resolveImage } from '../../utils/resolveImage';
-import { getCategoryLabel, getCategoryIconUrl } from '../../utils/placeCategory';
+import { CATEGORIES, getCategoryLabel, getCategoryIconUrl, toCat1Param } from '../../utils/placeCategory';
+import { parseSearchKeyword } from '../../utils/parseSearchKeyword';
 import StateMessage from '../../components/StateMessage/StateMessage';
-import { MapIcon, PlusIcon, CheckIcon } from '../../components/Icon/Icon';
+import { MagnifyingGlassIcon, MapIcon, PlusIcon, CheckIcon } from '../../components/Icon/Icon';
 import styles from './PlaceMapPage.module.scss';
 
 const KOREA_VIEW = { center: { lat: 35.8, lng: 127.8 }, level: 13 };
@@ -14,6 +16,17 @@ const KOREA_VIEW = { center: { lat: 35.8, lng: 127.8 }, level: 13 };
 const MAX_ZOOM_OUT_LEVEL = 13;
 
 const KOREA_BOUNDS = { minLat: 32, maxLat: 40, minLng: 124, maxLng: 132 };
+
+const REGIONS = [
+  '서울', '부산', '대구', '인천', '광주', '대전', '울산', '세종',
+  '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주',
+];
+
+const LOCAL_KEYWORD_SUGGESTIONS = [
+  ...REGIONS.map((label) => ({ type: 'region', value: label, label })),
+  ...CATEGORIES.filter((c) => c.key).map((c) => ({ type: 'category', value: c.key, label: c.label })),
+];
+const AUTOCOMPLETE_DEBOUNCE_MS = 250;
 
 export const PIN_MARKER_SVG =
   'data:image/svg+xml;charset=UTF-8,' +
@@ -36,6 +49,10 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
   const mapRef = useRef(null);
   const markersRef = useRef([]);
   const clustererRef = useRef(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [keyword, setKeyword] = useState(searchParams.get('keyword') || '');
+  const [region, setRegion] = useState(searchParams.get('region') || '');
+  const [category, setCategory] = useState(searchParams.get('category') || '');
   const [places, setPlaces] = useState([]);
   const [ratingByPlaceId, setRatingByPlaceId] = useState({});
   const [sdkError, setSdkError] = useState(false);
@@ -43,7 +60,20 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isRegionOpen, setIsRegionOpen] = useState(false);
+  const [isKeywordSuggestOpen, setIsKeywordSuggestOpen] = useState(false);
+  // 서버에서 받아온 장소명 자동완성 후보
+  const [placeSuggestions, setPlaceSuggestions] = useState([]);
+  // 자동완성 드롭다운에서 방향키로 짚은 위치, 기본값 -1
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  // 방향키로 짚은 위치가 스크롤 밖으로 나가면 자동 스크롤용 DOM 참조
+  const suggestItemRefs = useRef(new Map());
+  useEffect(() => {
+    if (highlightedIndex < 0) return;
+    suggestItemRefs.current.get(highlightedIndex)?.scrollIntoView({ block: 'nearest' });
+  }, [highlightedIndex]);
   const [addingIds, setAddingIds] = useState(() => new Set());
+  const searchSeqRef = useRef(0);
   const markerByIdRef = useRef(new Map());
   const activeMarkerRef = useRef(null);
   const infoOverlayRef = useRef(null);
@@ -57,7 +87,101 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
   useEffect(() => {
     activeIdRef.current = activeId;
   }, [activeId]);
+  const regionDropdownRef = useRef(null);
   const loadMoreRef = useRef(null);
+
+  useEffect(() => {
+    if (!isRegionOpen) return;
+    function handleClickOutside(e) {
+      if (regionDropdownRef.current && !regionDropdownRef.current.contains(e.target)) {
+        setIsRegionOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isRegionOpen]);
+
+  const keywordSuggestRef = useRef(null);
+  useEffect(() => {
+    if (!isKeywordSuggestOpen) return;
+    function handleClickOutside(e) {
+      if (keywordSuggestRef.current && !keywordSuggestRef.current.contains(e.target)) {
+        setIsKeywordSuggestOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isKeywordSuggestOpen]);
+
+  // 장소명 자동완성, 타이핑 멈춘 뒤 디바운스로 서버 조회
+  // 시퀀스 번호로 응답 순서 어긋남 방지
+  const autocompleteSeqRef = useRef(0);
+  useEffect(() => {
+    const trimmed = keyword.trim();
+    if (!trimmed) {
+      setPlaceSuggestions([]);
+      return;
+    }
+    const seq = ++autocompleteSeqRef.current;
+    const timeoutId = setTimeout(() => {
+      autocompletePlaces(trimmed)
+        .then((res) => {
+          if (seq !== autocompleteSeqRef.current) return;
+          setPlaceSuggestions(res.data.data);
+        })
+        .catch(() => {
+          if (seq === autocompleteSeqRef.current) setPlaceSuggestions([]);
+        });
+    }, AUTOCOMPLETE_DEBOUNCE_MS);
+    return () => clearTimeout(timeoutId);
+  }, [keyword]);
+
+  // 지역/카테고리 로컬 후보와 장소명 서버 후보 병합
+  const keywordSuggestions = keyword.trim()
+    ? [
+        ...LOCAL_KEYWORD_SUGGESTIONS.filter((s) => s.label.includes(keyword.trim())).slice(0, 5),
+        ...placeSuggestions.map((p) => ({ type: 'place', value: p.placeName, label: p.placeName, address: p.address })),
+      ]
+    : [];
+
+  // 후보 목록이 바뀌면 방향키 선택 위치 초기화
+  useEffect(() => {
+    setHighlightedIndex(-1);
+  }, [keyword]);
+
+  // 방향키로 후보 탐색, 엔터로 선택 검색
+  function handleKeywordKeyDown(e) {
+    if (!isKeywordSuggestOpen || keywordSuggestions.length === 0) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setHighlightedIndex((prev) => (prev + 1) % keywordSuggestions.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setHighlightedIndex((prev) => (prev <= 0 ? keywordSuggestions.length - 1 : prev - 1));
+    } else if (e.key === 'Enter' && highlightedIndex >= 0) {
+      // 후보 선택 상태에서만 엔터 가로채기, 아니면 일반 검색 제출로 넘김
+      e.preventDefault();
+      handleSuggestionSelect(keywordSuggestions[highlightedIndex]);
+    }
+  }
+
+  function handleSuggestionSelect(suggestion) {
+    setIsKeywordSuggestOpen(false);
+    setPlaceSuggestions([]);
+    setKeyword('');
+    if (suggestion.type === 'region') {
+      setRegion(suggestion.value);
+      runSearch({ keyword: '', region: suggestion.value });
+    } else if (suggestion.type === 'category') {
+      setCategory(suggestion.value);
+      runSearch({ keyword: '', categoryKey: suggestion.value });
+    } else {
+      // 장소명 후보 선택 시 기존 지역/카테고리 필터 초기화
+      setRegion('');
+      setCategory('');
+      runSearch({ keyword: suggestion.value, region: '', categoryKey: '' });
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -116,7 +240,7 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
             },
           ],
         });
-        loadDefaultPlaces();
+        parseAndSearch(keyword);
       })
       .catch(() => setSdkError(true));
     return () => {
@@ -124,13 +248,17 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
     };
   }, []);
 
-  async function loadDefaultPlaces() {
+  async function loadDefaultPlaces({ keepView = false } = {}) {
+    const seq = ++searchSeqRef.current;
     const res = await getPlaces({ page: 0, size: 50 });
+    if (seq !== searchSeqRef.current) return;
     setPage(0);
     setHasMore(!res.data.data.last);
-    applyPlaces(res.data.data.content, { fitToKorea: true });
+    applyPlaces(res.data.data.content, { fitToKorea: !keepView, keepView });
     loadMoreRef.current = async (nextPage) => {
+      const moreSeq = ++searchSeqRef.current;
       const moreRes = await getPlaces({ page: nextPage, size: 50 });
+      if (moreSeq !== searchSeqRef.current) return;
       setPage(nextPage);
       setHasMore(!moreRes.data.data.last);
       applyPlaces(moreRes.data.data.content, { append: true, fitToKorea: true });
@@ -147,7 +275,7 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
     }
   }
 
-  function applyPlaces(placeList, { append = false, fitToKorea = false } = {}) {
+  function applyPlaces(placeList, { append = false, fitToKorea = false, keepView = false } = {}) {
     setPlaces((prev) => (append ? [...prev, ...placeList] : placeList));
     loadRatingSummaries(placeList);
     if (!mapRef.current || !clustererRef.current) return;
@@ -190,7 +318,8 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
     clustererRef.current.addMarkers(newMarkers);
     markersRef.current = [...markersRef.current, ...newMarkers];
 
-    if (fitToKorea) {
+    if (keepView) {
+    } else if (fitToKorea) {
       map.setCenter(new kakao.maps.LatLng(KOREA_VIEW.center.lat, KOREA_VIEW.center.lng));
       map.setLevel(KOREA_VIEW.level);
     } else if (withCoords.length > 0) {
@@ -340,8 +469,166 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
     map.setCenter(position);
   }
 
+  async function runSearch({ keyword: kw = keyword, region: rg = region, categoryKey = category, keepView = false } = {}) {
+    const selected = CATEGORIES.find((c) => c.key === categoryKey);
+    if (!selectMode) {
+      const nextParams = {};
+      if (kw.trim()) nextParams.keyword = kw.trim();
+      if (rg.trim()) nextParams.region = rg.trim();
+      if (categoryKey) nextParams.category = categoryKey;
+      setSearchParams(nextParams, { replace: true });
+    }
+    if (!kw.trim() && !rg.trim() && !selected?.cat1?.length) {
+      loadDefaultPlaces({ keepView });
+      return;
+    }
+    const seq = ++searchSeqRef.current;
+    const res = await searchPlaces({
+      keyword: kw || undefined,
+      region: rg || undefined,
+      cat1: toCat1Param(selected),
+      cat2: selected?.cat2 || undefined,
+      page: 0,
+      size: 50,
+    });
+    if (seq !== searchSeqRef.current) return;
+    setPage(0);
+    setHasMore(!res.data.data.last);
+    applyPlaces(res.data.data.content, { keepView });
+    loadMoreRef.current = async (nextPage) => {
+      const moreSeq = ++searchSeqRef.current;
+      const moreRes = await searchPlaces({
+        keyword: kw || undefined,
+        region: rg || undefined,
+        cat1: toCat1Param(selected),
+        cat2: selected?.cat2 || undefined,
+        page: nextPage,
+        size: 50,
+      });
+      if (moreSeq !== searchSeqRef.current) return;
+      setPage(nextPage);
+      setHasMore(!moreRes.data.data.last);
+      applyPlaces(moreRes.data.data.content, { append: true, keepView: true });
+    };
+  }
+
+  function parseAndSearch(rawKeyword) {
+    const parsed = parseSearchKeyword(rawKeyword, { regions: REGIONS, categories: CATEGORIES });
+    const effectiveRegion = parsed.region || region;
+    const effectiveCategoryKey = parsed.categoryKey || category;
+    if (parsed.region) setRegion(parsed.region);
+    if (parsed.categoryKey) setCategory(parsed.categoryKey);
+    setKeyword(parsed.keyword);
+    runSearch({ keyword: parsed.keyword, region: effectiveRegion, categoryKey: effectiveCategoryKey });
+  }
+
+  function handleSearchSubmit(e) {
+    e.preventDefault();
+    setIsKeywordSuggestOpen(false);
+    parseAndSearch(keyword);
+  }
+
+  function handleRegionSelect(value) {
+    setRegion(value);
+    setIsRegionOpen(false);
+    runSearch({ region: value });
+  }
+
+  function handleCategoryClick(key) {
+    setCategory(key);
+    runSearch({ categoryKey: key });
+  }
+
   return (
     <div className={selectMode ? `${styles.page} ${styles.pageEmbedded}` : styles.page}>
+      <form onSubmit={handleSearchSubmit} className={styles.searchBar}>
+        <span className={styles.searchIcon}><MagnifyingGlassIcon /></span>
+        <div className={styles.keywordField} ref={keywordSuggestRef}>
+          <input
+            type="text"
+            placeholder="어디로 떠나시나요?"
+            value={keyword}
+            onChange={(e) => {
+              setKeyword(e.target.value);
+              setIsKeywordSuggestOpen(true);
+            }}
+            onFocus={() => setIsKeywordSuggestOpen(true)}
+            onKeyDown={handleKeywordKeyDown}
+          />
+          {isKeywordSuggestOpen && keywordSuggestions.length > 0 && (
+            <ul className={styles.suggestList}>
+              {keywordSuggestions.map((suggestion, index) => (
+                <li
+                  key={`${suggestion.type}-${suggestion.value}`}
+                  ref={(el) => {
+                    if (el) suggestItemRefs.current.set(index, el);
+                    else suggestItemRefs.current.delete(index);
+                  }}
+                >
+                  <button
+                    type="button"
+                    className={index === highlightedIndex ? styles.suggestHighlighted : undefined}
+                    onClick={() => handleSuggestionSelect(suggestion)}
+                    onMouseEnter={() => setHighlightedIndex(index)}
+                  >
+                    <span className={styles.suggestLabel}>
+                      {suggestion.label}
+                      {suggestion.type === 'place' && suggestion.address && (
+                        <span className={styles.suggestAddress}>{suggestion.address}</span>
+                      )}
+                    </span>
+                    <span className={styles.suggestType}>
+                      {suggestion.type === 'region' ? '지역' : suggestion.type === 'category' ? '카테고리' : '장소'}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <span className={styles.divider} />
+        <div className={styles.regionDropdown} ref={regionDropdownRef}>
+          <button
+            type="button"
+            className={styles.regionInput}
+            onClick={() => setIsRegionOpen((prev) => !prev)}
+          >
+            {region || '지역 전체'}
+          </button>
+          {isRegionOpen && (
+            <ul className={styles.regionMenu}>
+              <li>
+                <button type="button" onClick={() => handleRegionSelect('')}>
+                  지역 전체
+                </button>
+              </li>
+              {REGIONS.map((r) => (
+                <li key={r}>
+                  <button type="button" onClick={() => handleRegionSelect(r)}>
+                    {r}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <div className={styles.searchActions}>
+          <Button type="submit">검색</Button>
+        </div>
+      </form>
+
+      <div className={styles.categoryChips}>
+        {CATEGORIES.map((c) => (
+          <button
+            key={c.key}
+            className={category === c.key ? styles.chipActive : styles.chip}
+            onClick={() => handleCategoryClick(c.key)}
+          >
+            {c.label}
+          </button>
+        ))}
+      </div>
+
       <div className={styles.wrapper}>
         <aside className={styles.listPane} ref={listPaneRef}>
           <p className={styles.resultCount}>{places.length}곳의 장소</p>
