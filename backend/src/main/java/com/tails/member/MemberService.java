@@ -16,6 +16,7 @@ import com.tails.member.dto.MyStatsResponse;
 import com.tails.member.dto.PasswordChangeRequest;
 import com.tails.review.ReviewRepository;
 import com.tails.travel.TravelRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
@@ -31,6 +32,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class MemberService {
 
     private static final String UPLOAD_URL_PREFIX = "/uploads/";
+    // 탈퇴 후 같은 이메일로 재가입을 막는 기간
+    private static final long WITHDRAWAL_COOLDOWN_HOURS = 24;
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
@@ -43,6 +46,8 @@ public class MemberService {
     private final TravelRepository travelRepository;
     private final PlaceBookmarkRepository placeBookmarkRepository;
     private final ReviewRepository reviewRepository;
+    // 탈퇴 후 24시간 재가입 제한(join)/탈퇴 이력 기록(withdraw)용
+    private final WithdrawnMemberRepository withdrawnMemberRepository;
 
     @Transactional
     public Long join(MemberJoinRequest request) {
@@ -54,6 +59,9 @@ public class MemberService {
         }
         if (isNicknameDuplicated(nickname)) {
             throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+        }
+        if (isRecentlyWithdrawn(email)) {
+            throw new CustomException(ErrorCode.RECENTLY_WITHDRAWN_EMAIL);
         }
         if (!authService.isSignupEmailVerified(email)) {
             throw new CustomException(ErrorCode.EMAIL_NOT_VERIFIED);
@@ -156,6 +164,8 @@ public class MemberService {
         if (!likedBoardIds.isEmpty()) {
             boardRepository.decreaseLikeCountBulk(likedBoardIds);
         }
+        withdrawnMemberRepository.save(
+                WithdrawnMember.builder().email(member.getEmail()).withdrawnAt(LocalDateTime.now()).build());
         authService.revokeSession(memberId);
         memberRepository.delete(member);
     }
@@ -194,6 +204,12 @@ public class MemberService {
 
     public boolean isEmailDuplicated(String email) {
         return memberRepository.existsByEmail(normalizeEmail(email));
+    }
+
+    // 탈퇴 후 WITHDRAWAL_COOLDOWN_HOURS 이내에 같은 이메일로 탈퇴한 이력이 있는지
+    public boolean isRecentlyWithdrawn(String email) {
+        LocalDateTime cooldownStart = LocalDateTime.now().minusHours(WITHDRAWAL_COOLDOWN_HOURS);
+        return withdrawnMemberRepository.existsByEmailAndWithdrawnAtAfter(normalizeEmail(email), cooldownStart);
     }
 
     public boolean isNicknameDuplicated(String nickname) {

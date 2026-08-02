@@ -1,0 +1,172 @@
+@use '../../styles/variables' as v;
+
+.wrapper {
+  max-width: 400px;
+  margin: v.$spacing-xl auto;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-md;
+  margin-top: v.$spacing-lg;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-xs;
+    font-size: v.$font-size-sm;
+    color: v.$color-text-muted;
+  }
+
+  input {
+    padding: v.$spacing-sm;
+    border: 1px solid v.$color-border;
+    border-radius: 6px;
+    font-size: v.$font-size-base;
+    color: v.$color-text;
+
+    &:focus {
+      outline: none;
+      border-color: v.$color-primary;
+    }
+  }
+}
+
+.inlineField {
+  display: flex;
+  gap: v.$spacing-sm;
+
+  input {
+    flex: 1;
+  }
+}
+
+.hintOk {
+  color: v.$color-success;
+  font-size: v.$font-size-sm;
+}
+
+.hintError {
+  color: v.$color-error;
+  font-size: v.$font-size-sm;
+}
+
+.socialDivider {
+  text-align: center;
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
+  margin: v.$spacing-lg 0 v.$spacing-md;
+}
+
+.socialButtons {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-sm;
+}
+
+.socialButton {
+  display: block;
+  text-align: center;
+  padding: v.$spacing-sm;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.kakao {
+  background-color: #fee500;
+  color: #191919;
+}
+
+.google {
+  background-color: #ffffff;
+  color: #191919;
+  border: 1px solid v.$color-border;
+}
+
+.naver {
+  background-color: #03c75a;
+  color: #ffffff;
+}
+
+.terms {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-xs;
+  padding: v.$spacing-md;
+  border-radius: v.$radius-sm;
+  background-color: v.$color-bg-muted;
+
+  // 체크박스 라벨 가로 정렬
+  label {
+    flex-direction: row !important;
+    align-items: center;
+    gap: v.$spacing-xs;
+  }
+
+  // 체크박스 크기/색상
+  input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border: 1px solid v.$color-border;
+    border-radius: 4px;
+    accent-color: v.$color-primary;
+  }
+}
+
+.termsAll {
+  padding-bottom: v.$spacing-xs;
+  margin-bottom: v.$spacing-xs;
+  border-bottom: 1px solid v.$color-border;
+  font-weight: 700;
+  font-size: v.$font-size-sm;
+  color: v.$color-text !important;
+}
+
+.termsItem {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted !important;
+
+  span {
+    flex: 1;
+  }
+}
+
+.termsMore {
+  color: v.$color-text-muted;
+  text-decoration: underline;
+  font-size: v.$font-size-sm;
+  flex-shrink: 0;
+
+  &:hover {
+    color: v.$color-text;
+  }
+}
+
+.termsModal {
+  max-width: 480px;
+
+  h2 {
+    margin-bottom: v.$spacing-md;
+  }
+}
+
+.termsBody {
+  white-space: pre-wrap;
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+  margin-bottom: v.$spacing-lg;
+}
+
+.switchLink {
+  text-align: center;
+  margin-top: v.$spacing-lg;
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
+
+  a {
+    color: v.$color-primary;
+    font-weight: 600;
+  }
+}
