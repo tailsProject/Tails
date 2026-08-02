@@ -9,13 +9,19 @@
 
 .header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
 
   h1 {
     font-size: v.$font-size-xl;
     font-weight: 800;
   }
+}
+
+.subtitle {
+  margin-top: 4px;
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
 }
 
 .grid {
@@ -33,11 +39,9 @@
 }
 
 .card {
-  display: flex;
-  align-items: center;
-  gap: v.$spacing-md;
-  padding: v.$spacing-md;
+  display: block;
   border-radius: v.$radius-lg;
+  overflow: hidden;
   border: 1px solid v.$color-border;
   background-color: v.$color-bg;
   box-shadow: v.$shadow-card;
@@ -51,9 +55,44 @@
   }
 }
 
-.cardIcon {
-  font-size: 28px;
+.thumb {
+  position: relative;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: v.$color-primary-bg;
+}
+
+.thumbIcon {
+  font-size: 36px;
   color: v.$color-primary;
+}
+
+.ddayBadge {
+  position: absolute;
+  top: v.$spacing-sm;
+  left: v.$spacing-sm;
+  padding: 2px 10px;
+  border-radius: v.$radius-pill;
+  font-size: 11px;
+  font-weight: 800;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: v.$color-text;
+
+  &.ongoing {
+    background-color: v.$color-primary;
+    color: #fff;
+  }
+
+  &.done {
+    background-color: rgba(255, 255, 255, 0.7);
+    color: v.$color-text-muted;
+  }
+}
+
+.cardBody {
+  padding: v.$spacing-md;
 }
 
 .title {

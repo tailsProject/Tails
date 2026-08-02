@@ -8,6 +8,7 @@ import TravelFormModal from './TravelFormModal';
 import DaySchedule from './DaySchedule';
 import StateMessage from '../../components/StateMessage/StateMessage';
 import { SuitcaseIcon, PencilIcon, TrashIcon, LinkIcon, XMarkIcon, CheckIcon } from '../../components/Icon/Icon';
+import { dDayLabel, nightsLabel } from './travelUtils';
 import styles from './TravelDetailPage.module.scss';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -129,11 +130,16 @@ export default function TravelDetailPage() {
 
   const dates = getDateRange(travel.startDate, travel.endDate);
   const shareUrl = shareToken ? `${window.location.origin}/travels/shared/${shareToken}` : null;
+  const dday = dDayLabel(travel.startDate, travel.endDate);
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
         <div>
+          <div className={styles.badgeRow}>
+            <span className={`${styles.ddayBadge} ${styles[dday.tone]}`}>{dday.text}</span>
+            <span className={styles.nightsLabel}>{nightsLabel(travel.startDate, travel.endDate)}</span>
+          </div>
           <h1>{travel.title}</h1>
           <p className={styles.dates}>
             {travel.startDate} ~ {travel.endDate}
