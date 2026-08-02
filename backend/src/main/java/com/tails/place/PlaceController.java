@@ -2,6 +2,7 @@ package com.tails.place;
 
 import com.tails.common.response.ApiResponse;
 import com.tails.common.security.CustomUserDetails;
+import com.tails.place.dto.PlaceAutocompleteResponse;
 import com.tails.place.dto.PlaceBookmarkCountResponse;
 import com.tails.place.dto.PlaceRatingResponse;
 import com.tails.place.dto.PlaceRecommendationResponse;
@@ -64,6 +65,13 @@ public class PlaceController {
             @RequestParam(required = false) Double lng,
             @RequestParam(required = false) Double radius) {
         return ApiResponse.success(placeService.searchPlaces(keyword, cat1, cat2, region, lat, lng, radius));
+    }
+
+    // 검색창 자동완성 — keyword가 이름에 포함된 장소를 최대 8건 추천
+    @GetMapping("/autocomplete")
+    @Operation(summary = "장소명 자동완성", description = "검색창 입력 중 keyword가 이름에 포함된 장소를 최대 8건 추천합니다.")
+    public ApiResponse<List<PlaceAutocompleteResponse>> autocomplete(@RequestParam(required = false) String keyword) {
+        return ApiResponse.success(placeService.getAutocomplete(keyword));
     }
 
     // 카테고리 필터 (cat1 필수, cat2 선택)

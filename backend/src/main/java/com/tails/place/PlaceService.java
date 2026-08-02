@@ -4,6 +4,7 @@ import com.tails.bookmark.PlaceBookmarkRepository;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.common.util.GeoUtil;
+import com.tails.place.dto.PlaceAutocompleteResponse;
 import com.tails.place.dto.PlaceBookmarkCountResponse;
 import com.tails.place.dto.PlaceRatingResponse;
 import com.tails.place.dto.PlaceResponse;
@@ -118,6 +119,16 @@ public class PlaceService {
     // 빈 문자열/공백만 있는 파라미터를 null("조건 없음")로 통일
     private String blankToNull(String value) {
         return (value == null || value.isBlank()) ? null : value.trim();
+    }
+
+    // 검색창 자동완성 — 빈 키워드는 빈 목록으로 처리(에러 대신 조용히 무시)
+    public List<PlaceAutocompleteResponse> getAutocomplete(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return List.of();
+        }
+        return placeRepository.findTop8ByPlaceNameContainingOrderByPlaceNameAsc(keyword.trim()).stream()
+                .map(PlaceAutocompleteResponse::from)
+                .toList();
     }
 
     // cat1(필수) + cat2(선택) 카테고리로 장소 필터링. cat2가 없으면 cat1만으로 조회
