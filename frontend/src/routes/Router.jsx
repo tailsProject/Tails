@@ -9,6 +9,7 @@ import OAuth2RedirectPage from '../features/auth/OAuth2RedirectPage';
 import CompleteProfilePage from '../features/auth/CompleteProfilePage';
 import ForgotPasswordPage from '../features/auth/ForgotPasswordPage';
 import ResetPasswordPage from '../features/auth/ResetPasswordPage';
+import BoardDetailPage from '../features/board/BoardDetailPage';
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,7 @@ const router = createBrowserRouter([
           { path: 'oauth2/redirect', element: <OAuth2RedirectPage /> },
           { path: 'forgot-password', element: <ForgotPasswordPage /> },
           { path: 'reset-password', element: <ResetPasswordPage /> },
+          { path: 'boards/:boardId', element: <BoardDetailPage /> },
           {
             element: <PrivateRoute />,
             children: [{ path: 'complete-profile', element: <CompleteProfilePage /> }],

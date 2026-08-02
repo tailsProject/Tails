@@ -1,0 +1,81 @@
+@use '../../styles/variables' as v;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-sm;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h1 {
+    font-size: v.$font-size-xl;
+    font-weight: 800;
+  }
+}
+
+.author {
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
+}
+
+.content {
+  margin-top: v.$spacing-md;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.reportBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px v.$spacing-sm;
+  border-radius: v.$radius-sm;
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
+  flex-shrink: 0;
+
+  &:hover {
+    color: v.$color-error;
+  }
+}
+
+.commentsTitle {
+  margin-top: v.$spacing-lg;
+  font-weight: 700;
+}
+
+.commentList {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-sm;
+}
+
+.comment {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: v.$spacing-sm;
+  padding: v.$spacing-sm v.$spacing-md;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-sm;
+}
+
+.commentBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.commentAuthor {
+  font-weight: 700;
+  font-size: v.$font-size-sm;
+}
+
+.commentContent {
+  margin-top: 2px;
+  font-size: v.$font-size-sm;
+  color: v.$color-text;
+}
