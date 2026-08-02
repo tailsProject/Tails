@@ -1,0 +1,17 @@
+@use '../../styles/variables' as v;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-sm;
+
+  h1 {
+    font-size: v.$font-size-xl;
+    font-weight: 800;
+  }
+}
+
+.address {
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
+}

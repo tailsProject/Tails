@@ -1,0 +1,63 @@
+@use '../../styles/variables' as v;
+
+.wrapper {
+  margin-top: v.$spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-sm;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-sm;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: v.$spacing-sm;
+  padding: v.$spacing-sm v.$spacing-md;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-sm;
+}
+
+.itemBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.author {
+  font-weight: 700;
+  font-size: v.$font-size-sm;
+}
+
+.content {
+  margin-top: 2px;
+  font-size: v.$font-size-sm;
+  color: v.$color-text;
+}
+
+.reportBtn {
+  color: v.$color-text-muted;
+  flex-shrink: 0;
+
+  &:hover {
+    color: v.$color-error;
+  }
+}
+
+.empty {
+  padding: v.$spacing-lg 0;
+  text-align: center;
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
+}
