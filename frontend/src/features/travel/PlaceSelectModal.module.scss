@@ -1,0 +1,45 @@
+@use '../../styles/variables' as v;
+
+.modal {
+  width: 420px;
+  max-width: 100%;
+
+  h2 {
+    margin-bottom: v.$spacing-md;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-xs;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+  width: 100%;
+  padding: v.$spacing-sm v.$spacing-md;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-sm;
+  text-align: left;
+
+  &:hover {
+    border-color: v.$color-primary;
+  }
+}
+
+.itemIcon {
+  color: v.$color-primary;
+}
+
+.itemName {
+  font-weight: 700;
+}
+
+.itemAddress {
+  margin-top: 2px;
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}

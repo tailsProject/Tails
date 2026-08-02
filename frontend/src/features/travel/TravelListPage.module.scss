@@ -1,0 +1,89 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-lg;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h1 {
+    font-size: v.$font-size-xl;
+    font-weight: 800;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: v.$spacing-lg;
+
+  @include m.tablet {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include m.mobile {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-md;
+  padding: v.$spacing-md;
+  border-radius: v.$radius-lg;
+  border: 1px solid v.$color-border;
+  background-color: v.$color-bg;
+  box-shadow: v.$shadow-card;
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+
+  &:hover {
+    box-shadow: v.$shadow-card-hover;
+    transform: translateY(-2px);
+  }
+}
+
+.cardIcon {
+  font-size: 28px;
+  color: v.$color-primary;
+}
+
+.title {
+  font-weight: 700;
+  @include m.ellipsis;
+}
+
+.meta {
+  margin-top: 4px;
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: v.$spacing-sm;
+  padding: v.$spacing-xxl 0;
+  color: v.$color-text-muted;
+}
+
+.emptyIcon {
+  font-size: 40px;
+}
+
+.newButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: v.$color-primary;
+  font-weight: 700;
+}

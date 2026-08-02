@@ -1,0 +1,133 @@
+@use '../../styles/variables' as v;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-lg;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  h1 {
+    font-size: v.$font-size-xl;
+    font-weight: 800;
+  }
+}
+
+.dates {
+  margin-top: 4px;
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
+}
+
+.headerActions {
+  display: flex;
+  gap: v.$spacing-xs;
+}
+
+.headerActionBtn {
+  padding: v.$spacing-xs v.$spacing-sm;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-sm;
+  color: v.$color-text-muted;
+
+  &:hover {
+    color: v.$color-text;
+  }
+}
+
+.dayTabs {
+  display: flex;
+  gap: v.$spacing-xs;
+  overflow-x: auto;
+}
+
+.day,
+.dayActive {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: v.$spacing-sm v.$spacing-md;
+  border-radius: v.$radius-sm;
+  border: 1px solid v.$color-border;
+  flex-shrink: 0;
+  color: v.$color-text-muted;
+}
+
+.dayActive {
+  border-color: v.$color-primary;
+  background-color: v.$color-primary-bg;
+  color: v.$color-primary-dark;
+}
+
+.dayNum {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.dayDate {
+  font-size: v.$font-size-sm;
+
+  em {
+    font-style: normal;
+    opacity: 0.7;
+  }
+}
+
+.detailList {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-sm;
+}
+
+.detailItem {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+  padding: v.$spacing-md;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-sm;
+}
+
+.detailIcon {
+  color: v.$color-primary;
+}
+
+.detailBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.placeName {
+  font-weight: 700;
+}
+
+.memo {
+  margin-top: 2px;
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}
+
+.detailDeleteBtn {
+  color: v.$color-text-muted;
+
+  &:hover {
+    color: v.$color-error;
+  }
+}
+
+.addPlaceBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: v.$spacing-md;
+  border: 1px dashed v.$color-border;
+  border-radius: v.$radius-sm;
+  color: v.$color-primary;
+  font-weight: 700;
+}
