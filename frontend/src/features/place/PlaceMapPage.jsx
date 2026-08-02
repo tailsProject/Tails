@@ -3,12 +3,13 @@ import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { loadKakaoMaps } from './kakaoLoader';
 import { getPlaces, searchPlaces, getPlaceRatingSummaries, autocompletePlaces } from './api';
+import { useToast } from '../../hooks/useToast';
 import Button from '../../components/Button/Button';
 import { resolveImage } from '../../utils/resolveImage';
 import { CATEGORIES, getCategoryLabel, getCategoryIconUrl, toCat1Param } from '../../utils/placeCategory';
 import { parseSearchKeyword } from '../../utils/parseSearchKeyword';
 import StateMessage from '../../components/StateMessage/StateMessage';
-import { MagnifyingGlassIcon, MapIcon, PlusIcon, CheckIcon } from '../../components/Icon/Icon';
+import { MagnifyingGlassIcon, MapIcon, MapPinIcon, PlusIcon, CheckIcon } from '../../components/Icon/Icon';
 import styles from './PlaceMapPage.module.scss';
 
 const KOREA_VIEW = { center: { lat: 35.8, lng: 127.8 }, level: 13 };
@@ -16,6 +17,24 @@ const KOREA_VIEW = { center: { lat: 35.8, lng: 127.8 }, level: 13 };
 const MAX_ZOOM_OUT_LEVEL = 13;
 
 const KOREA_BOUNDS = { minLat: 32, maxLat: 40, minLng: 124, maxLng: 132 };
+
+const NEARBY_RADIUS_OPTIONS = [
+  { value: 1000, label: '1km', level: 4 },
+  { value: 3000, label: '3km', level: 5 },
+  { value: 5000, label: '5km', level: 6 },
+  { value: 10000, label: '10km', level: 7 },
+];
+const NEARBY_RADIUS_DEFAULT = 3000;
+
+function distanceMeters(lat1, lng1, lat2, lng2) {
+  const EARTH_RADIUS_M = 6371000;
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return EARTH_RADIUS_M * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
 const REGIONS = [
   '서울', '부산', '대구', '인천', '광주', '대전', '울산', '세종',
@@ -44,7 +63,16 @@ const ACTIVE_PIN_MARKER_SVG =
       '<circle cx="15" cy="15" r="6" fill="#fff"/></svg>',
   );
 
+const MY_LOCATION_MARKER_SVG =
+  'data:image/svg+xml;charset=UTF-8,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">' +
+      '<circle cx="12" cy="12" r="11" fill="#4285f4" fill-opacity="0.25"/>' +
+      '<circle cx="12" cy="12" r="6" fill="#4285f4" stroke="#ffffff" stroke-width="2.5"/></svg>',
+  );
+
 export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlaceIds } = {}) {
+  const { showToast } = useToast();
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -73,6 +101,17 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
     suggestItemRefs.current.get(highlightedIndex)?.scrollIntoView({ block: 'nearest' });
   }, [highlightedIndex]);
   const [addingIds, setAddingIds] = useState(() => new Set());
+  const [radiusMode, setRadiusMode] = useState(null);
+  const [nearbyRadius, setNearbyRadius] = useState(NEARBY_RADIUS_DEFAULT);
+  const nearbyCoordsRef = useRef(null);
+  const radiusModeRef = useRef(null);
+  const categoryRef = useRef(category);
+  useEffect(() => {
+    radiusModeRef.current = radiusMode;
+  }, [radiusMode]);
+  useEffect(() => {
+    categoryRef.current = category;
+  }, [category]);
   const searchSeqRef = useRef(0);
   const markerByIdRef = useRef(new Map());
   const activeMarkerRef = useRef(null);
@@ -81,12 +120,21 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
   useEffect(() => {
     ratingByPlaceIdRef.current = ratingByPlaceId;
   }, [ratingByPlaceId]);
+  const myLocationRef = useRef(null);
   const listItemRefs = useRef(new Map());
   const listPaneRef = useRef(null);
+  const skipNextIdleRef = useRef(false);
   const activeIdRef = useRef(null);
   useEffect(() => {
     activeIdRef.current = activeId;
   }, [activeId]);
+  useEffect(() => {
+    if (radiusMode !== 'nearby' && myLocationRef.current) {
+      myLocationRef.current.marker.setMap(null);
+      myLocationRef.current.circle.setMap(null);
+      myLocationRef.current = null;
+    }
+  }, [radiusMode]);
   const regionDropdownRef = useRef(null);
   const loadMoreRef = useRef(null);
 
@@ -203,6 +251,15 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
           }
         });
         mapRef.current = { kakao, map };
+        kakao.maps.event.addListener(map, 'idle', () => {
+          if (skipNextIdleRef.current) {
+            skipNextIdleRef.current = false;
+            return;
+          }
+          if (radiusModeRef.current !== 'area') return;
+          const { lat, lng, radius } = currentMapRadius();
+          searchByRadius(lat, lng, radius, categoryRef.current);
+        });
         clustererRef.current = new kakao.maps.MarkerClusterer({
           map,
           averageCenter: true,
@@ -465,11 +522,13 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
     highlightMarker(place.placeId);
     showInfoOverlay(place);
     const position = new kakao.maps.LatLng(place.latitude, place.longitude);
+    skipNextIdleRef.current = true;
     map.setLevel(5, { anchor: position });
     map.setCenter(position);
   }
 
   async function runSearch({ keyword: kw = keyword, region: rg = region, categoryKey = category, keepView = false } = {}) {
+    setRadiusMode(null);
     const selected = CATEGORIES.find((c) => c.key === categoryKey);
     if (!selectMode) {
       const nextParams = {};
@@ -536,7 +595,141 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
 
   function handleCategoryClick(key) {
     setCategory(key);
+    if (radiusMode === 'area' && mapRef.current) {
+      const { lat, lng, radius } = currentMapRadius();
+      searchByRadius(lat, lng, radius, key);
+      return;
+    }
+    if (radiusMode === 'nearby' && nearbyCoordsRef.current) {
+      const { lat, lng } = nearbyCoordsRef.current;
+      searchByRadius(lat, lng, nearbyRadius, key);
+      return;
+    }
     runSearch({ categoryKey: key });
+  }
+
+  function currentMapRadius() {
+    const { map } = mapRef.current;
+    const center = map.getCenter();
+    const northEast = map.getBounds().getNorthEast();
+    const halfHeight = distanceMeters(center.getLat(), center.getLng(), northEast.getLat(), center.getLng());
+    const halfWidth = distanceMeters(center.getLat(), center.getLng(), center.getLat(), northEast.getLng());
+    return {
+      lat: center.getLat(),
+      lng: center.getLng(),
+      radius: Math.min(halfHeight, halfWidth),
+    };
+  }
+
+  async function searchByRadius(lat, lng, radius, categoryKey) {
+    const seq = ++searchSeqRef.current;
+    const selected = CATEGORIES.find((c) => c.key === categoryKey);
+    const res = await searchPlaces({
+      lat,
+      lng,
+      radius,
+      cat1: toCat1Param(selected),
+      cat2: selected?.cat2 || undefined,
+      page: 0,
+      size: 50,
+    });
+    if (seq !== searchSeqRef.current) return;
+    setPage(0);
+    setHasMore(!res.data.data.last);
+    applyPlaces(res.data.data.content, { keepView: true });
+    loadMoreRef.current = async (nextPage) => {
+      const moreSeq = ++searchSeqRef.current;
+      const moreRes = await searchPlaces({
+        lat,
+        lng,
+        radius,
+        cat1: toCat1Param(selected),
+        cat2: selected?.cat2 || undefined,
+        page: nextPage,
+        size: 50,
+      });
+      if (moreSeq !== searchSeqRef.current) return;
+      setPage(nextPage);
+      setHasMore(!moreRes.data.data.last);
+      applyPlaces(moreRes.data.data.content, { append: true, keepView: true });
+    };
+  }
+
+  async function handleSearchThisArea() {
+    if (!mapRef.current) return;
+    if (radiusMode === 'area') {
+      runSearch({ keepView: true });
+      return;
+    }
+    setRadiusMode('area');
+    const { lat, lng, radius } = currentMapRadius();
+    await searchByRadius(lat, lng, radius, category);
+  }
+
+  function handleNearbySearch() {
+    if (radiusMode === 'nearby') {
+      runSearch({ keepView: true });
+      return;
+    }
+    if (!navigator.geolocation) {
+      showToast('이 브라우저는 위치 정보를 지원하지 않습니다.', 'error');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      const { latitude, longitude } = position.coords;
+      nearbyCoordsRef.current = { lat: latitude, lng: longitude };
+      setRadiusMode('nearby');
+      if (mapRef.current) {
+        const { kakao, map } = mapRef.current;
+        const position = new kakao.maps.LatLng(latitude, longitude);
+        if (myLocationRef.current) {
+          myLocationRef.current.marker.setMap(null);
+          myLocationRef.current.circle.setMap(null);
+        }
+        const marker = new kakao.maps.Marker({
+          position,
+          map,
+          image: new kakao.maps.MarkerImage(MY_LOCATION_MARKER_SVG, new kakao.maps.Size(24, 24), {
+            offset: new kakao.maps.Point(12, 12),
+          }),
+          zIndex: 20,
+        });
+        const circle = new kakao.maps.Circle({
+          center: position,
+          radius: nearbyRadius,
+          strokeWeight: 2,
+          strokeColor: '#ff8a3d',
+          strokeOpacity: 0.7,
+          strokeStyle: 'shortdash',
+          fillColor: '#ff8a3d',
+          fillOpacity: 0.08,
+        });
+        circle.setMap(map);
+        myLocationRef.current = { marker, circle };
+        map.setCenter(position);
+        map.setLevel(NEARBY_RADIUS_OPTIONS.find((o) => o.value === nearbyRadius)?.level ?? 5);
+      }
+      await searchByRadius(latitude, longitude, nearbyRadius, category);
+    }, (error) => {
+      const message =
+        error.code === error.PERMISSION_DENIED
+          ? '위치 권한이 거부되어 있습니다. 브라우저 주소창의 위치 권한을 허용해주세요.'
+          : '현재 위치를 가져오지 못했습니다. 기기의 위치 서비스를 확인해주세요.';
+      showToast(message, 'error');
+    }, {
+      timeout: 10000,
+      maximumAge: 600000,
+    });
+  }
+
+  function handleNearbyRadiusChange(value) {
+    setNearbyRadius(value);
+    const coords = nearbyCoordsRef.current;
+    if (radiusMode !== 'nearby' || !coords) return;
+    if (myLocationRef.current) {
+      myLocationRef.current.circle.setRadius(value);
+    }
+    searchByRadius(coords.lat, coords.lng, value, category);
   }
 
   return (
@@ -614,6 +807,20 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
         </div>
         <div className={styles.searchActions}>
           <Button type="submit">검색</Button>
+          <Button
+            type="button"
+            variant={radiusMode === 'area' ? 'primary' : 'secondary'}
+            onClick={handleSearchThisArea}
+          >
+            <MapIcon /> 이 지역에서 검색
+          </Button>
+          <Button
+            type="button"
+            variant={radiusMode === 'nearby' ? 'primary' : 'secondary'}
+            onClick={handleNearbySearch}
+          >
+            <MapPinIcon /> 내 주변
+          </Button>
         </div>
       </form>
 
@@ -628,6 +835,22 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
           </button>
         ))}
       </div>
+
+      {radiusMode === 'nearby' && (
+        <div className={styles.categoryChips}>
+          <span className={styles.radiusLabel}>검색 반경</span>
+          {NEARBY_RADIUS_OPTIONS.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              className={nearbyRadius === option.value ? styles.chipActive : styles.chip}
+              onClick={() => handleNearbyRadiusChange(option.value)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className={styles.wrapper}>
         <aside className={styles.listPane} ref={listPaneRef}>
