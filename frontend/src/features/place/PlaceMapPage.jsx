@@ -35,6 +35,7 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
+  const clustererRef = useRef(null);
   const [places, setPlaces] = useState([]);
   const [ratingByPlaceId, setRatingByPlaceId] = useState({});
   const [sdkError, setSdkError] = useState(false);
@@ -78,6 +79,43 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
           }
         });
         mapRef.current = { kakao, map };
+        clustererRef.current = new kakao.maps.MarkerClusterer({
+          map,
+          averageCenter: true,
+          minLevel: 6,
+          styles: [
+            {
+              width: '32px',
+              height: '32px',
+              background: 'rgba(255, 138, 61, 0.85)',
+              borderRadius: '16px',
+              color: '#fff',
+              textAlign: 'center',
+              lineHeight: '33px',
+              fontWeight: '700',
+            },
+            {
+              width: '42px',
+              height: '42px',
+              background: 'rgba(255, 138, 61, 0.9)',
+              borderRadius: '21px',
+              color: '#fff',
+              textAlign: 'center',
+              lineHeight: '43px',
+              fontWeight: '700',
+            },
+            {
+              width: '52px',
+              height: '52px',
+              background: 'rgba(229, 114, 42, 0.92)',
+              borderRadius: '26px',
+              color: '#fff',
+              textAlign: 'center',
+              lineHeight: '53px',
+              fontWeight: '700',
+            },
+          ],
+        });
         loadDefaultPlaces();
       })
       .catch(() => setSdkError(true));
@@ -112,11 +150,11 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
   function applyPlaces(placeList, { append = false, fitToKorea = false } = {}) {
     setPlaces((prev) => (append ? [...prev, ...placeList] : placeList));
     loadRatingSummaries(placeList);
-    if (!mapRef.current) return;
+    if (!mapRef.current || !clustererRef.current) return;
     const { kakao, map } = mapRef.current;
 
     if (!append) {
-      markersRef.current.forEach((marker) => marker.setMap(null));
+      clustererRef.current.clear();
       markersRef.current = [];
       markerByIdRef.current = new Map();
       activeMarkerRef.current = null;
@@ -135,7 +173,7 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
     const image = new kakao.maps.MarkerImage(PIN_MARKER_SVG, new kakao.maps.Size(24, 32), { offset: new kakao.maps.Point(12, 32) });
     const newMarkers = withCoords.map((place) => {
       const position = new kakao.maps.LatLng(place.latitude, place.longitude);
-      const marker = new kakao.maps.Marker({ position, image, map });
+      const marker = new kakao.maps.Marker({ position, image });
       markerByIdRef.current.set(place.placeId, { marker, image });
       kakao.maps.event.addListener(marker, 'click', () => {
         if (activeIdRef.current === place.placeId) {
@@ -149,6 +187,7 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
       });
       return marker;
     });
+    clustererRef.current.addMarkers(newMarkers);
     markersRef.current = [...markersRef.current, ...newMarkers];
 
     if (fitToKorea) {
