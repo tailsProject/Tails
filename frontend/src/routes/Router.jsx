@@ -13,6 +13,7 @@ import CompleteProfilePage from '../features/auth/CompleteProfilePage';
 import ForgotPasswordPage from '../features/auth/ForgotPasswordPage';
 import ResetPasswordPage from '../features/auth/ResetPasswordPage';
 import PlaceMapPage from '../features/place/PlaceMapPage';
+import PlaceDetailPage from '../features/place/PlaceDetailPage';
 
 const router = createBrowserRouter([
   {
@@ -37,6 +38,7 @@ const router = createBrowserRouter([
           { path: 'forgot-password', element: <ForgotPasswordPage /> },
           { path: 'reset-password', element: <ResetPasswordPage /> },
           { path: 'places', element: <PlaceMapPage /> },
+          { path: 'places/:placeId', element: <PlaceDetailPage /> },
           {
             element: <PrivateRoute />,
             children: [{ path: 'complete-profile', element: <CompleteProfilePage /> }],

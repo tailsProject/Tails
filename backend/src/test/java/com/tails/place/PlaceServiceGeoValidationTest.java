@@ -9,6 +9,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -27,9 +29,11 @@ class PlaceServiceGeoValidationTest {
     @InjectMocks
     private PlaceService placeService;
 
+    private final Pageable pageable = PageRequest.of(0, 20);
+
     @Test
     void 위도가_90을_초과하면_INVALID_SEARCH_CONDITION() {
-        assertThatThrownBy(() -> placeService.searchPlaces(null, null, null, null, 91.0, 127.0, 1000.0))
+        assertThatThrownBy(() -> placeService.searchPlaces(null, null, null, null, 91.0, 127.0, 1000.0, pageable))
                 .isInstanceOf(CustomException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_SEARCH_CONDITION);
 
@@ -38,28 +42,28 @@ class PlaceServiceGeoValidationTest {
 
     @Test
     void 위도가_영하90_미만이면_INVALID_SEARCH_CONDITION() {
-        assertThatThrownBy(() -> placeService.searchPlaces(null, null, null, null, -91.0, 127.0, 1000.0))
+        assertThatThrownBy(() -> placeService.searchPlaces(null, null, null, null, -91.0, 127.0, 1000.0, pageable))
                 .isInstanceOf(CustomException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_SEARCH_CONDITION);
     }
 
     @Test
     void 경도가_180을_초과하면_INVALID_SEARCH_CONDITION() {
-        assertThatThrownBy(() -> placeService.searchPlaces(null, null, null, null, 37.0, 181.0, 1000.0))
+        assertThatThrownBy(() -> placeService.searchPlaces(null, null, null, null, 37.0, 181.0, 1000.0, pageable))
                 .isInstanceOf(CustomException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_SEARCH_CONDITION);
     }
 
     @Test
     void 경도가_영하180_미만이면_INVALID_SEARCH_CONDITION() {
-        assertThatThrownBy(() -> placeService.searchPlaces(null, null, null, null, 37.0, -181.0, 1000.0))
+        assertThatThrownBy(() -> placeService.searchPlaces(null, null, null, null, 37.0, -181.0, 1000.0, pageable))
                 .isInstanceOf(CustomException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_SEARCH_CONDITION);
     }
 
     @Test
     void radius가_0이하이면_여전히_INVALID_SEARCH_CONDITION() {
-        assertThatThrownBy(() -> placeService.searchPlaces(null, null, null, null, 37.0, 127.0, 0.0))
+        assertThatThrownBy(() -> placeService.searchPlaces(null, null, null, null, 37.0, 127.0, 0.0, pageable))
                 .isInstanceOf(CustomException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_SEARCH_CONDITION);
     }

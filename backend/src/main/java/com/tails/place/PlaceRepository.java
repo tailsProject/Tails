@@ -40,4 +40,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
                               @Param("maxLat") Double maxLat,
                               @Param("minLng") Double minLng,
                               @Param("maxLng") Double maxLng);
+
+    // 검색창 자동완성 — 이름에 keyword가 포함된 장소를 이름순으로 최대 8건
+    List<Place> findTop8ByPlaceNameContainingOrderByPlaceNameAsc(String keyword);
 }

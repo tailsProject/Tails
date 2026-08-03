@@ -4,6 +4,7 @@ import com.tails.bookmark.PlaceBookmarkRepository;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.common.util.GeoUtil;
+import com.tails.place.dto.PlaceAutocompleteResponse;
 import com.tails.place.dto.PlaceBookmarkCountResponse;
 import com.tails.place.dto.PlaceRatingResponse;
 import com.tails.place.dto.PlaceResponse;
@@ -13,6 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,8 +64,8 @@ public class PlaceService {
     // 반경 검색은 2단계: 경계 상자로 DB에서 후보를 크게 줄인 뒤(GeoUtil.latDelta/lngDelta),
     // Haversine으로 정확한 거리를 계산해 반경 밖을 제외하고 가까운 순 정렬
     // @throws CustomException {@link ErrorCode#INVALID_SEARCH_CONDITION} 조건이 하나도 없거나, 좌표 3종(lat/lng/radius) 중 일부만 왔거나, radius가 0 이하이거나, lat/lng가 유효 범위(-90~90/-180~180)를 벗어난 경우
-    public List<PlaceSearchResponse> searchPlaces(String keyword, String cat1, String cat2,
-            String region, Double lat, Double lng, Double radiusMeters) {
+    public Page<PlaceSearchResponse> searchPlaces(String keyword, String cat1, String cat2,
+            String region, Double lat, Double lng, Double radiusMeters, Pageable pageable) {
         keyword = blankToNull(keyword);
         cat1 = blankToNull(cat1);
         cat2 = blankToNull(cat2);
@@ -97,27 +99,46 @@ public class PlaceService {
         List<Place> candidates = placeRepository.searchPlaces(
                 keyword, cat1, cat2, region, minLat, maxLat, minLng, maxLng);
 
+        List<PlaceSearchResponse> all;
         if (!allGeo) {
-            return candidates.stream()
+            all = candidates.stream()
                     .map(PlaceSearchResponse::from)
+                    .toList();
+        } else {
+            final double centerLat = lat;
+            final double centerLng = lng;
+            final double radius = radiusMeters;
+            all = candidates.stream()
+                    .map(place -> PlaceSearchResponse.of(place,
+                            GeoUtil.distanceMeters(centerLat, centerLng, place.getLatitude(), place.getLongitude())))
+                    .filter(response -> response.getDistanceMeters() <= radius)
+                    .sorted(Comparator.comparing(PlaceSearchResponse::getDistanceMeters))
+                    .limit(MAX_GEO_SEARCH_RESULTS)
                     .toList();
         }
 
-        final double centerLat = lat;
-        final double centerLng = lng;
-        final double radius = radiusMeters;
-        return candidates.stream()
-                .map(place -> PlaceSearchResponse.of(place,
-                        GeoUtil.distanceMeters(centerLat, centerLng, place.getLatitude(), place.getLongitude())))
-                .filter(response -> response.getDistanceMeters() <= radius)
-                .sorted(Comparator.comparing(PlaceSearchResponse::getDistanceMeters))
-                .limit(MAX_GEO_SEARCH_RESULTS)
-                .toList();
+        // 거리 계산/정렬을 애플리케이션에서 처리하므로 전체 목록을 만든 뒤 요청 페이지만 잘라 반환
+        int start = (int) pageable.getOffset();
+        if (start >= all.size()) {
+            return new PageImpl<>(List.of(), pageable, all.size());
+        }
+        int end = Math.min(start + pageable.getPageSize(), all.size());
+        return new PageImpl<>(all.subList(start, end), pageable, all.size());
     }
 
     // 빈 문자열/공백만 있는 파라미터를 null("조건 없음")로 통일
     private String blankToNull(String value) {
         return (value == null || value.isBlank()) ? null : value.trim();
+    }
+
+    // 검색창 자동완성 — 빈 키워드는 빈 목록으로 처리(에러 대신 조용히 무시)
+    public List<PlaceAutocompleteResponse> getAutocomplete(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return List.of();
+        }
+        return placeRepository.findTop8ByPlaceNameContainingOrderByPlaceNameAsc(keyword.trim()).stream()
+                .map(PlaceAutocompleteResponse::from)
+                .toList();
     }
 
     // cat1(필수) + cat2(선택) 카테고리로 장소 필터링. cat2가 없으면 cat1만으로 조회
