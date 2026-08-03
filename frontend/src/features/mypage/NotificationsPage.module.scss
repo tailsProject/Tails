@@ -1,0 +1,58 @@
+@use '../../styles/variables' as v;
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: v.$spacing-sm;
+  margin-bottom: v.$spacing-lg;
+
+  h1 {
+    font-size: v.$font-size-lg;
+    font-weight: 800;
+  }
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-sm;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-xs;
+  width: 100%;
+  text-align: left;
+  padding: v.$spacing-md;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+}
+
+.unread {
+  border-color: v.$color-primary;
+  background-color: v.$color-primary-bg;
+}
+
+.title {
+  font-size: v.$font-size-sm;
+}
+
+.meta {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}
+
+.empty {
+  color: v.$color-text-muted;
+  text-align: center;
+  padding: v.$spacing-xl 0;
+}

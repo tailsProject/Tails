@@ -1,0 +1,53 @@
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import { UserIcon, PawIcon, PencilIcon, StarIcon, BookmarkIcon, WarningIcon, BellIcon, LogoutIcon } from '../../components/Icon/Icon';
+import styles from './MyPageLayout.module.scss';
+
+const TABS = [
+  { to: '/mypage', label: '내 정보', icon: UserIcon, end: true },
+  { to: '/mypage/pets', label: '반려동물', icon: PawIcon },
+  { to: '/mypage/boards', label: '내가 쓴 글', icon: PencilIcon },
+  { to: '/mypage/reviews', label: '내가 쓴 리뷰', icon: StarIcon },
+  { to: '/mypage/bookmarks', label: '찜/북마크', icon: BookmarkIcon },
+  { to: '/mypage/reports', label: '내 신고 내역', icon: WarningIcon },
+  { to: '/mypage/notifications', label: '알림', icon: BellIcon },
+];
+
+export default function MyPageLayout() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  async function handleLogout() {
+    await logout();
+    navigate('/');
+  }
+
+  return (
+    <div className={styles.wrapper}>
+      <aside className={styles.sidebar}>
+        <nav className={styles.tabs}>
+          {TABS.map((tab) => (
+            <NavLink
+              key={tab.to}
+              to={tab.to}
+              end={tab.end}
+              className={({ isActive }) => (isActive ? styles.active : undefined)}
+            >
+              <span className={styles.tabIcon}>
+                <tab.icon />
+              </span>
+              {tab.label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <button type="button" className={styles.logoutBtn} onClick={handleLogout}>
+          <LogoutIcon /> 로그아웃
+        </button>
+      </aside>
+      <div className={styles.content}>
+        <Outlet />
+      </div>
+    </div>
+  );
+}
