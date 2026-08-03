@@ -1,6 +1,7 @@
-// 게시글 상세 페이지 최초 구현
+// 게시글 상세 페이지, 리치 텍스트/구버전 텍스트 글 모두 처리
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 import { getBoardDetail, deleteBoard, toggleLike, toggleBookmark, getImages } from './api';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
@@ -107,7 +108,8 @@ export default function BoardDetailPage() {
 
   const isOwner = isAuthenticated && member.memberId === board.authorId;
   const isAdmin = isAuthenticated && member.role === 'ADMIN';
-  const hasInlineImages = IMAGE_MARKER_PATTERN.test(board.content ?? '');
+  const isRichText = board.contentFormat === 'HTML';
+  const hasInlineImages = !isRichText && IMAGE_MARKER_PATTERN.test(board.content ?? '');
 
   return (
     <div className={styles.wrapper}>
@@ -125,7 +127,12 @@ export default function BoardDetailPage() {
         <span>{new Date(board.createdAt).toLocaleString()}</span>
       </div>
 
-      {hasInlineImages ? (
+      {isRichText ? (
+        <div
+          className={`${styles.content} ${styles.richContent}`}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(board.content ?? '') }}
+        />
+      ) : hasInlineImages ? (
         <div className={styles.content}>{renderInlineContent(board.content, images)}</div>
       ) : (
         <>

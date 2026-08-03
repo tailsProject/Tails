@@ -29,6 +29,22 @@ export function toggleBookmark(boardId) {
   return client.post(`/api/boards/${boardId}/bookmark`);
 }
 
+export function uploadImages(boardId, files) {
+  const formData = new FormData();
+  files.forEach((file) => formData.append('files', file));
+  return client.post(`/api/boards/${boardId}/images`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+}
+
 export function getImages(boardId) {
   return client.get(`/api/boards/${boardId}/images`);
+}
+
+export function reorderImages(boardId, imageIds) {
+  return client.patch(`/api/boards/${boardId}/images/order`, { imageIds });
+}
+
+export function deleteImage(imageId) {
+  return client.delete(`/api/images/${imageId}`);
 }
