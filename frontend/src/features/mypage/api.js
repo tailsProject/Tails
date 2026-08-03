@@ -9,8 +9,8 @@ export function getMyStats() {
   return client.get('/api/members/me/stats');
 }
 
-export function updateMyInfo({ nickname, profileImg }) {
-  return client.patch('/api/members/me', { nickname, profileImg });
+export function updateMyInfo({ nickname, profileImg, marketingAgreed }) {
+  return client.patch('/api/members/me', { nickname, profileImg, marketingAgreed });
 }
 
 export function changePassword({ currentPassword, newPassword, newPasswordConfirm }) {

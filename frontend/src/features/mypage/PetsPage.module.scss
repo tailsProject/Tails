@@ -1,10 +1,20 @@
 @use '../../styles/variables' as v;
 
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-md;
+}
+
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: v.$spacing-lg;
+
+  h1 {
+    font-size: v.$font-size-lg;
+    font-weight: 800;
+  }
 }
 
 .list {
@@ -20,14 +30,165 @@
   padding: v.$spacing-md;
   border: 1px solid v.$color-border;
   border-radius: v.$radius-md;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: v.$color-primary;
+    box-shadow: v.$shadow-card;
+  }
 }
 
-.photo {
-  width: 56px;
-  height: 56px;
+.avatar {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
+  background-color: v.$color-status-pending-bg;
+  color: v.$color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  object-fit: cover;
+}
+
+.itemBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-xs;
+}
+
+.name {
+  font-weight: 700;
+}
+
+.ageBadge {
+  font-size: 11px;
+  font-weight: 700;
+  color: v.$color-primary;
+  background-color: v.$color-primary-bg;
+  padding: 2px 8px;
+  border-radius: v.$radius-pill;
+  white-space: nowrap;
+}
+
+.meta {
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
+}
+
+.actions {
+  display: flex;
+  gap: 2px;
   flex-shrink: 0;
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: v.$radius-sm;
+    color: v.$color-text-muted;
+    font-size: 15px;
+
+    &:hover {
+      background-color: v.$color-bg-muted;
+      color: v.$color-primary;
+    }
+
+    &:last-child:hover {
+      color: v.$color-error;
+    }
+  }
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: v.$spacing-xs;
+  color: v.$color-text-muted;
+  text-align: center;
+  padding: v.$spacing-xl 0;
+  border: 1px dashed v.$color-border;
+  border-radius: v.$radius-lg;
+}
+
+.emptyIcon {
+  font-size: 28px;
+  color: v.$color-border;
+}
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: v.$spacing-xs;
+  width: 100%;
+  padding: v.$spacing-md;
+  border: 2px dashed v.$color-border;
+  border-radius: v.$radius-lg;
+  color: v.$color-text-muted;
+  font-weight: 700;
+  font-size: v.$font-size-sm;
+  transition: border-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    border-color: v.$color-primary;
+    color: v.$color-primary;
+  }
+}
+
+.formCard {
+  padding: v.$spacing-lg;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+  background-color: v.$color-bg;
+  box-shadow: v.$shadow-card;
+
+  h3 {
+    font-size: v.$font-size-base;
+    font-weight: 800;
+    margin-bottom: v.$spacing-lg;
+  }
+}
+
+.photoPicker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: v.$spacing-xs;
+}
+
+.photoPreviewWrap {
+  position: relative;
+  width: 76px;
+  height: 76px;
+}
+
+.photoPreview {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: v.$color-bg-muted;
+  color: v.$color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  border: 3px solid v.$color-primary-bg;
 
   img {
     width: 100%;
@@ -36,80 +197,112 @@
   }
 }
 
-.photoPlaceholder {
-  width: 100%;
-  height: 100%;
+.photoPickBtn {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 26px;
+  height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: v.$color-bg-muted;
-  color: v.$color-primary;
-  font-weight: 700;
-}
-
-.itemBody {
-  flex: 1;
-  min-width: 0;
-}
-
-.name {
-  font-weight: 700;
-  margin-right: v.$spacing-sm;
-}
-
-.meta {
-  color: v.$color-text-muted;
-  font-size: v.$font-size-sm;
-}
-
-.photoActions {
-  display: flex;
-  gap: v.$spacing-sm;
-  margin-top: v.$spacing-xs;
-  font-size: v.$font-size-sm;
-}
-
-.uploadLabel {
+  background-color: v.$color-primary;
+  color: #ffffff;
+  border: 3px solid v.$color-bg;
+  border-radius: 50%;
+  font-size: 12px;
   cursor: pointer;
-  color: v.$color-primary;
-  font-weight: 600;
-}
+  transition: background-color 0.15s ease;
 
-.actions {
-  display: flex;
-  gap: v.$spacing-sm;
-  color: v.$color-text-muted;
-  font-size: v.$font-size-sm;
-  flex-shrink: 0;
-
-  button:hover {
-    color: v.$color-primary;
+  &:hover {
+    background-color: v.$color-primary-dark;
   }
 }
 
-.empty {
+.photoClearLink {
+  font-size: 12px;
   color: v.$color-text-muted;
-  text-align: center;
-  padding: v.$spacing-xl 0;
+  text-decoration: underline;
+
+  &:hover {
+    color: v.$color-error;
+  }
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: v.$spacing-sm;
-  margin-top: v.$spacing-md;
-  min-width: 280px;
+  gap: v.$spacing-md;
 
-  input {
-    padding: v.$spacing-sm;
+  input[type='text'],
+  input[type='date'] {
+    padding: v.$spacing-sm v.$spacing-md;
     border: 1px solid v.$color-border;
     border-radius: v.$radius-sm;
+    background-color: v.$color-bg;
+    font-size: v.$font-size-base;
   }
 }
 
-.modalActions {
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-xs;
+}
+
+.fieldLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: v.$color-text-muted;
+}
+
+.chipRow {
+  display: flex;
+  gap: v.$spacing-xs;
+}
+
+.customSpeciesInput {
+  margin-top: v.$spacing-sm;
+}
+
+.chip,
+.chipActive {
+  padding: v.$spacing-xs v.$spacing-md;
+  border-radius: v.$radius-pill;
+  font-size: v.$font-size-sm;
+  font-weight: 700;
+  border: 1px solid v.$color-border;
+  background-color: v.$color-bg;
+  color: v.$color-text-muted;
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    border-color: v.$color-primary;
+  }
+}
+
+.chipActive {
+  border-color: v.$color-primary;
+  background-color: v.$color-primary;
+  color: #ffffff;
+
+  &:hover {
+    border-color: v.$color-primary;
+  }
+}
+
+.birthRow {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+
+  input {
+    flex: 1;
+  }
+}
+
+.formActions {
   display: flex;
   justify-content: flex-end;
   gap: v.$spacing-sm;
-  margin-top: v.$spacing-sm;
 }
