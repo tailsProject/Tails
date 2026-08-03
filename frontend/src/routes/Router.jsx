@@ -18,6 +18,7 @@ import PlaceDetailPage from '../features/place/PlaceDetailPage';
 import MyPageLayout from '../features/mypage/MyPageLayout';
 import MyInfoPage from '../features/mypage/MyInfoPage';
 import PetsPage from '../features/mypage/PetsPage';
+import NotificationsPage from '../features/mypage/NotificationsPage';
 
 const router = createBrowserRouter([
   {
@@ -54,6 +55,7 @@ const router = createBrowserRouter([
                 children: [
                   { index: true, element: <MyInfoPage /> },
                   { path: 'pets', element: <PetsPage /> },
+                  { path: 'notifications', element: <NotificationsPage /> },
                 ],
               },
             ],

@@ -61,3 +61,20 @@ export function uploadPetPhoto(petId, file) {
 export function deletePetPhoto(petId) {
   return client.delete(`/api/pets/${petId}/photo`);
 }
+
+// 알림
+export function getMyNotifications({ page = 0, size = 20 } = {}) {
+  return client.get('/api/notifications', { params: { page, size } });
+}
+
+export function markNotificationAsRead(notificationId) {
+  return client.patch(`/api/notifications/${notificationId}/read`);
+}
+
+export function markAllNotificationsAsRead() {
+  return client.patch('/api/notifications/read-all');
+}
+
+export function updateFcmToken(fcmToken) {
+  return client.patch('/api/members/me/fcm-token', { fcmToken });
+}

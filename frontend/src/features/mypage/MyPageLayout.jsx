@@ -4,6 +4,7 @@ import styles from './MyPageLayout.module.scss';
 const TABS = [
   { to: '/mypage', label: '내 정보', end: true },
   { to: '/mypage/pets', label: '반려동물' },
+  { to: '/mypage/notifications', label: '알림' },
 ];
 
 export default function MyPageLayout() {
