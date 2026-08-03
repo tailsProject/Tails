@@ -1,0 +1,93 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: v.$spacing-xl;
+  max-width: v.$content-max-width;
+  margin: v.$spacing-lg auto;
+  padding: 0 v.$spacing-md;
+
+  @include m.tablet {
+    flex-direction: column;
+    align-items: stretch;
+    gap: v.$spacing-md;
+  }
+}
+
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  position: sticky;
+  top: calc(v.$header-height + v.$spacing-lg);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+  overflow: hidden;
+
+  @include m.tablet {
+    width: 100%;
+    position: static;
+  }
+}
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: v.$spacing-md 0;
+
+  @include m.tablet {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-sm;
+    padding: v.$spacing-sm v.$spacing-md;
+    border-radius: v.$radius-sm;
+    color: v.$color-text-muted;
+    font-weight: 600;
+    font-size: v.$font-size-sm;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: v.$color-bg-muted;
+    }
+  }
+}
+
+.tabIcon {
+  font-size: 16px;
+}
+
+.active {
+  background-color: v.$color-primary-bg !important;
+  color: v.$color-primary-dark !important;
+}
+
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+  padding: v.$spacing-sm v.$spacing-md;
+  margin-top: v.$spacing-xs;
+  border-top: 1px solid v.$color-border;
+  color: v.$color-text-muted;
+  font-weight: 600;
+  font-size: v.$font-size-sm;
+
+  &:hover {
+    color: v.$color-error;
+    background-color: v.$color-bg-muted;
+  }
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
