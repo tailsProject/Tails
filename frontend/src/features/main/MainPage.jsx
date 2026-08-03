@@ -23,11 +23,12 @@ const ENTRY_LINKS = [
 ];
 
 export default function MainPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, member } = useAuth();
   const { showToast } = useToast();
   const [recentBoards, setRecentBoards] = useState([]);
   const [recentReviews, setRecentReviews] = useState([]);
   const [popularPlaces, setPopularPlaces] = useState([]);
+  const [placeSectionTitle, setPlaceSectionTitle] = useState('지금 인기있는 장소');
   const [likedPlaceIds, setLikedPlaceIds] = useState(() => new Set());
 
   useEffect(() => {
@@ -39,6 +40,7 @@ export default function MainPage() {
     // 로그인 상태면 개인화 추천을 먼저 시도, 추천이 없거나 비로그인이면 인기순으로 대체
     async function loadPlaceSection() {
       let places = [];
+      let usedRecommendation = false;
 
       if (isAuthenticated) {
         const recommended = await getRecommendations()
@@ -46,6 +48,7 @@ export default function MainPage() {
           .catch(() => []);
         if (recommended.length > 0) {
           places = recommended.slice(0, 4);
+          usedRecommendation = true;
         }
       }
 
@@ -68,6 +71,7 @@ export default function MainPage() {
           return summary ? { ...place, averageRating: summary.averageRating, reviewCount: summary.reviewCount } : place;
         }),
       );
+      setPlaceSectionTitle(usedRecommendation ? `${member.nickname}님을 위한 추천 장소` : '지금 인기있는 장소');
     }
 
     loadPlaceSection();
@@ -120,7 +124,7 @@ export default function MainPage() {
       {popularPlaces.length > 0 && (
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2>지금 인기있는 장소</h2>
+            <h2>{placeSectionTitle}</h2>
             <Link to="/places" className={styles.moreLink}>
               전체보기 →
             </Link>
