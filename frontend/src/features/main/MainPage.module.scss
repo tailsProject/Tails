@@ -220,6 +220,20 @@
   color: v.$color-text-muted;
 }
 
+.recentGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: v.$spacing-lg;
+
+  @include m.tablet {
+    grid-template-columns: 1fr;
+  }
+}
+
+.recentColumn {
+  min-width: 0;
+}
+
 .boardList {
   display: flex;
   flex-direction: column;

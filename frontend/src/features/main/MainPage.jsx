@@ -161,63 +161,69 @@ export default function MainPage() {
         </section>
       )}
 
-      {recentBoards.length > 0 && (
+      {(recentBoards.length > 0 || recentReviews.length > 0) && (
         <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2>
-              <FireIcon /> 인기 이야기
-            </h2>
-            <Link to="/boards" className={styles.moreLink}>
-              피드로 가기 →
-            </Link>
-          </div>
-          <ul className={styles.boardList}>
-            {recentBoards.map((board) => (
-              <li key={board.boardId}>
-                <Link to={`/boards/${board.boardId}`} className={styles.boardItem}>
-                  <h3>{board.title}</h3>
-                  {board.excerpt && <p>{board.excerpt}</p>}
-                  <div className={styles.boardMeta}>
-                    <span>{board.authorNickname}</span>
-                    <span>
-                      <EyeIcon /> {board.viewCount}
-                    </span>
-                    <span>
-                      <HeartIcon /> {board.likeCount}
-                    </span>
-                    <span>
-                      <ChatBubbleIcon /> {board.commentCount}
-                    </span>
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+          <div className={styles.recentGrid}>
+            {recentBoards.length > 0 && (
+              <div className={styles.recentColumn}>
+                <div className={styles.sectionHeader}>
+                  <h2>
+                    <FireIcon /> 인기 이야기
+                  </h2>
+                  <Link to="/boards" className={styles.moreLink}>
+                    피드로 가기 →
+                  </Link>
+                </div>
+                <ul className={styles.boardList}>
+                  {recentBoards.map((board) => (
+                    <li key={board.boardId}>
+                      <Link to={`/boards/${board.boardId}`} className={styles.boardItem}>
+                        <h3>{board.title}</h3>
+                        {board.excerpt && <p>{board.excerpt}</p>}
+                        <div className={styles.boardMeta}>
+                          <span>{board.authorNickname}</span>
+                          <span>
+                            <EyeIcon /> {board.viewCount}
+                          </span>
+                          <span>
+                            <HeartIcon /> {board.likeCount}
+                          </span>
+                          <span>
+                            <ChatBubbleIcon /> {board.commentCount}
+                          </span>
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
-      {recentReviews.length > 0 && (
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2>최근 리뷰</h2>
-            <Link to="/places" className={styles.moreLink}>
-              지도보기 →
-            </Link>
+            {recentReviews.length > 0 && (
+              <div className={styles.recentColumn}>
+                <div className={styles.sectionHeader}>
+                  <h2>최근 리뷰</h2>
+                  <Link to="/places" className={styles.moreLink}>
+                    지도보기 →
+                  </Link>
+                </div>
+                <ul className={styles.reviewList}>
+                  {recentReviews.map((review) => (
+                    <li key={review.reviewId}>
+                      <Link to={`/places/${review.placeId}`} className={styles.reviewItem}>
+                        <p className={styles.reviewContent}>{review.content}</p>
+                        <div className={styles.reviewMeta}>
+                          <span>{review.authorNickname}</span>
+                          <span className={styles.ratingValue}>★ {review.rating}</span>
+                          <span>{review.placeName}</span>
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
-          <ul className={styles.reviewList}>
-            {recentReviews.map((review) => (
-              <li key={review.reviewId}>
-                <Link to={`/places/${review.placeId}`} className={styles.reviewItem}>
-                  <p className={styles.reviewContent}>{review.content}</p>
-                  <div className={styles.reviewMeta}>
-                    <span>{review.authorNickname}</span>
-                    <span className={styles.ratingValue}>★ {review.rating}</span>
-                    <span>{review.placeName}</span>
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
         </section>
       )}
     </div>
