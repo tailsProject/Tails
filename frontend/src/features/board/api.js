@@ -2,6 +2,10 @@
 // 최소 뼈대 화면(BoardDetailPage)용으로 임시로 여기 둠. Board 프론트 구현 시 정리 필요.
 import client from '../../api/client';
 
+export function getBoards({ page = 0, size = 12, keyword, sortBy } = {}) {
+  return client.get('/api/boards', { params: { page, size, keyword, sortBy } });
+}
+
 export function getBoardDetail(boardId) {
   return client.get(`/api/boards/${boardId}`);
 }
