@@ -95,3 +95,8 @@ export function getMyBookmarkedBoards({ page = 0, size = 10 } = {}) {
 export function getMyBookmarkedPlaces({ page = 0, size = 10 } = {}) {
   return client.get('/api/bookmarks/places', { params: { page, size } });
 }
+
+// 내 신고 내역
+export function getMyReports({ page = 0, size = 10 } = {}) {
+  return client.get('/api/reports/my', { params: { page, size } });
+}

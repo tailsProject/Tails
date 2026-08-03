@@ -22,6 +22,7 @@ import NotificationsPage from '../features/mypage/NotificationsPage';
 import MyBoardsPage from '../features/mypage/MyBoardsPage';
 import MyReviewsPage from '../features/mypage/MyReviewsPage';
 import MyBookmarksPage from '../features/mypage/MyBookmarksPage';
+import MyReportsPage from '../features/mypage/MyReportsPage';
 
 const router = createBrowserRouter([
   {
@@ -61,6 +62,7 @@ const router = createBrowserRouter([
                   { path: 'boards', element: <MyBoardsPage /> },
                   { path: 'reviews', element: <MyReviewsPage /> },
                   { path: 'bookmarks', element: <MyBookmarksPage /> },
+                  { path: 'reports', element: <MyReportsPage /> },
                   { path: 'notifications', element: <NotificationsPage /> },
                 ],
               },

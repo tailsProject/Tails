@@ -88,6 +88,16 @@
   color: v.$color-text-muted;
 }
 
+.badgePending {
+  background-color: v.$color-status-pending-bg;
+  color: v.$color-status-pending-text;
+}
+
+.badgeResolved {
+  background-color: v.$color-status-resolved-bg;
+  color: v.$color-status-resolved-text;
+}
+
 .empty {
   padding: v.$spacing-xl 0;
   text-align: center;

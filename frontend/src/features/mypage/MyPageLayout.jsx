@@ -7,6 +7,7 @@ const TABS = [
   { to: '/mypage/boards', label: '내가 쓴 글' },
   { to: '/mypage/reviews', label: '내가 쓴 리뷰' },
   { to: '/mypage/bookmarks', label: '찜/북마크' },
+  { to: '/mypage/reports', label: '내 신고 내역' },
   { to: '/mypage/notifications', label: '알림' },
 ];
 
