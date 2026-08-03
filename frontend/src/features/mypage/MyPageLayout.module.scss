@@ -1,0 +1,51 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.wrapper {
+  display: flex;
+  gap: v.$spacing-xl;
+  max-width: v.$content-max-width;
+  margin: v.$spacing-lg auto;
+  padding: 0 v.$spacing-md;
+
+  @include m.mobile {
+    flex-direction: column;
+    gap: v.$spacing-md;
+  }
+}
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-xs;
+  width: 160px;
+  flex-shrink: 0;
+
+  @include m.mobile {
+    flex-direction: row;
+    overflow-x: auto;
+    width: auto;
+  }
+
+  a {
+    padding: v.$spacing-sm v.$spacing-md;
+    border-radius: v.$radius-sm;
+    color: v.$color-text-muted;
+    white-space: nowrap;
+
+    &:hover {
+      background-color: v.$color-bg-muted;
+    }
+  }
+
+  .active {
+    background-color: v.$color-primary-bg;
+    color: v.$color-primary-dark;
+    font-weight: 700;
+  }
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}

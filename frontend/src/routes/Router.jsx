@@ -15,6 +15,9 @@ import ResetPasswordPage from '../features/auth/ResetPasswordPage';
 import BoardDetailPage from '../features/board/BoardDetailPage';
 import PlaceMapPage from '../features/place/PlaceMapPage';
 import PlaceDetailPage from '../features/place/PlaceDetailPage';
+import MyPageLayout from '../features/mypage/MyPageLayout';
+import MyInfoPage from '../features/mypage/MyInfoPage';
+import PetsPage from '../features/mypage/PetsPage';
 
 const router = createBrowserRouter([
   {
@@ -43,7 +46,17 @@ const router = createBrowserRouter([
           { path: 'places/:placeId', element: <PlaceDetailPage /> },
           {
             element: <PrivateRoute />,
-            children: [{ path: 'complete-profile', element: <CompleteProfilePage /> }],
+            children: [
+              { path: 'complete-profile', element: <CompleteProfilePage /> },
+              {
+                path: 'mypage',
+                element: <MyPageLayout />,
+                children: [
+                  { index: true, element: <MyInfoPage /> },
+                  { path: 'pets', element: <PetsPage /> },
+                ],
+              },
+            ],
           },
           { path: '*', element: <NotFoundPage /> },
         ],

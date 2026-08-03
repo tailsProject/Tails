@@ -1,0 +1,150 @@
+@use '../../styles/variables' as v;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-xl;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-lg;
+  flex-wrap: wrap;
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.avatarPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: v.$color-bg-muted;
+  color: v.$color-primary;
+  font-size: v.$font-size-xl;
+  font-weight: 700;
+}
+
+.avatarActions {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-xs;
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}
+
+.uploadLabel {
+  cursor: pointer;
+  color: v.$color-primary;
+  font-weight: 600;
+}
+
+.infoList {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: v.$spacing-xs v.$spacing-md;
+  font-size: v.$font-size-sm;
+
+  dt {
+    color: v.$color-text-muted;
+  }
+}
+
+.verified {
+  color: v.$color-success;
+  font-size: 11px;
+}
+
+.unverified {
+  color: v.$color-text-muted;
+  font-size: 11px;
+}
+
+.stats {
+  display: flex;
+  gap: v.$spacing-lg;
+  padding: v.$spacing-lg;
+  background-color: v.$color-bg-muted;
+  border-radius: v.$radius-md;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.statValue {
+  font-size: v.$font-size-xl;
+  font-weight: 800;
+  color: v.$color-primary;
+}
+
+.statLabel {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}
+
+.section {
+  h2 {
+    font-size: v.$font-size-base;
+    margin-bottom: v.$spacing-sm;
+  }
+}
+
+.inlineForm {
+  display: flex;
+  gap: v.$spacing-sm;
+  max-width: 320px;
+
+  input {
+    flex: 1;
+    padding: v.$spacing-sm;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-sm;
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-sm;
+  max-width: 320px;
+
+  input {
+    padding: v.$spacing-sm;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-sm;
+  }
+}
+
+.hint {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}
+
+.dangerZone {
+  padding-top: v.$spacing-lg;
+  border-top: 1px solid v.$color-border;
+
+  h2 {
+    font-size: v.$font-size-base;
+    color: v.$color-error;
+    margin-bottom: v.$spacing-xs;
+  }
+}
