@@ -1,6 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createBoard, updateBoard, getBoardDetail, getImages, uploadImages, reorderImages, deleteImage } from './api';
+import {
+  createBoard,
+  createDraft,
+  updateBoard,
+  publishDraft,
+  getBoardDetail,
+  getImages,
+  uploadImages,
+  reorderImages,
+  deleteImage,
+} from './api';
 import { useToast } from '../../hooks/useToast';
 import Button from '../../components/Button/Button';
 import { resolveImage } from '../../utils/resolveImage';
@@ -47,6 +57,7 @@ export default function BoardWritePage() {
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [status, setStatus] = useState(null);
   const [existingImages, setExistingImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -59,6 +70,7 @@ export default function BoardWritePage() {
       const detail = detailRes.data.data;
       const images = imagesRes.data.data;
       setTitle(detail.title);
+      setStatus(detail.status);
       setExistingImages(images);
       setContent(detail.contentFormat === 'HTML' ? detail.content : plainContentToInitialHtml(detail.content, images));
       setIsLoaded(true);
@@ -128,6 +140,32 @@ export default function BoardWritePage() {
     return content;
   }
 
+  async function handleSaveDraft() {
+    const currentContent = buildContentOrWarn();
+    if (currentContent === null) return;
+
+    setIsSubmitting(true);
+    try {
+      let targetBoardId = boardId;
+      if (!isEdit) {
+        const res = await createDraft({ title, content: currentContent });
+        targetBoardId = res.data.data;
+      } else {
+        await updateBoard(boardId, { title, content: currentContent });
+      }
+      if (currentContent.includes('<img')) {
+        const finalContent = await persistContentAndImages(targetBoardId, currentContent);
+        await updateBoard(targetBoardId, { title, content: finalContent });
+      }
+      showToast('임시저장되었습니다.', 'success');
+      navigate('/boards/drafts', { replace: true });
+    } catch (error) {
+      showToast(error.response?.data?.error?.message ?? '임시저장에 실패했습니다.', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   async function handlePublish(e) {
     e.preventDefault();
     const currentContent = buildContentOrWarn();
@@ -139,6 +177,8 @@ export default function BoardWritePage() {
       if (!isEdit) {
         const res = await createBoard({ title, content: currentContent });
         targetBoardId = res.data.data;
+      } else if (status === 'DRAFT') {
+        await publishDraft(boardId, { title, content: currentContent });
       } else {
         await updateBoard(boardId, { title, content: currentContent });
       }
@@ -153,6 +193,8 @@ export default function BoardWritePage() {
       setIsSubmitting(false);
     }
   }
+
+  const canSaveDraft = !isEdit || status === 'DRAFT';
 
   return (
     <div className={styles.wrapper}>
@@ -178,8 +220,13 @@ export default function BoardWritePage() {
         />
 
         <div className={styles.buttonRow}>
+          {canSaveDraft && (
+            <Button type="button" variant="secondary" disabled={isSubmitting} onClick={handleSaveDraft}>
+              임시저장
+            </Button>
+          )}
           <Button type="submit" disabled={isSubmitting}>
-            {isEdit ? '수정 완료' : '발행하기'}
+            {isEdit && status !== 'DRAFT' ? '수정 완료' : '발행하기'}
           </Button>
         </div>
       </form>

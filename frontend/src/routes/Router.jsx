@@ -17,6 +17,7 @@ import PlaceDetailPage from '../features/place/PlaceDetailPage';
 import BoardListPage from '../features/board/BoardListPage';
 import BoardDetailPage from '../features/board/BoardDetailPage';
 import BoardWritePage from '../features/board/BoardWritePage';
+import MyDraftsPage from '../features/board/MyDraftsPage';
 
 const router = createBrowserRouter([
   {
@@ -49,6 +50,7 @@ const router = createBrowserRouter([
             children: [
               { path: 'complete-profile', element: <CompleteProfilePage /> },
               { path: 'boards/new', element: <BoardWritePage /> },
+              { path: 'boards/drafts', element: <MyDraftsPage /> },
               { path: 'boards/:boardId/edit', element: <BoardWritePage /> },
             ],
           },

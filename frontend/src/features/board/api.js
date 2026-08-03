@@ -21,6 +21,18 @@ export function deleteBoard(boardId) {
   return client.delete(`/api/boards/${boardId}`);
 }
 
+export function createDraft({ title, content }) {
+  return client.post('/api/boards/draft', { title, content });
+}
+
+export function getMyDrafts({ page = 0, size = 10 } = {}) {
+  return client.get('/api/boards/drafts', { params: { page, size } });
+}
+
+export function publishDraft(boardId, { title, content }) {
+  return client.put(`/api/boards/${boardId}/publish`, { title, content });
+}
+
 export function toggleLike(boardId) {
   return client.post(`/api/boards/${boardId}/like`);
 }

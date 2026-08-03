@@ -49,6 +49,11 @@ export default function BoardListPage() {
       <div className={styles.header}>
         <h1>피드</h1>
         <div className={styles.headerActions}>
+          {isAuthenticated && (
+            <Link to="/boards/drafts" className={styles.draftLink}>
+              내 임시저장
+            </Link>
+          )}
           {isAuthenticated ? (
             <Link to="/boards/new">
               <Button>글쓰기</Button>
