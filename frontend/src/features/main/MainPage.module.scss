@@ -1,0 +1,90 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-xl;
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  padding: v.$spacing-xl v.$spacing-md;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), url('/TailsBackGround.png');
+  background-size: cover;
+  background-position: center;
+  text-align: center;
+  color: #ffffff;
+}
+
+.heroInner {
+  max-width: 560px;
+
+  h1 {
+    font-size: v.$font-size-xxl;
+    font-weight: 800;
+
+    @include m.mobile {
+      font-size: v.$font-size-xl;
+    }
+  }
+
+  p {
+    margin-top: v.$spacing-sm;
+    font-size: v.$font-size-base;
+  }
+}
+
+.links {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: v.$spacing-md;
+  max-width: v.$content-max-width;
+  margin: 0 auto;
+  padding: 0 v.$spacing-md;
+  width: 100%;
+
+  @include m.mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-xs;
+  padding: v.$spacing-lg;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    border-color: v.$color-primary;
+    box-shadow: v.$shadow-card;
+  }
+
+  h2 {
+    font-size: v.$font-size-lg;
+    font-weight: 800;
+  }
+
+  p {
+    color: v.$color-text-muted;
+    font-size: v.$font-size-sm;
+  }
+}
+
+.cardIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: v.$radius-md;
+  background-color: v.$color-primary-bg;
+  color: v.$color-primary;
+  font-size: 18px;
+}
