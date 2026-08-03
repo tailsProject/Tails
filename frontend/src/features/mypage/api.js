@@ -78,3 +78,20 @@ export function markAllNotificationsAsRead() {
 export function updateFcmToken(fcmToken) {
   return client.patch('/api/members/me/fcm-token', { fcmToken });
 }
+
+// 내 글 / 내 리뷰 / 북마크
+export function getMyBoards({ page = 0, size = 10 } = {}) {
+  return client.get('/api/boards/my', { params: { page, size } });
+}
+
+export function getMyReviews({ page = 0, size = 10 } = {}) {
+  return client.get('/api/reviews/me', { params: { page, size } });
+}
+
+export function getMyBookmarkedBoards({ page = 0, size = 10 } = {}) {
+  return client.get('/api/bookmarks/boards', { params: { page, size } });
+}
+
+export function getMyBookmarkedPlaces({ page = 0, size = 10 } = {}) {
+  return client.get('/api/bookmarks/places', { params: { page, size } });
+}
