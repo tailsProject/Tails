@@ -1,17 +1,138 @@
 @use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
 
 .wrapper {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.header {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: v.$spacing-md;
+  gap: v.$spacing-md;
+
+  button {
+    padding: 6px v.$spacing-md;
+    border-radius: v.$radius-pill;
+    border: 1px solid v.$color-border;
+    color: v.$color-text-muted;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+}
+
+.titleGroup {
+  display: flex;
+  align-items: center;
   gap: v.$spacing-sm;
+  min-width: 0;
 
   h1 {
     font-size: v.$font-size-xl;
     font-weight: 800;
+    @include m.ellipsis;
   }
 }
 
-.address {
-  color: v.$color-text-muted;
+.categoryBadge {
+  flex-shrink: 0;
+  padding: 4px v.$spacing-sm;
+  border-radius: v.$radius-pill;
+  background-color: v.$color-primary-bg;
+  color: v.$color-primary-dark;
   font-size: v.$font-size-sm;
+  font-weight: 700;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-md;
+  flex-shrink: 0;
+}
+
+.active {
+  color: v.$color-primary !important;
+}
+
+.header .bookmarkButton {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  font-size: 1.3em;
+}
+
+.header .closeButton {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  outline: none;
+  font-size: 1.1em;
+}
+
+.gallery {
+  margin-bottom: v.$spacing-lg;
+}
+
+.thumbnail {
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  border-radius: v.$radius-lg;
+}
+
+.thumbList {
+  display: flex;
+  gap: v.$spacing-sm;
+  margin-top: v.$spacing-sm;
+  overflow-x: auto;
+}
+
+.thumb,
+.thumbActive {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: v.$radius-sm;
+  overflow: hidden;
+  border: 2px solid transparent;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.thumbActive {
+  border-color: v.$color-primary;
+}
+
+.infoList {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: v.$spacing-sm v.$spacing-md;
+  margin-bottom: v.$spacing-lg;
+  padding: v.$spacing-lg;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+
+  dt {
+    color: v.$color-text-muted;
+    font-size: v.$font-size-sm;
+    font-weight: 700;
+  }
+}
+
+.map {
+  width: 100%;
+  height: 280px;
+  border-radius: v.$radius-lg;
+  overflow: hidden;
+  border: 1px solid v.$color-border;
+  margin-bottom: v.$spacing-lg;
 }

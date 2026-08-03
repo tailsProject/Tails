@@ -2,6 +2,7 @@ package com.tails.place;
 
 import com.tails.common.response.ApiResponse;
 import com.tails.common.security.CustomUserDetails;
+import com.tails.place.dto.PlaceAutocompleteResponse;
 import com.tails.place.dto.PlaceBookmarkCountResponse;
 import com.tails.place.dto.PlaceRatingResponse;
 import com.tails.place.dto.PlaceRecommendationResponse;
@@ -55,15 +56,23 @@ public class PlaceController {
     @Operation(summary = "장소 통합 검색",
             description = "키워드/카테고리(cat1·cat2)/지역(region)/반경(lat·lng·radius[m]) 조건을 조합해 장소를 검색합니다. "
                     + "조건은 최소 1개 필요하고, 좌표 검색은 lat·lng·radius를 모두 보내야 하며 결과가 가까운 순으로 정렬됩니다.")
-    public ApiResponse<List<PlaceSearchResponse>> searchPlaces(
+    public ApiResponse<Page<PlaceSearchResponse>> searchPlaces(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String cat1,
             @RequestParam(required = false) String cat2,
             @RequestParam(required = false) String region,
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lng,
-            @RequestParam(required = false) Double radius) {
-        return ApiResponse.success(placeService.searchPlaces(keyword, cat1, cat2, region, lat, lng, radius));
+            @RequestParam(required = false) Double radius,
+            @PageableDefault(size = 50) Pageable pageable) {
+        return ApiResponse.success(placeService.searchPlaces(keyword, cat1, cat2, region, lat, lng, radius, pageable));
+    }
+
+    // 검색창 자동완성 — keyword가 이름에 포함된 장소를 최대 8건 추천
+    @GetMapping("/autocomplete")
+    @Operation(summary = "장소명 자동완성", description = "검색창 입력 중 keyword가 이름에 포함된 장소를 최대 8건 추천합니다.")
+    public ApiResponse<List<PlaceAutocompleteResponse>> autocomplete(@RequestParam(required = false) String keyword) {
+        return ApiResponse.success(placeService.getAutocomplete(keyword));
     }
 
     // 카테고리 필터 (cat1 필수, cat2 선택)
