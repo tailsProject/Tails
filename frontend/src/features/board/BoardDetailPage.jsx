@@ -7,6 +7,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
 import { useConfirm } from '../../hooks/useConfirm';
 import Button from '../../components/Button/Button';
+import CommentSection from './CommentSection';
 import StateMessage from '../../components/StateMessage/StateMessage';
 import { resolveImage } from '../../utils/resolveImage';
 import { HeartIcon, BookmarkIcon, PencilIcon } from '../../components/Icon/Icon';
@@ -166,6 +167,8 @@ export default function BoardDetailPage() {
           </Button>
         )}
       </div>
+
+      <CommentSection boardId={boardId} boardAuthorId={board.authorId} />
     </div>
   );
 }

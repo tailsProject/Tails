@@ -48,3 +48,19 @@ export function reorderImages(boardId, imageIds) {
 export function deleteImage(imageId) {
   return client.delete(`/api/images/${imageId}`);
 }
+
+export function getComments(boardId, { page = 0, size = 20 } = {}) {
+  return client.get(`/api/boards/${boardId}/comments`, { params: { page, size } });
+}
+
+export function createComment(boardId, { content, parentId = null }) {
+  return client.post(`/api/boards/${boardId}/comments`, { content, parentId });
+}
+
+export function updateComment(boardId, commentId, content) {
+  return client.patch(`/api/boards/${boardId}/comments/${commentId}`, { content });
+}
+
+export function deleteComment(boardId, commentId) {
+  return client.delete(`/api/boards/${boardId}/comments/${commentId}`);
+}
