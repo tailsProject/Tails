@@ -89,6 +89,16 @@
   }
 }
 
+.reportBtn {
+  margin-left: auto;
+  color: v.$color-text-muted;
+  flex-shrink: 0;
+
+  &:hover {
+    color: v.$color-error;
+  }
+}
+
 .content {
   white-space: pre-wrap;
 }
