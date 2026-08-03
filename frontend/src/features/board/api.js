@@ -76,3 +76,7 @@ export function updateComment(boardId, commentId, content) {
 export function deleteComment(boardId, commentId) {
   return client.delete(`/api/boards/${boardId}/comments/${commentId}`);
 }
+
+export function toggleCommentLike(boardId, commentId) {
+  return client.post(`/api/boards/${boardId}/comments/${commentId}/like`);
+}

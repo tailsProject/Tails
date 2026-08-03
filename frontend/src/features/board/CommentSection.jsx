@@ -1,11 +1,12 @@
-// 게시글 댓글/대댓글 목록, 작성 담당
+// 게시글 댓글/대댓글 목록, 작성, 좋아요 담당
 import { useEffect, useRef, useState } from 'react';
-import { getComments, createComment, updateComment, deleteComment } from './api';
+import { getComments, createComment, updateComment, deleteComment, toggleCommentLike } from './api';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
 import { useConfirm } from '../../hooks/useConfirm';
 import Button from '../../components/Button/Button';
 import Pagination from '../../components/Pagination/Pagination';
+import { HeartIcon } from '../../components/Icon/Icon';
 import { resolveImage } from '../../utils/resolveImage';
 import styles from './CommentSection.module.scss';
 
@@ -83,6 +84,29 @@ export default function CommentSection({ boardId, boardAuthorId }) {
     setReplyTarget(replyTarget === commentId ? null : commentId);
   }
 
+  async function handleToggleLike(commentId) {
+    if (!isAuthenticated) {
+      showToast('로그인이 필요합니다.', 'error');
+      return;
+    }
+    const res = await toggleCommentLike(boardId, commentId);
+    const { liked, likeCount } = res.data.data;
+    setCommentPage((prev) => ({
+      ...prev,
+      content: prev.content.map((comment) => patchCommentLike(comment, commentId, liked, likeCount)),
+    }));
+  }
+
+  function patchCommentLike(comment, commentId, liked, likeCount) {
+    if (comment.commentId === commentId) {
+      return { ...comment, likedByMe: liked, likeCount };
+    }
+    if (comment.replies?.length > 0) {
+      return { ...comment, replies: comment.replies.map((reply) => patchCommentLike(reply, commentId, liked, likeCount)) };
+    }
+    return comment;
+  }
+
   // 답글의 답글까지 화면에서는 한 단계로 평평하게 펼쳐서 표시, 대상이 다르면 멘션 표시
   function flattenReplies(replies, rootAuthorNickname, parentAuthorNickname) {
     const flat = [];
@@ -131,6 +155,14 @@ export default function CommentSection({ boardId, boardAuthorId }) {
         )}
 
         <div className={styles.commentActions}>
+          {!isDeleted && (
+            <button
+              className={comment.likedByMe ? styles.likeActive : ''}
+              onClick={() => handleToggleLike(comment.commentId)}
+            >
+              <HeartIcon fill={comment.likedByMe ? 'currentColor' : 'none'} /> {comment.likeCount > 0 ? comment.likeCount : '좋아요'}
+            </button>
+          )}
           {!isDeleted && (
             <button onClick={() => handleReplyClick(comment.commentId)}>
               답글
