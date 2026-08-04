@@ -17,10 +17,11 @@ public class SharedTravelDetailResponse {
     private final Double placeLongitude;
     private final LocalDate travelDate;
     private final LocalTime visitTime;
+    private final String memo;
     private final Integer sequence;
 
     private SharedTravelDetailResponse(Long detailId, Long placeId, String placeName, String placeImageUrl,
-            Double placeLatitude, Double placeLongitude, LocalDate travelDate, LocalTime visitTime,
+            Double placeLatitude, Double placeLongitude, LocalDate travelDate, LocalTime visitTime, String memo,
             Integer sequence) {
         this.detailId = detailId;
         this.placeId = placeId;
@@ -30,6 +31,7 @@ public class SharedTravelDetailResponse {
         this.placeLongitude = placeLongitude;
         this.travelDate = travelDate;
         this.visitTime = visitTime;
+        this.memo = memo;
         this.sequence = sequence;
     }
 
@@ -44,6 +46,7 @@ public class SharedTravelDetailResponse {
                 place != null ? place.getLongitude() : null,
                 travelDetail.getTravelDate(),
                 travelDetail.getVisitTime(),
+                travelDetail.getMemo(),
                 travelDetail.getSequence()
         );
     }
