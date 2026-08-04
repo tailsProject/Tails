@@ -1,63 +1,61 @@
+// 북마크한 게시글 목록 페이지
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getMyBookmarkedBoards, getMyBookmarkedPlaces } from './api';
+import { getMyBookmarkedBoards } from './api';
 import Pagination from '../../components/Pagination/Pagination';
+import { resolveImage } from '../../utils/resolveImage';
+import { PencilIcon, EyeIcon, HeartIcon, ChatBubbleIcon } from '../../components/Icon/Icon';
 import styles from './ListPage.module.scss';
 
 export default function MyBookmarksPage() {
-  const [tab, setTab] = useState('boards'); // 'boards' | 'places'
   const [page, setPage] = useState(0);
-  const [resultPage, setResultPage] = useState(null);
+  const [boardPage, setBoardPage] = useState(null);
 
   useEffect(() => {
-    setPage(0);
-  }, [tab]);
-
-  useEffect(() => {
-    const fetcher = tab === 'boards' ? getMyBookmarkedBoards : getMyBookmarkedPlaces;
-    fetcher({ page }).then((res) => setResultPage(res.data.data));
-  }, [tab, page]);
+    getMyBookmarkedBoards({ page }).then((res) => setBoardPage(res.data.data));
+  }, [page]);
 
   return (
     <div>
       <div className={styles.header}>
-        <h1>찜 / 북마크</h1>
+        <h1>북마크한 글</h1>
       </div>
 
-      <div className={styles.tabs}>
-        <button className={tab === 'boards' ? styles.tabActive : ''} onClick={() => setTab('boards')}>
-          찜한 게시글
-        </button>
-        <button className={tab === 'places' ? styles.tabActive : ''} onClick={() => setTab('places')}>
-          찜한 장소
-        </button>
-      </div>
-
-      {resultPage && (
+      {boardPage && (
         <>
           <ul className={styles.list}>
-            {tab === 'boards'
-              ? resultPage.content.map((board) => (
-                  <li key={board.boardId}>
-                    <Link to={`/boards/${board.boardId}`} className={styles.item}>
-                      <span className={styles.title}>{board.title}</span>
-                      <span className={styles.meta}>
-                        {board.authorNickname} · 좋아요 {board.likeCount}
-                      </span>
-                    </Link>
-                  </li>
-                ))
-              : resultPage.content.map((place) => (
-                  <li key={place.placeId}>
-                    <Link to={`/places/${place.placeId}`} className={styles.item}>
-                      <span className={styles.title}>{place.placeName}</span>
-                      <span className={styles.meta}>{place.address}</span>
-                    </Link>
-                  </li>
-                ))}
-            {resultPage.content.length === 0 && <p className={styles.empty}>찜한 항목이 없습니다.</p>}
+            {boardPage.content.map((board) => (
+              <li key={board.boardId}>
+                <Link to={`/boards/${board.boardId}`} className={styles.item}>
+                  {resolveImage(board.thumbnailUrl) ? (
+                    <img className={styles.itemThumb} src={resolveImage(board.thumbnailUrl)} alt="" />
+                  ) : (
+                    <span className={styles.itemThumb}><PencilIcon /></span>
+                  )}
+                  <span className={styles.itemBody}>
+                    <span className={styles.title}>
+                      {board.status === 'DRAFT' && <span className={`${styles.badge} ${styles.badgeDraft}`}>임시저장</span>}
+                      {board.title}
+                    </span>
+                    {board.excerpt && <span className={styles.excerpt}>{board.excerpt}</span>}
+                    <span className={styles.metaRow}>
+                      <span className={styles.metaItem}><EyeIcon /> {board.viewCount}</span>
+                      <span className={styles.metaItem}><HeartIcon /> {board.likeCount}</span>
+                      <span className={styles.metaItem}><ChatBubbleIcon /> {board.commentCount}</span>
+                      <span className={styles.metaDate}>{new Date(board.createdAt).toLocaleDateString()}</span>
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
           </ul>
-          <Pagination page={resultPage.number} totalPages={resultPage.totalPages} onPageChange={setPage} />
+          {boardPage.content.length === 0 && (
+            <div className={styles.empty}>
+              <span className={styles.emptyIcon}><PencilIcon /></span>
+              <p>북마크한 글이 없습니다.</p>
+            </div>
+          )}
+          <Pagination page={boardPage.number} totalPages={boardPage.totalPages} onPageChange={setPage} />
         </>
       )}
     </div>

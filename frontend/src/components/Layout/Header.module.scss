@@ -228,6 +228,16 @@ $nav-collapse: 700px;
   background-color: v.$color-bg;
   font-size: v.$font-size-sm;
   font-weight: 700;
+
+  button {
+    font-weight: 600;
+    color: v.$color-primary;
+  }
+
+  > div {
+    display: flex;
+    gap: v.$spacing-sm;
+  }
 }
 
 .notifEmpty {

@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useNotifications } from '../../hooks/useNotifications';
+import { markNotificationAsRead, markAllNotificationsAsRead, deleteAllNotifications } from '../../features/mypage/api';
+import { useConfirm } from '../../hooks/useConfirm';
 import { resolveProfileImage } from '../../utils/resolveImage';
 import { BellIcon } from '../Icon/Icon';
 import styles from './Header.module.scss';
@@ -26,11 +28,12 @@ const TYPE_TARGET_PATH = {
 
 export default function Header() {
   const { isAuthenticated, member } = useAuth();
-  const { notifications, unreadCount } = useNotifications();
+  const { notifications, unreadCount, refresh: refreshNotifications } = useNotifications();
   const [notifOpen, setNotifOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const notifRef = useRef(null);
   const navigate = useNavigate();
+  const confirm = useConfirm();
 
   useEffect(() => {
     function handleOutsideClick(event) {
@@ -42,10 +45,26 @@ export default function Header() {
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
 
-  function handleNotificationClick(notification) {
+  async function handleNotificationClick(notification) {
+    if (!notification.read) {
+      await markNotificationAsRead(notification.notificationId);
+      refreshNotifications();
+    }
     setNotifOpen(false);
     const pathFn = TYPE_TARGET_PATH[notification.type];
     navigate(pathFn ? pathFn(notification.targetId) : '/mypage/notifications');
+  }
+
+  async function handleReadAll() {
+    await markAllNotificationsAsRead();
+    refreshNotifications();
+  }
+
+  async function handleDeleteAll() {
+    const ok = await confirm('알림을 전부 삭제하시겠습니까?');
+    if (!ok) return;
+    await deleteAllNotifications();
+    refreshNotifications();
   }
 
   return (
@@ -88,6 +107,10 @@ export default function Header() {
                   <div className={styles.notifPanel}>
                     <div className={styles.notifPanelHeader}>
                       <span>알림</span>
+                      <div>
+                        <button onClick={handleReadAll}>모두 읽음</button>
+                        <button onClick={handleDeleteAll}>모두 삭제</button>
+                      </div>
                     </div>
                     {notifications.length === 0 && <p className={styles.notifEmpty}>알림이 없습니다.</p>}
                     {notifications.map((n) => (
