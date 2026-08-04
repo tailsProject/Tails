@@ -4,6 +4,7 @@ import com.tails.board.Board;
 import com.tails.board.BoardRepository;
 import com.tails.board.dto.LikeToggleResponse;
 import com.tails.comment.dto.CommentCreateRequest;
+import com.tails.comment.dto.CommentListResponse;
 import com.tails.comment.dto.CommentResponse;
 import com.tails.comment.dto.CommentUpdateRequest;
 import com.tails.common.exception.CustomException;
@@ -76,7 +77,7 @@ public class CommentService {
     }
 
     // 최상위 댓글 기준으로 페이징하고, 게시글 전체 답글(모든 depth)을 부모 id로 묶어 재귀적으로 트리를 구성해 반환
-    public Page<CommentResponse> getList(Long boardId, Long currentMemberId, Pageable pageable) {
+    public CommentListResponse getList(Long boardId, Long currentMemberId, Pageable pageable) {
         Board board = getBoardOrThrow(boardId);
         if (!board.isVisibleTo(currentMemberId)) {
             throw new CustomException(ErrorCode.BOARD_NOT_FOUND);
@@ -93,7 +94,15 @@ public class CommentService {
                         .map(like -> like.getComment().getId())
                         .collect(Collectors.toSet());
 
-        return roots.map(root -> toResponseWithReplies(root, childrenByParentId, likedCommentIds));
+        Page<CommentResponse> commentPage = roots.map(root -> toResponseWithReplies(root, childrenByParentId, likedCommentIds));
+
+        // 답글까지 합산한 실제 전체 댓글 수, 목록 페이지의 commentCount와 같은 방식으로 계산
+        long totalCommentCount = commentRepository.countByBoardIds(List.of(boardId)).stream()
+                .findFirst()
+                .map(row -> (Long) row[1])
+                .orElse(0L);
+
+        return new CommentListResponse(commentPage, totalCommentCount);
     }
 
     // 댓글 하나를 답글까지 재귀적으로 응답 DTO로 변환 (답글의 답글도 depth 제한 없이 포함)
