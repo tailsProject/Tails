@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import client from '../api/client';
 import { useAuth } from '../hooks/useAuth';
 import { NotificationContext } from '../hooks/useNotifications';
 
@@ -9,7 +10,10 @@ export function NotificationProvider({ children }) {
   const refresh = useCallback(async () => {
     if (!isAuthenticated) {
       setNotifications([]);
+      return;
     }
+    const res = await client.get('/api/notifications', { params: { page: 0, size: 20 } });
+    setNotifications(res.data.data.content);
   }, [isAuthenticated]);
 
   useEffect(() => {

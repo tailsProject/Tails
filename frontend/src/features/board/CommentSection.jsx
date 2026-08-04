@@ -1,4 +1,4 @@
-// 게시글 댓글/대댓글 목록, 작성, 좋아요 담당
+// 게시글 댓글/대댓글 목록, 작성, 좋아요, 신고 담당
 import { useEffect, useRef, useState } from 'react';
 import { getComments, createComment, updateComment, deleteComment, toggleCommentLike } from './api';
 import { useAuth } from '../../hooks/useAuth';
@@ -6,6 +6,7 @@ import { useToast } from '../../hooks/useToast';
 import { useConfirm } from '../../hooks/useConfirm';
 import Button from '../../components/Button/Button';
 import Pagination from '../../components/Pagination/Pagination';
+import ReportModal from '../report/ReportModal';
 import { HeartIcon } from '../../components/Icon/Icon';
 import { resolveImage } from '../../utils/resolveImage';
 import styles from './CommentSection.module.scss';
@@ -23,6 +24,7 @@ export default function CommentSection({ boardId, boardAuthorId }) {
   const [replyContent, setReplyContent] = useState('');
   const [editTarget, setEditTarget] = useState(null);
   const [editContent, setEditContent] = useState('');
+  const [reportTarget, setReportTarget] = useState(null);
   const commentTextareaRef = useRef(null);
 
   function autoResizeTextarea(e) {
@@ -183,6 +185,9 @@ export default function CommentSection({ boardId, boardAuthorId }) {
               {isOwner ? '삭제' : '삭제 (관리자)'}
             </button>
           )}
+          {!isOwner && isAuthenticated && !isDeleted && (
+            <button onClick={() => setReportTarget(comment.commentId)}>신고</button>
+          )}
         </div>
 
         {replyTarget === comment.commentId && (
@@ -262,6 +267,13 @@ export default function CommentSection({ boardId, boardAuthorId }) {
           <Pagination page={commentPage.number} totalPages={commentPage.totalPages} onPageChange={setPage} />
         </>
       )}
+
+      <ReportModal
+        open={reportTarget !== null}
+        onClose={() => setReportTarget(null)}
+        targetType="COMMENT"
+        targetId={reportTarget}
+      />
     </div>
   );
 }

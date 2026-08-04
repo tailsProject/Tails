@@ -15,6 +15,8 @@ import { useConfirm } from '../../hooks/useConfirm';
 import Button from '../../components/Button/Button';
 import Pagination from '../../components/Pagination/Pagination';
 import { resolveImage } from '../../utils/resolveImage';
+import ReportModal from '../report/ReportModal';
+import { WarningIcon } from '../../components/Icon/Icon';
 import styles from './ReviewSection.module.scss';
 
 const STARS = [1, 2, 3, 4, 5];
@@ -51,6 +53,7 @@ export default function ReviewSection({ placeId }) {
   const [editingId, setEditingId] = useState(null);
   const [editRating, setEditRating] = useState(0);
   const [editContent, setEditContent] = useState('');
+  const [reportTargetId, setReportTargetId] = useState(null);
 
   async function load() {
     if (!isAuthenticated) {
@@ -194,6 +197,14 @@ export default function ReviewSection({ placeId }) {
                 <span className={styles.author}>{review.authorNickname}</span>
                 <span className={styles.rating}>{'★'.repeat(review.rating)}</span>
                 <span className={styles.date}>{new Date(review.createdAt).toLocaleDateString()}</span>
+                <button
+                  type="button"
+                  className={styles.reportBtn}
+                  onClick={() => setReportTargetId(review.reviewId)}
+                  aria-label="리뷰 신고"
+                >
+                  <WarningIcon />
+                </button>
               </div>
 
               {editingId === review.reviewId ? (
@@ -251,6 +262,13 @@ export default function ReviewSection({ placeId }) {
         page={reviewData.reviews.number}
         totalPages={reviewData.reviews.totalPages}
         onPageChange={setPage}
+      />
+
+      <ReportModal
+        open={reportTargetId != null}
+        onClose={() => setReportTargetId(null)}
+        targetType="REVIEW"
+        targetId={reportTargetId}
       />
     </div>
   );

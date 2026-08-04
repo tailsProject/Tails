@@ -10,6 +10,7 @@ import com.tails.common.exception.ErrorCode;
 import com.tails.member.Member;
 import com.tails.member.MemberRepository;
 import com.tails.report.dto.ReportCreateRequest;
+import com.tails.review.ReviewRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +34,8 @@ class ReportServiceTest {
     private CommentRepository commentRepository;
     @Mock
     private MemberRepository memberRepository;
+    @Mock
+    private ReviewRepository reviewRepository;
 
     @InjectMocks
     private ReportService reportService;

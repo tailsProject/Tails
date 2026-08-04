@@ -8,6 +8,7 @@ import { useToast } from '../../hooks/useToast';
 import { useConfirm } from '../../hooks/useConfirm';
 import Button from '../../components/Button/Button';
 import CommentSection from './CommentSection';
+import ReportModal from '../report/ReportModal';
 import StateMessage from '../../components/StateMessage/StateMessage';
 import { resolveImage } from '../../utils/resolveImage';
 import { HeartIcon, BookmarkIcon, PencilIcon } from '../../components/Icon/Icon';
@@ -42,6 +43,7 @@ export default function BoardDetailPage() {
   const confirm = useConfirm();
   const [board, setBoard] = useState(null);
   const [images, setImages] = useState([]);
+  const [reportOpen, setReportOpen] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
   // StrictMode 이중 렌더링에도 조회수가 두 번 오르지 않도록 방지
@@ -166,9 +168,21 @@ export default function BoardDetailPage() {
             {isOwner ? '삭제' : '삭제 (관리자)'}
           </Button>
         )}
+        {!isOwner && isAuthenticated && (
+          <Button variant="text" onClick={() => setReportOpen(true)}>
+            신고
+          </Button>
+        )}
       </div>
 
       <CommentSection boardId={boardId} boardAuthorId={board.authorId} />
+
+      <ReportModal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        targetType="BOARD"
+        targetId={Number(boardId)}
+      />
     </div>
   );
 }
