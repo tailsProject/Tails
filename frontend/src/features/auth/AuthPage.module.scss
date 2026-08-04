@@ -3,6 +3,15 @@
 .wrapper {
   max-width: 400px;
   margin: v.$spacing-xl auto;
+  padding: v.$spacing-xl;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+  box-shadow: v.$shadow-card;
+
+  h1 {
+    font-size: v.$font-size-xl;
+    font-weight: 800;
+  }
 }
 
 .form {
@@ -87,6 +96,13 @@
 .naver {
   background-color: #03c75a;
   color: #ffffff;
+}
+
+.socialHint {
+  margin-top: v.$spacing-sm;
+  text-align: center;
+  font-size: 12px;
+  color: v.$color-text-muted;
 }
 
 .terms {

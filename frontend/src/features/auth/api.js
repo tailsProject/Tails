@@ -1,7 +1,7 @@
 import client from '../../api/client';
 
-export function join({ email, password, passwordConfirm, nickname }) {
-  return client.post('/api/members/join', { email, password, passwordConfirm, nickname });
+export function join({ email, password, passwordConfirm, nickname, agreeMarketing }) {
+  return client.post('/api/members/join', { email, password, passwordConfirm, nickname, agreeMarketing });
 }
 
 export function checkEmail(email) {
@@ -26,4 +26,12 @@ export function requestPasswordReset(email) {
 
 export function resetPassword({ token, newPassword, newPasswordConfirm }) {
   return client.post('/api/auth/password/reset', { token, newPassword, newPasswordConfirm });
+}
+
+export function requestEmailVerification(email) {
+  return client.post('/api/auth/email/verify-request', { email });
+}
+
+export function verifyEmail(token) {
+  return client.get('/api/auth/email/verify', { params: { token } });
 }

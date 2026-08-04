@@ -5,6 +5,7 @@ public record LoginResponse(
         String accessToken,
         Long memberId,
         String nickname,
+        String profileImg,
         String role
 ) {
 }

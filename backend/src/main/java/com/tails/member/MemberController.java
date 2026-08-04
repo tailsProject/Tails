@@ -59,8 +59,13 @@ public class MemberController {
             description = "입력한 이메일의 회원 가입 가능 여부를 확인합니다."
     )
     public ApiResponse<AvailabilityResponse> checkEmail(@RequestParam String email) {
-        boolean available = !memberService.isEmailDuplicated(email) && !memberService.isRecentlyWithdrawn(email);
-        return ApiResponse.success(new AvailabilityResponse(available));
+        if (memberService.isRecentlyWithdrawn(email)) {
+            return ApiResponse.success(AvailabilityResponse.unavailable("RECENTLY_WITHDRAWN"));
+        }
+        if (memberService.isEmailDuplicated(email)) {
+            return ApiResponse.success(AvailabilityResponse.unavailable("DUPLICATE"));
+        }
+        return ApiResponse.success(AvailabilityResponse.ok());
     }
 
     @GetMapping("/check-nickname")
@@ -69,8 +74,10 @@ public class MemberController {
             description = "입력한 닉네임의 사용 가능 여부를 확인합니다."
     )
     public ApiResponse<AvailabilityResponse> checkNickname(@RequestParam String nickname) {
-        boolean available = !memberService.isNicknameDuplicated(nickname);
-        return ApiResponse.success(new AvailabilityResponse(available));
+        if (memberService.isNicknameDuplicated(nickname)) {
+            return ApiResponse.success(AvailabilityResponse.unavailable("DUPLICATE"));
+        }
+        return ApiResponse.success(AvailabilityResponse.ok());
     }
 
     @GetMapping("/me")
