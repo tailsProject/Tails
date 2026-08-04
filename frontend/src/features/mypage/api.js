@@ -75,6 +75,10 @@ export function markAllNotificationsAsRead() {
   return client.patch('/api/notifications/read-all');
 }
 
+export function deleteAllNotifications() {
+  return client.delete('/api/notifications');
+}
+
 export function updateFcmToken(fcmToken) {
   return client.patch('/api/members/me/fcm-token', { fcmToken });
 }
