@@ -1,4 +1,4 @@
-// 메인페이지, 히어로 배경 전환과 인기 장소/피드/리뷰 요약 담당
+// 메인페이지, 히어로 검색과 인기 장소/피드/리뷰 요약 담당
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
