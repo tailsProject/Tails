@@ -27,6 +27,9 @@ import MyBoardsPage from '../features/mypage/MyBoardsPage';
 import MyReviewsPage from '../features/mypage/MyReviewsPage';
 import MyBookmarksPage from '../features/mypage/MyBookmarksPage';
 import MyReportsPage from '../features/mypage/MyReportsPage';
+import AdminLayout from '../features/admin/AdminLayout';
+import AdminMembersPage from '../features/admin/AdminMembersPage';
+import AdminReportsPage from '../features/admin/AdminReportsPage';
 
 const router = createBrowserRouter([
   {
@@ -72,6 +75,15 @@ const router = createBrowserRouter([
                   { path: 'bookmarks', element: <MyBookmarksPage /> },
                   { path: 'reports', element: <MyReportsPage /> },
                   { path: 'notifications', element: <NotificationsPage /> },
+                ],
+              },
+              {
+                path: 'admin',
+                element: <AdminLayout />,
+                children: [
+                  { index: true, element: <AdminReportsPage /> },
+                  { path: 'reports', element: <AdminReportsPage /> },
+                  { path: 'members', element: <AdminMembersPage /> },
                 ],
               },
             ],
