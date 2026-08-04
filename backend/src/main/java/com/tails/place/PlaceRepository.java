@@ -25,7 +25,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
     // 좌표 조건(minLat~maxLng)은 경계 상자(bounding box) 1차 필터 — 정확한 반경 판정은 Service에서 Haversine으로 처리
     @Query("""
             select p from Place p
-            where (:keyword is null or p.placeName like concat('%', :keyword, '%'))
+            where (:keyword is null or p.placeName like concat('%', :keyword, '%') or p.address like concat('%', :keyword, '%'))
               and (:cat1 is null or p.cat1 = :cat1)
               and (:cat2 is null or p.cat2 = :cat2)
               and (:region is null or p.address like concat('%', :region, '%'))
