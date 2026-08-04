@@ -52,3 +52,7 @@ export function unshareTravel(travelId) {
 export function getSharedTravel(shareToken) {
   return client.get(`/api/travels/shared/${shareToken}`);
 }
+
+export function optimizeRoute(travelId, date) {
+  return client.get(`/api/travels/${travelId}/details/optimize-route`, { params: { date } });
+}
