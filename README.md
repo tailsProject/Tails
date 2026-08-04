@@ -34,6 +34,10 @@
 </tr>
 </table>
 
+https://github.com/user-attachments/assets/02b850aa-8fd5-4c86-a96f-ace895b44f74
+
+
+
 <br>
 
 ## 기획 배경
@@ -66,11 +70,15 @@ https://github.com/user-attachments/assets/096f6f20-eb68-4448-a692-e46e845fa8e7
 
 https://github.com/user-attachments/assets/c9a69a47-6712-494b-a440-1211e4c67d01
 
+
 ### 지도
 
 - 장소를 키워드, 카테고리, 지역, 반경 조건으로 검색
 - 장소 상세 정보, 사진, 리뷰, 별점 확인 가능
 - 관심 장소 찜 기능
+
+https://github.com/user-attachments/assets/2f985333-07e0-4e9b-ae27-1567c94f384e
+
 
 ### 피드
 
@@ -80,12 +88,18 @@ https://github.com/user-attachments/assets/c9a69a47-6712-494b-a440-1211e4c67d01
 - 게시글과 댓글 좋아요 기능
 - 게시글 마크다운, 북마크, 이미지 첨부 기능
 
+https://github.com/user-attachments/assets/59d4e300-ab1e-4518-a0bd-1aa7d6e3216d
+
+
 ### 여행 일정
 
 - 여행 일정 생성, 관리
 - 방문 장소 추가, 순서 변경
 - 알고리즘 기반 경로 최적화 추천 기능 제공
 - 공유 링크 발급해 외부 공개 가능
+
+https://github.com/user-attachments/assets/e474571a-8ebc-4017-a28a-cf2bbbe97aa7
+
 
 ### 마이페이지
 
