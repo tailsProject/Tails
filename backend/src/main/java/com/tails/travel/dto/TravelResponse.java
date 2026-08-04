@@ -20,12 +20,14 @@ public class TravelResponse {
     private final List<PetResponse> pets;
     // 카드 썸네일용 대표 이미지, 1일차 첫 방문지의 장소 이미지, 없으면 null
     private final String thumbnailUrl;
+    // 공유 중인 토큰, 없으면 비공개, 프론트가 이 값으로 공유 상태 판단
+    private final String shareToken;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
     private TravelResponse(Long travelId, Long memberId, String title, String description, LocalDate startDate,
-            LocalDate endDate, List<PetResponse> pets, String thumbnailUrl, LocalDateTime createdAt,
-            LocalDateTime updatedAt) {
+            LocalDate endDate, List<PetResponse> pets, String thumbnailUrl, String shareToken,
+            LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.travelId = travelId;
         this.memberId = memberId;
         this.title = title;
@@ -34,6 +36,7 @@ public class TravelResponse {
         this.endDate = endDate;
         this.pets = pets;
         this.thumbnailUrl = thumbnailUrl;
+        this.shareToken = shareToken;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -49,6 +52,7 @@ public class TravelResponse {
                 travel.getEndDate(),
                 travel.getPets().stream().map(PetResponse::from).toList(),
                 thumbnailUrl,
+                travel.getShareToken(),
                 travel.getCreatedAt(),
                 travel.getUpdatedAt()
         );
