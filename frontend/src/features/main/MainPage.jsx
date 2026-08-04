@@ -7,6 +7,7 @@ import { getBoards } from '../board/api';
 import { getPlaceRatingSummaries, getPlaces, getPlacesRankedByPopular, getRecentReviews, getRecommendations, togglePlaceBookmark } from '../place/api';
 import { getMyBookmarkedPlaces } from '../mypage/api';
 import { resolveImage, resolveProfileImage } from '../../utils/resolveImage';
+import { timeAgo } from '../../utils/timeAgo';
 import { CATEGORIES, getCategoryIconUrl } from '../../utils/placeCategory';
 import { PawIcon, MagnifyingGlassIcon, HeartIcon, FireIcon, ChatBubbleIcon, EyeIcon } from '../../components/Icon/Icon';
 import styles from './MainPage.module.scss';
@@ -374,7 +375,7 @@ export default function MainPage() {
                         ))}
                       </span>
                       <span>{review.placeName}</span>
-                      <span className={styles.recentTime}>{new Date(review.createdAt).toLocaleDateString()}</span>
+                      <span className={styles.recentTime}>{timeAgo(review.createdAt)}</span>
                     </div>
                   </Link>
                 </li>
