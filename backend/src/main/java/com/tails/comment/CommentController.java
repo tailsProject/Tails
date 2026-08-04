@@ -1,7 +1,8 @@
 package com.tails.comment;
 
+import com.tails.board.dto.LikeToggleResponse;
 import com.tails.comment.dto.CommentCreateRequest;
-import com.tails.comment.dto.CommentResponse;
+import com.tails.comment.dto.CommentListResponse;
 import com.tails.comment.dto.CommentUpdateRequest;
 import com.tails.common.response.ApiResponse;
 import com.tails.common.security.CustomUserDetails;
@@ -9,7 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -34,11 +34,19 @@ public class CommentController {
 
     @GetMapping
     @Operation(summary = "댓글 목록 조회", description = "게시글의 댓글 목록을 페이지 단위로 조회합니다. 로그인 불필요.")
-    public ApiResponse<Page<CommentResponse>> getList(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public ApiResponse<CommentListResponse> getList(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                         @PathVariable Long boardId,
                                                         @PageableDefault(size = 10) Pageable pageable) {
         Long currentMemberId = userDetails != null ? userDetails.getMemberId() : null;
         return ApiResponse.success(commentService.getList(boardId, currentMemberId, pageable));
+    }
+
+    @PostMapping("/{commentId}/like")
+    @Operation(summary = "댓글 좋아요 토글", description = "댓글 좋아요를 추가, 취소합니다. 로그인 필요.")
+    public ApiResponse<LikeToggleResponse> toggleLike(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                        @PathVariable Long boardId,
+                                                        @PathVariable Long commentId) {
+        return ApiResponse.success(commentService.toggleLike(userDetails.getMemberId(), boardId, commentId));
     }
 
     @PatchMapping("/{commentId}")

@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-// 장소 리뷰 API. 로그인 필요
+// 장소 리뷰 API. 목록 조회는 비회원도 가능, 작성/수정/삭제는 로그인 필요
 // "내가 작성한 리뷰"(/api/reviews/me)처럼 장소에 묶이지 않는 경로도 있어서
 // 클래스 레벨 @RequestMapping 대신 메서드마다 전체 경로를 적음 (BoardBookmarkController와 동일)
 @RestController
@@ -45,7 +45,7 @@ public class ReviewController {
     }
 
     @GetMapping("/api/places/{placeId}/reviews")
-    @Operation(summary = "장소 리뷰 목록 조회", description = "placeId 장소의 리뷰 목록과 평균 별점/리뷰 수를 조회합니다. 로그인 필요.")
+    @Operation(summary = "장소 리뷰 목록 조회", description = "placeId 장소의 리뷰 목록과 평균 별점/리뷰 수를 조회합니다. 로그인 불필요.")
     public ApiResponse<ReviewListResponse> getReviews(@PathVariable Long placeId,
                                                        @PageableDefault(size = 10) Pageable pageable) {
         return ApiResponse.success(reviewService.getReviews(placeId, pageable));

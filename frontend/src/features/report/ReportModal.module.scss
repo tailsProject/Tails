@@ -1,0 +1,22 @@
+@use '../../styles/variables' as v;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-sm;
+  margin-top: v.$spacing-md;
+  min-width: 320px;
+
+  textarea {
+    padding: v.$spacing-sm;
+    border: 1px solid v.$color-border;
+    border-radius: 6px;
+    resize: vertical;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: v.$spacing-sm;
+}

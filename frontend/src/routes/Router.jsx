@@ -14,6 +14,22 @@ import ForgotPasswordPage from '../features/auth/ForgotPasswordPage';
 import ResetPasswordPage from '../features/auth/ResetPasswordPage';
 import PlaceMapPage from '../features/place/PlaceMapPage';
 import PlaceDetailPage from '../features/place/PlaceDetailPage';
+import BoardListPage from '../features/board/BoardListPage';
+import BoardDetailPage from '../features/board/BoardDetailPage';
+import BoardWritePage from '../features/board/BoardWritePage';
+import MyDraftsPage from '../features/board/MyDraftsPage';
+import MainPage from '../features/main/MainPage';
+import MyPageLayout from '../features/mypage/MyPageLayout';
+import MyInfoPage from '../features/mypage/MyInfoPage';
+import PetsPage from '../features/mypage/PetsPage';
+import NotificationsPage from '../features/mypage/NotificationsPage';
+import MyBoardsPage from '../features/mypage/MyBoardsPage';
+import MyReviewsPage from '../features/mypage/MyReviewsPage';
+import MyBookmarksPage from '../features/mypage/MyBookmarksPage';
+import MyReportsPage from '../features/mypage/MyReportsPage';
+import AdminLayout from '../features/admin/AdminLayout';
+import AdminMembersPage from '../features/admin/AdminMembersPage';
+import AdminReportsPage from '../features/admin/AdminReportsPage';
 
 const router = createBrowserRouter([
   {
@@ -23,7 +39,7 @@ const router = createBrowserRouter([
       {
         errorElement: <RouteErrorPage />,
         children: [
-          { index: true, element: <div>Tails</div> },
+          { index: true, element: <MainPage /> },
           { path: 'travels/shared/:shareToken', element: <SharedTravelPage /> },
           {
             element: <PrivateRoute />,
@@ -39,9 +55,38 @@ const router = createBrowserRouter([
           { path: 'reset-password', element: <ResetPasswordPage /> },
           { path: 'places', element: <PlaceMapPage /> },
           { path: 'places/:placeId', element: <PlaceDetailPage /> },
+          { path: 'boards', element: <BoardListPage /> },
+          { path: 'boards/:boardId', element: <BoardDetailPage /> },
           {
             element: <PrivateRoute />,
-            children: [{ path: 'complete-profile', element: <CompleteProfilePage /> }],
+            children: [
+              { path: 'complete-profile', element: <CompleteProfilePage /> },
+              { path: 'boards/new', element: <BoardWritePage /> },
+              { path: 'boards/drafts', element: <MyDraftsPage /> },
+              { path: 'boards/:boardId/edit', element: <BoardWritePage /> },
+              {
+                path: 'mypage',
+                element: <MyPageLayout />,
+                children: [
+                  { index: true, element: <MyInfoPage /> },
+                  { path: 'pets', element: <PetsPage /> },
+                  { path: 'boards', element: <MyBoardsPage /> },
+                  { path: 'reviews', element: <MyReviewsPage /> },
+                  { path: 'bookmarks', element: <MyBookmarksPage /> },
+                  { path: 'reports', element: <MyReportsPage /> },
+                  { path: 'notifications', element: <NotificationsPage /> },
+                ],
+              },
+              {
+                path: 'admin',
+                element: <AdminLayout />,
+                children: [
+                  { index: true, element: <AdminReportsPage /> },
+                  { path: 'reports', element: <AdminReportsPage /> },
+                  { path: 'members', element: <AdminMembersPage /> },
+                ],
+              },
+            ],
           },
           { path: '*', element: <NotFoundPage /> },
         ],

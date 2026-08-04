@@ -1,0 +1,105 @@
+@use '../../styles/variables' as v;
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: v.$spacing-lg;
+
+  h1 {
+    font-size: v.$font-size-lg;
+    font-weight: 800;
+  }
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: v.$spacing-md;
+  border-radius: v.$radius-pill;
+  background-color: v.$color-bg-muted;
+  width: fit-content;
+
+  button {
+    padding: v.$spacing-xs v.$spacing-md;
+    border-radius: v.$radius-pill;
+    color: v.$color-text-muted;
+    font-weight: 700;
+    font-size: v.$font-size-sm;
+  }
+}
+
+.tabActive {
+  background-color: v.$color-bg;
+  color: v.$color-primary;
+  box-shadow: v.$shadow-card;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-sm;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-xs;
+  width: 100%;
+  text-align: left;
+  padding: v.$spacing-md;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: v.$color-primary;
+  }
+}
+
+.title {
+  font-weight: 700;
+  color: v.$color-text;
+}
+
+.meta {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: v.$radius-pill;
+  font-size: 11px;
+  font-weight: 700;
+  margin-right: v.$spacing-xs;
+}
+
+.badgeDraft {
+  background-color: v.$color-bg-muted;
+  color: v.$color-text-muted;
+}
+
+.badgePending {
+  background-color: v.$color-status-pending-bg;
+  color: v.$color-status-pending-text;
+}
+
+.badgeResolved {
+  background-color: v.$color-status-resolved-bg;
+  color: v.$color-status-resolved-text;
+}
+
+.empty {
+  padding: v.$spacing-xl 0;
+  text-align: center;
+  color: v.$color-text-muted;
+}

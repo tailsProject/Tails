@@ -2,6 +2,7 @@ package com.tails.board.dto;
 
 import com.tails.board.Board;
 import com.tails.board.BoardStatus;
+import com.tails.board.ContentFormat;
 
 import java.time.LocalDateTime;
 
@@ -10,6 +11,7 @@ public record BoardDetailResponse(
         Long boardId,
         String title,
         String content,
+        ContentFormat contentFormat,
         Long authorId,
         String authorNickname,
         String authorProfileImg,
@@ -30,6 +32,7 @@ public record BoardDetailResponse(
                 board.getId(),
                 board.getTitle(),
                 board.getContent(),
+                board.getContentFormat(),
                 authorId,
                 authorNickname,
                 authorProfileImg,

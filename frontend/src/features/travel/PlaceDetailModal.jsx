@@ -2,7 +2,7 @@ import Modal from '../../components/Modal/Modal';
 import Button from '../../components/Button/Button';
 import styles from './PlaceDetailModal.module.scss';
 
-// 방문지 상세 - 장소 지도(박영준 트랙)가 아직 없어서 임시 목업으로 표시
+// 방문지 상세 - 검색 결과에서 선택한 장소 정보를 보여주고 일정에 추가
 export default function PlaceDetailModal({ open, onClose, place, onAdd }) {
   if (!place) {
     return null;

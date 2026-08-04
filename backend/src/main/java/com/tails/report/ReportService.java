@@ -11,6 +11,7 @@ import com.tails.notification.event.ReportResolvedEvent;
 import com.tails.report.dto.AdminReportResponse;
 import com.tails.report.dto.ReportCreateRequest;
 import com.tails.report.dto.ReportResponse;
+import com.tails.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ public class ReportService {
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
+    private final ReviewRepository reviewRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
@@ -76,6 +78,9 @@ public class ReportService {
             case MEMBER -> memberRepository.findById(report.getTargetId())
                     .map(member -> new TargetPreview(member.getNickname() + " (" + member.getEmail() + ")", null))
                     .orElse(new TargetPreview("탈퇴한 회원입니다.", null));
+            case REVIEW -> reviewRepository.findById(report.getTargetId())
+                    .map(review -> new TargetPreview(review.getContent(), null))
+                    .orElse(new TargetPreview("삭제된 리뷰입니다.", null));
         };
         return AdminReportResponse.from(report, preview.text(), preview.boardId());
     }
@@ -117,6 +122,13 @@ public class ReportService {
                 }
                 if (!memberRepository.existsById(targetId)) {
                     throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
+                }
+            }
+            case REVIEW -> {
+                var review = reviewRepository.findById(targetId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+                if (review.getMember() != null && review.getMember().getId().equals(memberId)) {
+                    throw new CustomException(ErrorCode.CANNOT_REPORT_SELF);
                 }
             }
         }

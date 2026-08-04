@@ -5,3 +5,8 @@ export function resolveImage(url) {
   if (!url) return null;
   return url.startsWith('http') ? url : `${API_BASE}${url}`;
 }
+
+// 프로필 사진 미설정 시 기본 프로필 이미지로 대체
+export function resolveProfileImage(url) {
+  return resolveImage(url) ?? '/DefaultProfile.png';
+}
