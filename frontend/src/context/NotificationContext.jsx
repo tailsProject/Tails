@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import client from '../api/client';
+import { getMyNotifications } from '../features/mypage/api';
 import { useAuth } from '../hooks/useAuth';
 import { NotificationContext } from '../hooks/useNotifications';
 
@@ -12,7 +12,7 @@ export function NotificationProvider({ children }) {
       setNotifications([]);
       return;
     }
-    const res = await client.get('/api/notifications', { params: { page: 0, size: 20 } });
+    const res = await getMyNotifications({ page: 0, size: 5 });
     setNotifications(res.data.data.content);
   }, [isAuthenticated]);
 
