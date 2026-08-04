@@ -18,6 +18,7 @@ export default function CommentSection({ boardId, boardAuthorId }) {
   const { showToast } = useToast();
   const confirm = useConfirm();
   const [commentPage, setCommentPage] = useState(null);
+  const [totalCommentCount, setTotalCommentCount] = useState(0);
   const [page, setPage] = useState(0);
   const [content, setContent] = useState('');
   const [replyTarget, setReplyTarget] = useState(null);
@@ -34,7 +35,8 @@ export default function CommentSection({ boardId, boardAuthorId }) {
 
   async function load() {
     const res = await getComments(boardId, { page });
-    setCommentPage(res.data.data);
+    setCommentPage(res.data.data.comments);
+    setTotalCommentCount(res.data.data.totalCommentCount);
   }
 
   useEffect(() => {
@@ -241,7 +243,7 @@ export default function CommentSection({ boardId, boardAuthorId }) {
 
   return (
     <div className={styles.wrapper}>
-      <h2>댓글 {commentPage?.totalElements ?? 0}</h2>
+      <h2>댓글 {totalCommentCount}</h2>
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <textarea

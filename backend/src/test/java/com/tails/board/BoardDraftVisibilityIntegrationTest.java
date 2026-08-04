@@ -126,6 +126,6 @@ class BoardDraftVisibilityIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/api/boards/" + draftBoardId + "/comments")
                         .header("Authorization", "Bearer " + ownerToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content[0].content").value("내 초안에 내가 단 댓글"));
+                .andExpect(jsonPath("$.data.comments.content[0].content").value("내 초안에 내가 단 댓글"));
     }
 }
