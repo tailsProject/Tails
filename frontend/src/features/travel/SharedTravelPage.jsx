@@ -3,8 +3,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getSharedTravel } from './api';
 import StateMessage from '../../components/StateMessage/StateMessage';
-import { SuitcaseIcon, MapPinIcon } from '../../components/Icon/Icon';
-import travelStyles from './TravelDetailPage.module.scss';
+import { resolveImage } from '../../utils/resolveImage';
+import { SuitcaseIcon, PawIcon, MapPinIcon } from '../../components/Icon/Icon';
+import { dDayLabel, nightsLabel } from './travelUtils';
+import heroStyles from './TravelDetailPage.module.scss';
 import dayStyles from './DaySchedule.module.scss';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -67,36 +69,62 @@ export default function SharedTravelPage() {
   }
 
   const dates = getDateRange(travel.startDate, travel.endDate);
+  const dday = dDayLabel(travel.startDate, travel.endDate);
+  const cover = resolveImage(travel.thumbnailUrl);
 
   return (
-    <div className={travelStyles.wrapper}>
-      <div className={travelStyles.header}>
-        <div>
+    <div className={heroStyles.wrapper}>
+      <div className={heroStyles.hero} style={cover ? { backgroundImage: `url(${cover})` } : undefined}>
+        {!cover && <span className={heroStyles.heroIcon}><SuitcaseIcon /></span>}
+        <div className={heroStyles.heroOverlay} />
+
+        <div className={heroStyles.heroContent}>
+          <div className={heroStyles.badgeRow}>
+            <span className={`${heroStyles.ddayBadge} ${heroStyles[dday.tone]}`}>{dday.text}</span>
+            <span className={heroStyles.nightsLabel}>{nightsLabel(travel.startDate, travel.endDate)}</span>
+          </div>
           <h1>{travel.title}</h1>
-          <p className={travelStyles.dates}>
+          <p className={heroStyles.dates}>
             {travel.startDate} ~ {travel.endDate}
           </p>
+          {travel.description && <p className={heroStyles.description}>{travel.description}</p>}
+          {travel.pets.length > 0 && (
+            <div className={heroStyles.petRow}>
+              {travel.pets.map((pet) => (
+                <span key={pet.petId} className={heroStyles.petChip}>
+                  {resolveImage(pet.photoImg) ? (
+                    <img src={resolveImage(pet.photoImg)} alt="" className={heroStyles.petChipPhoto} />
+                  ) : (
+                    <PawIcon />
+                  )}
+                  {pet.name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      <div className={travelStyles.dayTabs}>
-        {dates.map((date, index) => {
-          const weekday = WEEKDAYS[new Date(`${date}T00:00:00`).getDay()];
-          const [, month, day] = date.split('-');
-          return (
-            <button
-              key={date}
-              type="button"
-              className={date === selectedDate ? travelStyles.dayActive : travelStyles.day}
-              onClick={() => setSelectedDate(date)}
-            >
-              <span className={travelStyles.dayNum}>DAY {index + 1}</span>
-              <span className={travelStyles.dayDate}>
-                {Number(month)}.{Number(day)} <em>{weekday}</em>
-              </span>
-            </button>
-          );
-        })}
+      <div className={heroStyles.dayTabsWrap}>
+        <div className={heroStyles.dayTabs}>
+          {dates.map((date, index) => {
+            const weekday = WEEKDAYS[new Date(`${date}T00:00:00`).getDay()];
+            const [, month, day] = date.split('-');
+            return (
+              <button
+                key={date}
+                type="button"
+                className={date === selectedDate ? heroStyles.dayActive : heroStyles.day}
+                onClick={() => setSelectedDate(date)}
+              >
+                <span className={heroStyles.dayNum}>DAY {index + 1}</span>
+                <span className={heroStyles.dayDate}>
+                  {Number(month)}.{Number(day)} <em>{weekday}</em>
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <ul className={dayStyles.list}>

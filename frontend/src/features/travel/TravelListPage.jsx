@@ -5,7 +5,8 @@ import { getMyTravels } from './api';
 import { dDayLabel, nightsLabel } from './travelUtils';
 import Pagination from '../../components/Pagination/Pagination';
 import TravelFormModal from './TravelFormModal';
-import { SuitcaseIcon, PlusIcon } from '../../components/Icon/Icon';
+import { resolveImage } from '../../utils/resolveImage';
+import { SuitcaseIcon, PawIcon, PlusIcon } from '../../components/Icon/Icon';
 import Button from '../../components/Button/Button';
 import styles from './TravelListPage.module.scss';
 
@@ -43,17 +44,29 @@ export default function TravelListPage() {
           <ul className={styles.grid}>
             {travelPage.content.map((travel) => {
               const dday = dDayLabel(travel.startDate, travel.endDate);
+              const thumb = resolveImage(travel.thumbnailUrl);
               return (
                 <li key={travel.travelId}>
                   <Link to={`/travels/${travel.travelId}`} className={styles.card}>
-                    <div className={styles.thumb}>
-                      <span className={styles.thumbIcon}>
-                        <SuitcaseIcon />
-                      </span>
+                    <div className={styles.thumb} style={thumb ? { backgroundImage: `url(${thumb})` } : undefined}>
+                      {!thumb && <span className={styles.thumbIcon}><SuitcaseIcon /></span>}
                       <span className={`${styles.ddayBadge} ${styles[dday.tone]}`}>{dday.text}</span>
                     </div>
                     <div className={styles.cardBody}>
                       <p className={styles.title}>{travel.title}</p>
+                      <p className={styles.description}>{travel.description}</p>
+                      <div className={styles.petRow}>
+                        {travel.pets.map((pet) => (
+                          <span key={pet.petId} className={styles.petChip}>
+                            {resolveImage(pet.photoImg) ? (
+                              <img src={resolveImage(pet.photoImg)} alt="" className={styles.petChipPhoto} />
+                            ) : (
+                              <PawIcon />
+                            )}
+                            {pet.name}
+                          </span>
+                        ))}
+                      </div>
                       <p className={styles.meta}>
                         {travel.startDate} ~ {travel.endDate} · {nightsLabel(travel.startDate, travel.endDate)}
                       </p>
@@ -65,9 +78,7 @@ export default function TravelListPage() {
           </ul>
           {travelPage.content.length === 0 && (
             <div className={styles.emptyState}>
-              <p className={styles.emptyIcon}>
-                <SuitcaseIcon />
-              </p>
+              <p className={styles.emptyIcon}><PawIcon /></p>
               <p>아직 만든 여행 일정이 없어요.</p>
               <button type="button" className={styles.newButton} onClick={() => setModalOpen(true)}>
                 <PlusIcon /> 첫 여행 만들어보기

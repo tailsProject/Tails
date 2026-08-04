@@ -1,8 +1,8 @@
 // 여행 일정, 세부 일정 관련 API 호출 모음
 import client from '../../api/client';
 
-export function createTravel({ title, startDate, endDate }) {
-  return client.post('/api/travels', { title, startDate, endDate });
+export function createTravel({ title, description, startDate, endDate, petIds }) {
+  return client.post('/api/travels', { title, description, startDate, endDate, petIds });
 }
 
 export function getMyTravels({ page = 0, size = 10 } = {}) {
@@ -13,8 +13,8 @@ export function getTravelDetail(travelId) {
   return client.get(`/api/travels/${travelId}`);
 }
 
-export function updateTravel(travelId, { title, startDate, endDate }) {
-  return client.put(`/api/travels/${travelId}`, { title, startDate, endDate });
+export function updateTravel(travelId, { title, description, startDate, endDate, petIds }) {
+  return client.put(`/api/travels/${travelId}`, { title, description, startDate, endDate, petIds });
 }
 
 export function deleteTravel(travelId) {
