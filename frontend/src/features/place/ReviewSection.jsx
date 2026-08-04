@@ -53,9 +53,6 @@ export default function ReviewSection({ placeId }) {
   const [editContent, setEditContent] = useState('');
 
   async function load() {
-    if (!isAuthenticated) {
-      return;
-    }
     const res = await getReviews(placeId, { page });
     setReviewData(res.data.data);
     const entries = await Promise.all(
@@ -132,15 +129,6 @@ export default function ReviewSection({ placeId }) {
       ...prev,
       [reviewId]: prev[reviewId].filter((img) => img.imageId !== imageId),
     }));
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className={styles.wrapper}>
-        <h2>리뷰</h2>
-        <p className={styles.empty}>로그인 후 리뷰를 확인하고 작성할 수 있습니다.</p>
-      </div>
-    );
   }
 
   if (!reviewData) {
