@@ -2,7 +2,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { loadKakaoMaps } from './kakaoLoader';
-import { getPlaces, searchPlaces, getPlaceRatingSummaries, autocompletePlaces } from './api';
+import { getPlaces, searchPlaces, getPlaceRatingSummaries, autocompletePlaces, getPlacesRankedByRating } from './api';
+import { getMyBookmarkedPlaces } from '../mypage/api';
+import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
 import Button from '../../components/Button/Button';
 import { resolveImage } from '../../utils/resolveImage';
@@ -74,6 +76,9 @@ const MY_LOCATION_MARKER_SVG =
 
 export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlaceIds } = {}) {
   const { showToast } = useToast();
+  const { isAuthenticated } = useAuth();
+  const [showBookmarks, setShowBookmarks] = useState(false);
+  const [showRatingRanking, setShowRatingRanking] = useState(false);
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -334,6 +339,66 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
     }
   }
 
+  async function loadBookmarkedPlaces() {
+    const seq = ++searchSeqRef.current;
+    const res = await getMyBookmarkedPlaces({ page: 0, size: 50 });
+    if (seq !== searchSeqRef.current) return;
+    setPage(0);
+    setHasMore(!res.data.data.last);
+    applyPlaces(res.data.data.content, { fitToKorea: true });
+    loadMoreRef.current = async (nextPage) => {
+      const moreSeq = ++searchSeqRef.current;
+      const moreRes = await getMyBookmarkedPlaces({ page: nextPage, size: 50 });
+      if (moreSeq !== searchSeqRef.current) return;
+      setPage(nextPage);
+      setHasMore(!moreRes.data.data.last);
+      applyPlaces(moreRes.data.data.content, { append: true, fitToKorea: true });
+    };
+  }
+
+  function handleBookmarkToggle() {
+    if (showBookmarks) {
+      setShowBookmarks(false);
+      loadDefaultPlaces();
+      return;
+    }
+    if (!isAuthenticated) {
+      showToast('로그인이 필요합니다.', 'error');
+      return;
+    }
+    setShowRatingRanking(false);
+    setShowBookmarks(true);
+    loadBookmarkedPlaces();
+  }
+
+  async function loadRatingRankedPlaces() {
+    const seq = ++searchSeqRef.current;
+    const res = await getPlacesRankedByRating({ page: 0, size: 50 });
+    if (seq !== searchSeqRef.current) return;
+    setPage(0);
+    setHasMore(!res.data.data.last);
+    applyPlaces(res.data.data.content, { fitToKorea: true });
+    loadMoreRef.current = async (nextPage) => {
+      const moreSeq = ++searchSeqRef.current;
+      const moreRes = await getPlacesRankedByRating({ page: nextPage, size: 50 });
+      if (moreSeq !== searchSeqRef.current) return;
+      setPage(nextPage);
+      setHasMore(!moreRes.data.data.last);
+      applyPlaces(moreRes.data.data.content, { append: true, fitToKorea: true });
+    };
+  }
+
+  function handleRatingRankingToggle() {
+    if (showRatingRanking) {
+      setShowRatingRanking(false);
+      loadDefaultPlaces();
+      return;
+    }
+    setShowBookmarks(false);
+    setShowRatingRanking(true);
+    loadRatingRankedPlaces();
+  }
+
   function applyPlaces(placeList, { append = false, fitToKorea = false, keepView = false } = {}) {
     setPlaces((prev) => (append ? [...prev, ...placeList] : placeList));
     loadRatingSummaries(placeList);
@@ -539,6 +604,8 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
 
   async function runSearch({ keyword: kw = keyword, region: rg = region, categoryKey = category, keepView = false } = {}) {
     setRadiusMode(null);
+    setShowBookmarks(false);
+    setShowRatingRanking(false);
     const selected = CATEGORIES.find((c) => c.key === categoryKey);
     if (!selectMode) {
       const nextParams = {};
@@ -632,6 +699,8 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
   }
 
   async function searchByRadius(lat, lng, radius, categoryKey) {
+    setShowBookmarks(false);
+    setShowRatingRanking(false);
     const seq = ++searchSeqRef.current;
     const selected = CATEGORIES.find((c) => c.key === categoryKey);
     const res = await searchPlaces({
@@ -838,12 +907,26 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
         {CATEGORIES.map((c) => (
           <button
             key={c.key}
-            className={category === c.key ? styles.chipActive : styles.chip}
+            className={category === c.key && !showBookmarks && !showRatingRanking ? styles.chipActive : styles.chip}
             onClick={() => handleCategoryClick(c.key)}
           >
             {c.label}
           </button>
         ))}
+        <button
+          type="button"
+          className={showBookmarks ? styles.chipActive : styles.chip}
+          onClick={handleBookmarkToggle}
+        >
+          찜한곳
+        </button>
+        <button
+          type="button"
+          className={showRatingRanking ? styles.chipActive : styles.chip}
+          onClick={handleRatingRankingToggle}
+        >
+          평점순
+        </button>
       </div>
 
       {radiusMode === 'nearby' && (
@@ -864,7 +947,9 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
 
       <div className={styles.wrapper}>
         <aside className={styles.listPane} ref={listPaneRef}>
-          <p className={styles.resultCount}>{places.length}곳의 장소</p>
+          <p className={styles.resultCount}>
+            {places.length}곳의 {showBookmarks ? '찜한 장소' : showRatingRanking ? '평점순 장소' : '장소'}
+          </p>
           <ul className={styles.list}>
             {places.map((place) => (
               <li
@@ -927,7 +1012,9 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
                 </button>
               </li>
             ))}
-            {places.length === 0 && <p className={styles.empty}>검색 결과가 없습니다.</p>}
+            {places.length === 0 && (
+              <p className={styles.empty}>{showBookmarks ? '찜한 장소가 없습니다.' : '검색 결과가 없습니다.'}</p>
+            )}
           </ul>
           {hasMore && (
             <Button variant="secondary" onClick={handleLoadMore} disabled={isLoadingMore} className={styles.loadMore}>

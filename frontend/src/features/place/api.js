@@ -31,6 +31,10 @@ export function getPlacesRankedByPopular({ page = 0, size = 20 } = {}) {
   return client.get('/api/places/rankings/popular', { params: { page, size } });
 }
 
+export function getPlacesRankedByRating({ page = 0, size = 20 } = {}) {
+  return client.get('/api/places/rankings/rating', { params: { page, size } });
+}
+
 export function getRecommendations() {
   return client.get('/api/places/recommendations');
 }
