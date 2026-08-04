@@ -27,4 +27,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("select c.board.id, count(c) from Comment c where c.board.id in :boardIds and c.deleted = false group by c.board.id")
     List<Object[]> countByBoardIds(@Param("boardIds") List<Long> boardIds);
 
+    // 삭제하려는 댓글에 답글이 있는지 확인, 삭제 방식 분기용
+    boolean existsByParent_Id(Long parentId);
+
 }
