@@ -2,6 +2,7 @@ package com.tails.board.dto;
 
 import com.tails.board.Board;
 import com.tails.board.BoardStatus;
+import com.tails.board.ContentFormat;
 
 import java.time.LocalDateTime;
 
@@ -28,7 +29,7 @@ public record BoardResponse(
         return new BoardResponse(
                 board.getId(),
                 board.getTitle(),
-                buildExcerpt(board.getContent()),
+                buildExcerpt(board.getContent(), board.getContentFormat()),
                 thumbnailUrl,
                 authorNickname,
                 authorProfileImg,
@@ -40,11 +41,18 @@ public record BoardResponse(
         );
     }
 
-    private static String buildExcerpt(String content) {
+    // PLAIN 글의 인라인 이미지 마커와 HTML 글의 태그를 제거해 순수 텍스트만 추출
+    private static final java.util.regex.Pattern IMAGE_MARKER = java.util.regex.Pattern.compile("\\[\\[img:\\d+]]");
+    private static final java.util.regex.Pattern HTML_TAG = java.util.regex.Pattern.compile("<[^>]+>");
+
+    private static String buildExcerpt(String content, ContentFormat contentFormat) {
         if (content == null) {
             return "";
         }
-        String normalized = content.strip();
+        String stripped = contentFormat == ContentFormat.HTML
+                ? HTML_TAG.matcher(content).replaceAll(" ")
+                : IMAGE_MARKER.matcher(content).replaceAll(" ");
+        String normalized = stripped.strip().replaceAll("\\s+", " ");
         if (normalized.length() <= EXCERPT_MAX_LENGTH) {
             return normalized;
         }

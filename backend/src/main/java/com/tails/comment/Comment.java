@@ -53,6 +53,10 @@ public class Comment {
     @Column(nullable = false)
     private boolean deleted;
 
+    // 게시글 좋아요 수와 같은 비정규화 컬럼, 목록 조회마다 집계하지 않도록 토글 시점에 증감
+    @Column(name = "like_count", nullable = false)
+    private int likeCount;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -75,5 +79,14 @@ public class Comment {
 
     public void softDelete() {
         this.deleted = true;
+    }
+
+    public void increaseLikeCount() {
+        this.likeCount++;
+    }
+
+    public void decreaseLikeCount() {
+        // 동시 취소 등으로 음수가 되는 것 방지
+        this.likeCount = Math.max(0, this.likeCount - 1);
     }
 }

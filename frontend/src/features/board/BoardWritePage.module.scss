@@ -1,0 +1,32 @@
+@use '../../styles/variables' as v;
+
+.wrapper {
+  max-width: 720px;
+  margin: 0 auto;
+
+  h1 {
+    font-size: v.$font-size-xl;
+    font-weight: 800;
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-md;
+  margin-top: v.$spacing-lg;
+
+  input[type='text'] {
+    padding: v.$spacing-sm;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-sm;
+    font-size: v.$font-size-lg;
+    font-weight: 700;
+  }
+}
+
+.buttonRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: v.$spacing-sm;
+}
