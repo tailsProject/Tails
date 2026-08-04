@@ -12,6 +12,7 @@ import OAuth2RedirectPage from '../features/auth/OAuth2RedirectPage';
 import CompleteProfilePage from '../features/auth/CompleteProfilePage';
 import ForgotPasswordPage from '../features/auth/ForgotPasswordPage';
 import ResetPasswordPage from '../features/auth/ResetPasswordPage';
+import VerifyEmailPage from '../features/auth/VerifyEmailPage';
 import PlaceMapPage from '../features/place/PlaceMapPage';
 import PlaceDetailPage from '../features/place/PlaceDetailPage';
 import BoardListPage from '../features/board/BoardListPage';
@@ -53,6 +54,7 @@ const router = createBrowserRouter([
           { path: 'oauth2/redirect', element: <OAuth2RedirectPage /> },
           { path: 'forgot-password', element: <ForgotPasswordPage /> },
           { path: 'reset-password', element: <ResetPasswordPage /> },
+          { path: 'verify-email', element: <VerifyEmailPage /> },
           { path: 'places', element: <PlaceMapPage /> },
           { path: 'places/:placeId', element: <PlaceDetailPage /> },
           { path: 'boards', element: <BoardListPage /> },
