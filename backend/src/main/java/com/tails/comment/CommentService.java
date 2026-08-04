@@ -2,6 +2,7 @@ package com.tails.comment;
 
 import com.tails.board.Board;
 import com.tails.board.BoardRepository;
+import com.tails.board.dto.LikeToggleResponse;
 import com.tails.comment.dto.CommentCreateRequest;
 import com.tails.comment.dto.CommentResponse;
 import com.tails.comment.dto.CommentUpdateRequest;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 // 게시글 댓글 비즈니스 로직
@@ -30,6 +32,7 @@ import java.util.stream.Collectors;
 public class CommentService {
 
     private final CommentRepository commentRepository;
+    private final CommentLikeRepository commentLikeRepository;
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
     private final ApplicationEventPublisher eventPublisher;
@@ -83,15 +86,50 @@ public class CommentService {
         Map<Long, List<Comment>> childrenByParentId = commentRepository.findByBoardIdAndParentIsNotNullOrderByCreatedAtAsc(boardId).stream()
                 .collect(Collectors.groupingBy(comment -> comment.getParent().getId()));
 
-        return roots.map(root -> toResponseWithReplies(root, childrenByParentId));
+        // 로그인 회원이 이 게시글에서 좋아요 누른 댓글 id 집합, 비로그인이면 빈 집합
+        Set<Long> likedCommentIds = currentMemberId == null
+                ? Set.of()
+                : commentLikeRepository.findByMemberIdAndComment_Board_Id(currentMemberId, boardId).stream()
+                        .map(like -> like.getComment().getId())
+                        .collect(Collectors.toSet());
+
+        return roots.map(root -> toResponseWithReplies(root, childrenByParentId, likedCommentIds));
     }
 
     // 댓글 하나를 답글까지 재귀적으로 응답 DTO로 변환 (답글의 답글도 depth 제한 없이 포함)
-    private CommentResponse toResponseWithReplies(Comment comment, Map<Long, List<Comment>> childrenByParentId) {
+    private CommentResponse toResponseWithReplies(Comment comment, Map<Long, List<Comment>> childrenByParentId, Set<Long> likedCommentIds) {
         List<CommentResponse> replies = childrenByParentId.getOrDefault(comment.getId(), List.of()).stream()
-                .map(child -> toResponseWithReplies(child, childrenByParentId))
+                .map(child -> toResponseWithReplies(child, childrenByParentId, likedCommentIds))
                 .toList();
-        return CommentResponse.of(comment, replies);
+        return CommentResponse.of(comment, likedCommentIds.contains(comment.getId()), replies);
+    }
+
+    // 댓글 좋아요 추가/취소 토글, 게시글 좋아요와 같은 방식
+    @Transactional
+    public LikeToggleResponse toggleLike(Long memberId, Long boardId, Long commentId) {
+        Comment comment = getCommentInBoardOrThrow(boardId, commentId, memberId);
+        // 삭제된 댓글에는 좋아요 불가
+        if (comment.isDeleted()) {
+            throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
+        }
+
+        boolean liked = commentLikeRepository.findByCommentIdAndMemberId(commentId, memberId)
+                .map(existing -> {
+                    commentLikeRepository.delete(existing);
+                    comment.decreaseLikeCount();
+                    return false;
+                })
+                .orElseGet(() -> {
+                    CommentLike like = CommentLike.builder()
+                            .comment(comment)
+                            .member(memberRepository.getReferenceById(memberId))
+                            .build();
+                    commentLikeRepository.save(like);
+                    comment.increaseLikeCount();
+                    return true;
+                });
+
+        return new LikeToggleResponse(liked, comment.getLikeCount());
     }
 
     // 작성자 본인만 수정 가능, 삭제된 댓글은 수정 불가

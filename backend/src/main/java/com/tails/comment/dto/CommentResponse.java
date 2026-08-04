@@ -14,11 +14,14 @@ public record CommentResponse(
         String authorNickname,
         String authorProfileImg,
         String content,
+        int likeCount,
+        boolean likedByMe,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         List<CommentResponse> replies
 ) {
-    public static CommentResponse of(Comment comment, List<CommentResponse> replies) {
+    // likedByMe는 로그인 회원의 좋아요 여부, 비로그인 조회면 항상 false
+    public static CommentResponse of(Comment comment, boolean likedByMe, List<CommentResponse> replies) {
         Long authorId = comment.getMember() != null ? comment.getMember().getId() : null;
         String authorNickname = comment.getMember() != null ? comment.getMember().getNickname() : "탈퇴한 회원";
         String authorProfileImg = comment.getMember() != null ? comment.getMember().getProfileImg() : null;
@@ -32,6 +35,8 @@ public record CommentResponse(
                 authorNickname,
                 authorProfileImg,
                 content,
+                comment.getLikeCount(),
+                likedByMe,
                 comment.getCreatedAt(),
                 comment.getUpdatedAt(),
                 replies

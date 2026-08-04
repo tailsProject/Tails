@@ -1,5 +1,6 @@
 package com.tails.comment;
 
+import com.tails.board.dto.LikeToggleResponse;
 import com.tails.comment.dto.CommentCreateRequest;
 import com.tails.comment.dto.CommentResponse;
 import com.tails.comment.dto.CommentUpdateRequest;
@@ -39,6 +40,14 @@ public class CommentController {
                                                         @PageableDefault(size = 10) Pageable pageable) {
         Long currentMemberId = userDetails != null ? userDetails.getMemberId() : null;
         return ApiResponse.success(commentService.getList(boardId, currentMemberId, pageable));
+    }
+
+    @PostMapping("/{commentId}/like")
+    @Operation(summary = "댓글 좋아요 토글", description = "댓글 좋아요를 추가, 취소합니다. 로그인 필요.")
+    public ApiResponse<LikeToggleResponse> toggleLike(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                        @PathVariable Long boardId,
+                                                        @PathVariable Long commentId) {
+        return ApiResponse.success(commentService.toggleLike(userDetails.getMemberId(), boardId, commentId));
     }
 
     @PatchMapping("/{commentId}")
