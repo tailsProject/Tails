@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getMyBookmarkedBoards, getMyBookmarkedPlaces } from './api';
 import Pagination from '../../components/Pagination/Pagination';
+import { resolveImage } from '../../utils/resolveImage';
+import { PencilIcon, MapPinIcon, EyeIcon, HeartIcon, ChatBubbleIcon } from '../../components/Icon/Icon';
 import styles from './ListPage.module.scss';
 
 export default function MyBookmarksPage() {
@@ -40,9 +42,31 @@ export default function MyBookmarksPage() {
               ? resultPage.content.map((board) => (
                   <li key={board.boardId}>
                     <Link to={`/boards/${board.boardId}`} className={styles.item}>
-                      <span className={styles.title}>{board.title}</span>
-                      <span className={styles.meta}>
-                        {board.authorNickname} · 좋아요 {board.likeCount}
+                      {resolveImage(board.thumbnailUrl) ? (
+                        <img className={styles.itemThumb} src={resolveImage(board.thumbnailUrl)} alt="" />
+                      ) : (
+                        <span className={styles.itemThumb}>
+                          <PencilIcon />
+                        </span>
+                      )}
+                      <span className={styles.itemBody}>
+                        <span className={styles.title}>{board.title}</span>
+                        <span className={styles.metaRow}>
+                          <span className={styles.metaItem}>{board.authorNickname}</span>
+                          <span className={styles.metaItem}>
+                            <HeartIcon /> {board.likeCount}
+                          </span>
+                          {board.viewCount != null && (
+                            <span className={styles.metaItem}>
+                              <EyeIcon /> {board.viewCount}
+                            </span>
+                          )}
+                          {board.commentCount != null && (
+                            <span className={styles.metaItem}>
+                              <ChatBubbleIcon /> {board.commentCount}
+                            </span>
+                          )}
+                        </span>
                       </span>
                     </Link>
                   </li>
@@ -50,13 +74,27 @@ export default function MyBookmarksPage() {
               : resultPage.content.map((place) => (
                   <li key={place.placeId}>
                     <Link to={`/places/${place.placeId}`} className={styles.item}>
-                      <span className={styles.title}>{place.placeName}</span>
-                      <span className={styles.meta}>{place.address}</span>
+                      {resolveImage(place.imageUrl) ? (
+                        <img className={styles.itemThumb} src={resolveImage(place.imageUrl)} alt="" />
+                      ) : (
+                        <span className={styles.itemThumb}>
+                          <MapPinIcon />
+                        </span>
+                      )}
+                      <span className={styles.itemBody}>
+                        <span className={styles.title}>{place.placeName}</span>
+                        <span className={styles.meta}>{place.address}</span>
+                      </span>
                     </Link>
                   </li>
                 ))}
-            {resultPage.content.length === 0 && <p className={styles.empty}>찜한 항목이 없습니다.</p>}
           </ul>
+          {resultPage.content.length === 0 && (
+            <div className={styles.empty}>
+              <span className={styles.emptyIcon}>{tab === 'boards' ? <PencilIcon /> : <MapPinIcon />}</span>
+              <p>찜한 항목이 없습니다.</p>
+            </div>
+          )}
           <Pagination page={resultPage.number} totalPages={resultPage.totalPages} onPageChange={setPage} />
         </>
       )}
