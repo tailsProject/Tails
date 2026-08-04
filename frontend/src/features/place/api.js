@@ -27,6 +27,18 @@ export function getPlaceRatingSummaries(placeIds) {
   return client.get('/api/reviews/rating-summary', { params: { placeIds: placeIds.join(',') } });
 }
 
+export function getPlacesRankedByPopular({ page = 0, size = 20 } = {}) {
+  return client.get('/api/places/rankings/popular', { params: { page, size } });
+}
+
+export function getRecommendations() {
+  return client.get('/api/places/recommendations');
+}
+
+export function getRecentReviews({ size = 4 } = {}) {
+  return client.get('/api/reviews/recent', { params: { size } });
+}
+
 export function togglePlaceBookmark(placeId) {
   return client.post(`/api/places/${placeId}/bookmark`);
 }

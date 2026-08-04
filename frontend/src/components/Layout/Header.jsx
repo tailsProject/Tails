@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useNotifications } from '../../hooks/useNotifications';
-import { resolveImage } from '../../utils/resolveImage';
-import { PawIcon, BellIcon } from '../Icon/Icon';
+import { resolveProfileImage } from '../../utils/resolveImage';
+import { BellIcon } from '../Icon/Icon';
 import styles from './Header.module.scss';
 
 const NAV_LINKS = [
@@ -71,11 +71,7 @@ export default function Header() {
             <>
               <Link to="/mypage" className={styles.profileLink}>
                 <span className={styles.avatar}>
-                  {resolveImage(member.profileImg) ? (
-                    <img src={resolveImage(member.profileImg)} alt="" />
-                  ) : (
-                    <PawIcon />
-                  )}
+                  <img src={resolveProfileImage(member.profileImg)} alt="" />
                 </span>
                 <span>{member.nickname}님</span>
               </Link>
