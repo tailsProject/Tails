@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+// 이메일 인증 링크 클릭 시 진입하는 페이지
+import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { verifyEmail } from './api';
 import styles from './AuthPage.module.scss';
@@ -6,15 +7,22 @@ import styles from './AuthPage.module.scss';
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  const [status, setStatus] = useState('verifying'); // 'verifying' | 'success' | 'error'
+  const [status, setStatus] = useState('loading');
   const [errorMessage, setErrorMessage] = useState('');
+
+  // StrictMode 이중 렌더링에도 인증 요청이 두 번 나가지 않도록 방지
+  const requestedRef = useRef(false);
 
   useEffect(() => {
     if (!token) {
       setStatus('error');
-      setErrorMessage('유효하지 않은 링크입니다.');
+      setErrorMessage('유효하지 않은 인증 링크입니다.');
       return;
     }
+    if (requestedRef.current) {
+      return;
+    }
+    requestedRef.current = true;
     verifyEmail(token)
       .then(() => setStatus('success'))
       .catch((error) => {
@@ -23,33 +31,14 @@ export default function VerifyEmailPage() {
       });
   }, [token]);
 
-  if (status === 'verifying') {
-    return (
-      <div className={styles.wrapper}>
-        <h1>이메일 인증</h1>
-        <p>인증 처리 중입니다...</p>
-      </div>
-    );
-  }
-
-  if (status === 'error') {
-    return (
-      <div className={styles.wrapper}>
-        <h1>이메일 인증</h1>
-        <p className={styles.hintError}>{errorMessage}</p>
-        <p className={styles.switchLink}>
-          <Link to="/login">로그인으로 돌아가기</Link>
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className={styles.wrapper}>
       <h1>이메일 인증</h1>
-      <p className={styles.hintOk}>이메일 인증이 완료됐습니다.</p>
+      {status === 'loading' && <p>인증 처리 중입니다...</p>}
+      {status === 'success' && <p className={styles.hintOk}>이메일 인증이 완료됐습니다.</p>}
+      {status === 'error' && <p className={styles.hintError}>{errorMessage}</p>}
       <p className={styles.switchLink}>
-        <Link to="/login">로그인하러 가기</Link>
+        <Link to="/login">로그인 페이지로 이동</Link>
       </p>
     </div>
   );
