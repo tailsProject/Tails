@@ -10,8 +10,10 @@ import com.tails.place.dto.PlaceRatingResponse;
 import com.tails.place.dto.PlaceResponse;
 import com.tails.place.dto.PlaceSearchResponse;
 import com.tails.review.ReviewRepository;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -40,6 +42,15 @@ public class PlaceService {
     // 거리순으로 가까운 것부터 이 개수만 반환(카카오맵/네이버맵 등 실제 지도 서비스도 결과 상한을 둠)
     private static final int MAX_GEO_SEARCH_RESULTS = 100;
 
+    // 지역 줄임말 중 실제 주소와 문자열이 다른 5개만 정식 명칭을 함께 확인
+    private static final Map<String, String> REGION_FULL_NAME_ALIASES = Map.of(
+            "충북", "충청북도",
+            "충남", "충청남도",
+            "경북", "경상북도",
+            "경남", "경상남도",
+            "전남", "전라남도"
+    );
+
 
     // 장소 상세 조회. currentMemberId가 있으면 내 찜 여부도 함께 계산(비로그인이면 항상 false)
     // @throws CustomException {@link ErrorCode#PLACE_NOT_FOUND} 해당 placeId의 장소가 없을 때
@@ -67,7 +78,7 @@ public class PlaceService {
     public Page<PlaceSearchResponse> searchPlaces(String keyword, String cat1, String cat2,
             String region, Double lat, Double lng, Double radiusMeters, Pageable pageable) {
         keyword = blankToNull(keyword);
-        cat1 = blankToNull(cat1);
+        List<String> cat1List = parseCat1List(cat1);
         cat2 = blankToNull(cat2);
         region = blankToNull(region);
 
@@ -79,7 +90,7 @@ public class PlaceService {
         if (anyGeo && (!allGeo || radiusMeters <= 0 || invalidGeoRange)) {
             throw new CustomException(ErrorCode.INVALID_SEARCH_CONDITION);
         }
-        if (!allGeo && keyword == null && cat1 == null && cat2 == null && region == null) {
+        if (!allGeo && keyword == null && cat1List == null && cat2 == null && region == null) {
             throw new CustomException(ErrorCode.INVALID_SEARCH_CONDITION);
         }
 
@@ -96,8 +107,9 @@ public class PlaceService {
             maxLng = lng + lngDelta;
         }
 
+        String regionAlias = region != null ? REGION_FULL_NAME_ALIASES.get(region) : null;
         List<Place> candidates = placeRepository.searchPlaces(
-                keyword, cat1, cat2, region, minLat, maxLat, minLng, maxLng);
+                keyword, cat1List, cat2, region, regionAlias, minLat, maxLat, minLng, maxLng);
 
         List<PlaceSearchResponse> all;
         if (!allGeo) {
@@ -131,12 +143,23 @@ public class PlaceService {
         return (value == null || value.isBlank()) ? null : value.trim();
     }
 
-    // 검색창 자동완성 — 빈 키워드는 빈 목록으로 처리(에러 대신 조용히 무시)
+    // 콤마로 묶인 여러 cat1 값을 목록으로 분리, 값이 없으면 조건 없음으로 통일
+    private List<String> parseCat1List(String cat1) {
+        if (cat1 == null || cat1.isBlank()) {
+            return null;
+        }
+        return Arrays.stream(cat1.split(","))
+                .map(String::trim)
+                .filter(value -> !value.isEmpty())
+                .toList();
+    }
+
+    // 검색창 자동완성 — 빈 키워드는 빈 목록으로 처리(에러 대신 조용히 무시), 대소문자 구분 없이 매칭
     public List<PlaceAutocompleteResponse> getAutocomplete(String keyword) {
         if (keyword == null || keyword.isBlank()) {
             return List.of();
         }
-        return placeRepository.findTop8ByPlaceNameContainingOrderByPlaceNameAsc(keyword.trim()).stream()
+        return placeRepository.findTop8ByPlaceNameContainingIgnoreCaseOrderByPlaceNameAsc(keyword.trim()).stream()
                 .map(PlaceAutocompleteResponse::from)
                 .toList();
     }
