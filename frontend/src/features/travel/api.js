@@ -1,4 +1,4 @@
-// 여행 일정, 세부 일정 관련 API 호출 모음
+// 여행 일정, 세부 일정, 공유 링크 관련 API 호출 모음
 import client from '../../api/client';
 
 export function createTravel({ title, description, startDate, endDate, petIds }) {
@@ -21,6 +21,18 @@ export function deleteTravel(travelId) {
   return client.delete(`/api/travels/${travelId}`);
 }
 
+export function shareTravel(travelId) {
+  return client.post(`/api/travels/${travelId}/share`);
+}
+
+export function unshareTravel(travelId) {
+  return client.delete(`/api/travels/${travelId}/share`);
+}
+
+export function getSharedTravel(shareToken) {
+  return client.get(`/api/travels/shared/${shareToken}`);
+}
+
 export function addTravelDetail(travelId, { placeId, travelDate, visitTime, memo }) {
   return client.post(`/api/travels/${travelId}/details`, { placeId, travelDate, visitTime, memo });
 }
@@ -39,18 +51,6 @@ export function deleteTravelDetail(travelId, detailId) {
 
 export function reorderTravelDetails(travelId, { travelDate, detailIds }) {
   return client.patch(`/api/travels/${travelId}/details/order`, { travelDate, detailIds });
-}
-
-export function shareTravel(travelId) {
-  return client.post(`/api/travels/${travelId}/share`);
-}
-
-export function unshareTravel(travelId) {
-  return client.delete(`/api/travels/${travelId}/share`);
-}
-
-export function getSharedTravel(shareToken) {
-  return client.get(`/api/travels/shared/${shareToken}`);
 }
 
 export function optimizeRoute(travelId, date) {

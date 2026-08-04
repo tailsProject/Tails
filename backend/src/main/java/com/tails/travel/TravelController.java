@@ -43,9 +43,9 @@ public class TravelController {
         return ApiResponse.success(travelService.createTravel(userDetails.getMemberId(), request));
     }
 
-    // 내 여행 일정 목록 페이지 단위 조회 (기본: 시작일 내림차순 10개)
+    // 내 여행 일정 목록 페이지 단위 조회, 기본 시작일 내림차순 10개
     @GetMapping
-    @Operation(summary = "내 여행 일정 목록 조회", description = "로그인한 회원이 만든 여행 일정 목록을 페이지 단위로 조회합니다. (기본: 시작일 내림차순 10개)")
+    @Operation(summary = "내 여행 일정 목록 조회", description = "로그인한 회원이 만든 여행 일정 목록을 페이지 단위로 조회합니다.")
     public ApiResponse<Page<TravelResponse>> getMyTravels(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PageableDefault(size = 10, sort = "startDate", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -81,16 +81,16 @@ public class TravelController {
         return ApiResponse.success();
     }
 
-    // 여행 일정 공유 링크 발급(재발급 시 기존 링크 무효화). 본인 소유가 아니면 접근 거부
+    // 여행 일정 공유 링크 발급, 이미 공유 중이면 기존 링크 그대로 반환, 본인 소유만 가능
     @PostMapping("/{travelId}/share")
-    @Operation(summary = "여행 일정 공유 링크 발급", description = "travelId 여행 일정의 공유 링크를 발급(재발급 시 기존 링크는 무효화)합니다.")
+    @Operation(summary = "여행 일정 공유 링크 발급", description = "travelId 여행 일정의 공유 링크를 발급합니다. 이미 공유 중이면 기존 링크를 그대로 반환합니다.")
     public ApiResponse<ShareTokenResponse> shareTravel(
             @PathVariable Long travelId,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ApiResponse.success(travelService.shareTravel(travelId, userDetails.getMemberId()));
     }
 
-    // 여행 일정 공유 중단(비공개 전환). 본인 소유가 아니면 접근 거부
+    // 여행 일정 공유 중단, 본인 소유만 가능
     @DeleteMapping("/{travelId}/share")
     @Operation(summary = "여행 일정 공유 중단", description = "travelId 여행 일정의 공유를 중단합니다. 이후 기존 공유 링크는 사용할 수 없습니다.")
     public ApiResponse<Void> unshareTravel(
@@ -100,8 +100,7 @@ public class TravelController {
         return ApiResponse.success();
     }
 
-    // 공유 링크로 여행 일정 읽기 전용 조회. 로그인 불필요 (SecurityConfig의 GET /api/travels/shared/** permitAll 규칙 참고 —
-    // /api/travels/{travelId}(숫자 PK)와 경로 구조가 달라 서로 충돌하지 않음)
+    // 공유 링크로 여행 일정 읽기 전용 조회, 로그인 불필요
     @GetMapping("/shared/{shareToken}")
     @Operation(summary = "공유된 여행 일정 조회", description = "공유 토큰으로 여행 일정을 읽기 전용 조회합니다. 로그인 불필요.")
     public ApiResponse<SharedTravelResponse> getSharedTravel(@PathVariable String shareToken) {

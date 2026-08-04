@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
-// TravelService 단위테스트 - 날짜범위 검증/소유권 확인/공유링크 재발급 및 중단
+// 여행 일정 서비스 단위테스트, 날짜범위 검증과 소유권 확인, 공유링크 발급/중단
 @ExtendWith(MockitoExtension.class)
 class TravelServiceTest {
 

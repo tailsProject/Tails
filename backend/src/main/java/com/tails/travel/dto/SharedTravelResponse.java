@@ -7,9 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 import lombok.Getter;
 
-// 공유 링크로 로그인 없이 조회하는 여행 일정 응답 DTO. TravelResponse와 달리 memberId(소유자 식별자)는
-// 포함하지 않음(링크만 있으면 누구나 보는 공개 응답이라 소유자 정보는 최소한만 노출).
-// 세부 일정도 TravelDetailResponse(memo 포함) 대신 SharedTravelDetailResponse(memo 제외)로 담음
+// 공유 링크로 로그인 없이 조회하는 여행 일정 응답, 소유자 식별자는 제외한 공개용 정보만 포함
 @Getter
 public class SharedTravelResponse {
 

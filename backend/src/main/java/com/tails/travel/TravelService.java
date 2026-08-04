@@ -22,7 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-// Travel 비즈니스 로직
+// 여행 일정 비즈니스 로직
 @Service
 @RequiredArgsConstructor
 public class TravelService {
@@ -37,7 +37,7 @@ public class TravelService {
     public TravelResponse createTravel(Long memberId, TravelCreateRequest request) {
         validateDateRange(request.startDate(), request.endDate());
 
-        // getReferenceById: SELECT 없이 프록시만 가져옴 (FK로만 쓰여서 다른 필드 불필요)
+        // 조회 없이 프록시만 가져옴, FK로만 사용해 다른 필드는 불필요
         Travel travel = Travel.builder()
                 .member(memberRepository.getReferenceById(memberId))
                 .title(request.title())
@@ -85,7 +85,7 @@ public class TravelService {
 
         travel.updateInfo(request.title(), request.description(), request.startDate(), request.endDate());
         travel.updatePets(resolveOwnedPets(memberId, request.petIds()));
-        // flush 없으면 응답에 updatedAt이 예전 값으로 찍힘 (커밋 전이라 @PreUpdate 미실행)
+        // flush 없으면 커밋 전이라 응답의 updatedAt이 예전 값으로 찍힘
         travelRepository.flush();
 
         return TravelResponse.from(travel, findThumbnailUrl(travelId));
@@ -123,7 +123,7 @@ public class TravelService {
         travelRepository.delete(travel);
     }
 
-    // 여행 일정 공유 링크 발급. 이미 공유 중이면 기존 링크 그대로 반환
+    // 여행 일정 공유 링크 발급, 이미 공유 중이면 기존 링크 그대로 반환
     @Transactional
     public ShareTokenResponse shareTravel(Long travelId, Long memberId) {
         Travel travel = travelRepository.findById(travelId)
@@ -136,7 +136,7 @@ public class TravelService {
         return new ShareTokenResponse(travel.generateShareToken());
     }
 
-    // 여행 일정 공유 중단(비공개 전환)
+    // 여행 일정 공유 중단, 비공개로 전환
     @Transactional
     public void unshareTravel(Long travelId, Long memberId) {
         Travel travel = travelRepository.findById(travelId)
@@ -149,8 +149,7 @@ public class TravelService {
         travel.revokeShareToken();
     }
 
-    // 공유 토큰으로 여행 일정을 읽기 전용 조회. 로그인 불필요(토큰을 아는 것 자체가 접근 권한이라
-    // 소유권 확인이 없음). 존재하지 않거나 공유 중단된 토큰은 SHARED_TRAVEL_NOT_FOUND 하나로 통일
+    // 공유 토큰으로 여행 일정 읽기 전용 조회, 토큰 소지 자체가 접근 권한이라 소유권 확인 없음
     @Transactional(readOnly = true)
     public SharedTravelResponse getSharedTravel(String shareToken) {
         Travel travel = travelRepository.findByShareToken(shareToken)
@@ -162,7 +161,7 @@ public class TravelService {
         return SharedTravelResponse.of(travel, details, findThumbnailUrl(travel.getTravelId()));
     }
 
-    // 종료일이 시작일보다 빠르면 예외 (createTravel/updateTravel 공통)
+    // 종료일이 시작일보다 빠르면 예외, 생성과 수정 공통 검증
     private void validateDateRange(LocalDate startDate, LocalDate endDate) {
         if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
             throw new CustomException(ErrorCode.INVALID_DATE_RANGE);
