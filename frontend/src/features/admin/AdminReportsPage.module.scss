@@ -1,0 +1,186 @@
+@use '../../styles/variables' as v;
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: v.$spacing-lg;
+
+  h1 {
+    font-size: v.$font-size-lg;
+    font-weight: 800;
+  }
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: v.$spacing-md;
+  border-radius: v.$radius-pill;
+  background-color: v.$color-bg-muted;
+  width: fit-content;
+
+  button {
+    padding: v.$spacing-xs v.$spacing-md;
+    border-radius: v.$radius-pill;
+    color: v.$color-text-muted;
+    font-weight: 700;
+    font-size: v.$font-size-sm;
+  }
+}
+
+.tabActive {
+  background-color: v.$color-bg;
+  color: v.$color-primary;
+  box-shadow: v.$shadow-card;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-sm;
+}
+
+.item {
+  padding: v.$spacing-md v.$spacing-lg;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: v.$color-primary;
+    box-shadow: v.$shadow-card;
+  }
+}
+
+.itemTop {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: v.$spacing-sm;
+  margin-bottom: v.$spacing-sm;
+}
+
+.typeBadge {
+  flex-shrink: 0;
+  padding: 3px v.$spacing-sm;
+  border-radius: v.$radius-pill;
+  font-size: 11px;
+  font-weight: 700;
+  background-color: v.$color-bg-muted;
+  color: v.$color-text-muted;
+}
+
+.typeBoard {
+  background-color: v.$color-primary-bg;
+  color: v.$color-primary-dark;
+}
+
+.typeComment {
+  background-color: v.$color-accent-bg;
+  color: v.$color-accent;
+}
+
+.typeMember {
+  background-color: rgba(v.$color-error, 0.1);
+  color: v.$color-error;
+}
+
+.typeReview {
+  background-color: v.$color-status-resolved-bg;
+  color: v.$color-status-resolved-text;
+}
+
+.reporter {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}
+
+.date {
+  margin-left: auto;
+  font-size: 12px;
+  font-family: v.$font-mono;
+  color: v.$color-text-muted;
+}
+
+.reason {
+  font-size: v.$font-size-base;
+  font-weight: 600;
+  color: v.$color-text;
+  margin-bottom: v.$spacing-sm;
+}
+
+.preview {
+  display: block;
+  padding: v.$spacing-xs v.$spacing-sm;
+  margin-bottom: v.$spacing-md;
+  border-left: 2px solid v.$color-border;
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+  @supports (-webkit-line-clamp: 2) {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &[href]:hover {
+    border-left-color: v.$color-primary;
+    color: v.$color-primary;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: v.$spacing-sm;
+}
+
+.resolveBtn,
+.deleteBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: v.$spacing-xs v.$spacing-md;
+  border-radius: v.$radius-pill;
+  font-size: v.$font-size-sm;
+  font-weight: 700;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.resolveBtn {
+  background-color: v.$color-primary;
+  color: #ffffff;
+
+  &:hover {
+    background-color: v.$color-primary-dark;
+  }
+}
+
+.deleteBtn {
+  background-color: v.$color-bg;
+  border: 1px solid v.$color-border;
+  color: v.$color-text-muted;
+
+  &:hover {
+    border-color: v.$color-error;
+    color: v.$color-error;
+  }
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: v.$spacing-xs;
+  padding: v.$spacing-xl 0;
+  text-align: center;
+  color: v.$color-text-muted;
+}
+
+.emptyIcon {
+  font-size: 28px;
+  color: v.$color-border;
+}
