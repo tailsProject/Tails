@@ -13,10 +13,9 @@ import {
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
 import { useConfirm } from '../../hooks/useConfirm';
-import { resolveImage } from '../../utils/resolveImage';
+import { resolveProfileImage } from '../../utils/resolveImage';
 import {
   CameraIcon,
-  PawIcon,
   PencilIcon,
   CheckIcon,
   XMarkIcon,
@@ -146,15 +145,7 @@ export default function MyInfoPage() {
     <div className={styles.wrapper}>
       <section className={styles.profileCard}>
         <div className={styles.avatarWrap}>
-          {info.profileImg ? (
-            <img className={styles.avatar} src={resolveImage(info.profileImg)} alt="" />
-          ) : (
-            <div className={styles.avatar}>
-              <span className={styles.avatarPlaceholder}>
-                <PawIcon />
-              </span>
-            </div>
-          )}
+          <img className={styles.avatar} src={resolveProfileImage(info.profileImg)} alt="" />
           <label className={styles.avatarEditBtn}>
             <CameraIcon />
             <input
