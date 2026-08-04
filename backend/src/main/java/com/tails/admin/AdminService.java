@@ -34,7 +34,7 @@ public class AdminService {
 
     // 이메일/닉네임 키워드로 회원 검색
     public Page<AdminMemberResponse> getMembers(String keyword, Pageable pageable) {
-        String value = keyword == null ? "" : keyword;
+        String value = keyword == null ? "" : keyword.trim();
         return memberRepository.findByEmailContainingOrNicknameContaining(value, value, pageable)
                 .map(AdminMemberResponse::from);
     }
