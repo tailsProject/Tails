@@ -1,7 +1,7 @@
 import client from '../../api/client';
 
-export function join({ email, password, passwordConfirm, nickname }) {
-  return client.post('/api/members/join', { email, password, passwordConfirm, nickname });
+export function join({ email, password, passwordConfirm, nickname, agreeMarketing }) {
+  return client.post('/api/members/join', { email, password, passwordConfirm, nickname, agreeMarketing });
 }
 
 export function checkEmail(email) {
