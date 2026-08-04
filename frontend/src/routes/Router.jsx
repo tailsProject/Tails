@@ -15,6 +15,7 @@ import ResetPasswordPage from '../features/auth/ResetPasswordPage';
 import BoardDetailPage from '../features/board/BoardDetailPage';
 import PlaceMapPage from '../features/place/PlaceMapPage';
 import PlaceDetailPage from '../features/place/PlaceDetailPage';
+import MainPage from '../features/main/MainPage';
 import MyPageLayout from '../features/mypage/MyPageLayout';
 import MyInfoPage from '../features/mypage/MyInfoPage';
 import PetsPage from '../features/mypage/PetsPage';
@@ -32,7 +33,7 @@ const router = createBrowserRouter([
       {
         errorElement: <RouteErrorPage />,
         children: [
-          { index: true, element: <div>Tails</div> },
+          { index: true, element: <MainPage /> },
           { path: 'travels/shared/:shareToken', element: <SharedTravelPage /> },
           {
             element: <PrivateRoute />,
