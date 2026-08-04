@@ -1,0 +1,163 @@
+@use '../../styles/variables' as v;
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: v.$spacing-xs v.$spacing-md;
+  margin-bottom: v.$spacing-lg;
+
+  h1 {
+    font-size: v.$font-size-lg;
+    font-weight: 800;
+  }
+}
+
+.count {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+  font-weight: 600;
+}
+
+.searchForm {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+  max-width: 360px;
+  padding: v.$spacing-sm v.$spacing-md;
+  margin-bottom: v.$spacing-md;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-pill;
+  background-color: v.$color-bg;
+
+  input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: v.$font-size-sm;
+    background: transparent;
+  }
+
+  button {
+    flex-shrink: 0;
+    font-weight: 700;
+    font-size: v.$font-size-sm;
+    color: v.$color-primary;
+
+    &:hover {
+      color: v.$color-primary-dark;
+    }
+  }
+}
+
+.searchIcon {
+  display: flex;
+  color: v.$color-text-muted;
+  font-size: 15px;
+}
+
+.card {
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-lg;
+  box-shadow: v.$shadow-card;
+  overflow: hidden;
+}
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  font-size: v.$font-size-sm;
+
+  th,
+  td {
+    padding: v.$spacing-sm v.$spacing-md;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 1px solid v.$color-border;
+  }
+
+  th {
+    color: v.$color-text-muted;
+    font-weight: 600;
+    font-size: 12px;
+    background-color: v.$color-bg-muted;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.memberCell {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+  font-weight: 700;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background-color: v.$color-primary-bg;
+  color: v.$color-primary;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.roleSelect,
+.roleSelectAdmin {
+  padding: 4px v.$spacing-sm;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-pill;
+  background-color: v.$color-bg-muted;
+  color: v.$color-text-muted;
+  font-weight: 700;
+  font-size: 12px;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.roleSelectAdmin {
+  border-color: v.$color-primary;
+  background-color: v.$color-primary-bg;
+  color: v.$color-primary-dark;
+}
+
+.expelButton {
+  padding: 4px v.$spacing-sm;
+  border: 1px solid v.$color-error;
+  border-radius: v.$radius-pill;
+  color: v.$color-error;
+  font-weight: 600;
+  font-size: 12px;
+
+  &:hover:not(:disabled) {
+    background-color: v.$color-error;
+    color: #fff;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.emptyRow {
+  padding: v.$spacing-xl 0;
+  text-align: center;
+  color: v.$color-text-muted;
+}

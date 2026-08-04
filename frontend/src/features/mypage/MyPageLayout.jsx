@@ -1,6 +1,16 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { UserIcon, PawIcon, PencilIcon, StarIcon, BookmarkIcon, WarningIcon, BellIcon, LogoutIcon } from '../../components/Icon/Icon';
+import {
+  UserIcon,
+  PawIcon,
+  PencilIcon,
+  StarIcon,
+  BookmarkIcon,
+  WarningIcon,
+  BellIcon,
+  LogoutIcon,
+  CrownIcon,
+} from '../../components/Icon/Icon';
 import styles from './MyPageLayout.module.scss';
 
 const TABS = [
@@ -14,7 +24,7 @@ const TABS = [
 ];
 
 export default function MyPageLayout() {
-  const { logout } = useAuth();
+  const { member, logout } = useAuth();
   const navigate = useNavigate();
 
   async function handleLogout() {
@@ -39,6 +49,14 @@ export default function MyPageLayout() {
               {tab.label}
             </NavLink>
           ))}
+          {member?.role === 'ADMIN' && (
+            <NavLink to="/admin" className={({ isActive }) => (isActive ? styles.active : undefined)}>
+              <span className={styles.tabIcon}>
+                <CrownIcon />
+              </span>
+              관리자
+            </NavLink>
+          )}
         </nav>
 
         <button type="button" className={styles.logoutBtn} onClick={handleLogout}>
