@@ -90,7 +90,6 @@ export default function MyInfoPage() {
     if (!file) return;
     try {
       await uploadProfileImage(file);
-      await refreshMember();
       showToast('프로필 이미지가 변경되었습니다.', 'success');
       load();
     } catch (error) {
@@ -102,7 +101,6 @@ export default function MyInfoPage() {
 
   async function handleProfileImageDelete() {
     await deleteProfileImage();
-    await refreshMember();
     load();
   }
 
@@ -129,7 +127,7 @@ export default function MyInfoPage() {
 
   async function handleWithdraw() {
     const ok = await confirm(
-      '정말 탈퇴하시겠습니까?\n작성한 글/댓글/리뷰는 "탈퇴한 회원"으로 남고, 되돌릴 수 없습니다.',
+      '정말 탈퇴하시겠습니까?\n작성한 글/댓글/리뷰는 "탈퇴한 회원"으로 남고, 되돌릴 수 없습니다.\n탈퇴 후 24시간 동안은 같은 이메일로 재가입할 수 없습니다.',
     );
     if (!ok) return;
     await withdraw();
@@ -212,27 +210,21 @@ export default function MyInfoPage() {
 
       <section className={styles.statsRow}>
         <Link to="/travels" className={styles.statTile}>
-          <span className={styles.statIcon}>
-            <SuitcaseIcon />
-          </span>
+          <span className={styles.statIcon}><SuitcaseIcon /></span>
           <div>
             <span className={styles.statValue}>{stats.travelCount}</span>
             <span className={styles.statLabel}>여행 일정</span>
           </div>
         </Link>
-        <Link to="/mypage/bookmarks" className={styles.statTile}>
-          <span className={styles.statIcon}>
-            <BookmarkIcon />
-          </span>
+        <Link to="/places?bookmarked=1" className={styles.statTile}>
+          <span className={styles.statIcon}><BookmarkIcon /></span>
           <div>
             <span className={styles.statValue}>{stats.placeBookmarkCount}</span>
             <span className={styles.statLabel}>찜한 장소</span>
           </div>
         </Link>
         <Link to="/mypage/reviews" className={styles.statTile}>
-          <span className={styles.statIcon}>
-            <StarIcon />
-          </span>
+          <span className={styles.statIcon}><StarIcon /></span>
           <div>
             <span className={styles.statValue}>{stats.reviewCount}</span>
             <span className={styles.statLabel}>작성 리뷰</span>
@@ -247,9 +239,7 @@ export default function MyInfoPage() {
           <div className={styles.settingText}>
             <span className={styles.settingLabel}>비밀번호</span>
             <span className={styles.settingDesc}>
-              {info.provider
-                ? '소셜 로그인 계정은 별도 비밀번호 변경이 필요 없습니다.'
-                : '주기적으로 변경하면 계정을 더 안전하게 지킬 수 있어요.'}
+              {info.provider ? '소셜 로그인 계정은 별도 비밀번호 변경이 필요 없습니다.' : '주기적으로 변경하면 계정을 더 안전하게 지킬 수 있어요.'}
             </span>
           </div>
           {!info.provider && (
