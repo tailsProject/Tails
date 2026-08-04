@@ -44,7 +44,6 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   async function handleClick(notification) {
@@ -157,9 +156,7 @@ export default function NotificationsPage() {
           </ul>
           {notificationPage.content.length === 0 && (
             <div className={styles.empty}>
-              <span className={styles.emptyIcon}>
-                <BellIcon />
-              </span>
+              <span className={styles.emptyIcon}><BellIcon /></span>
               <p>알림이 없습니다.</p>
             </div>
           )}

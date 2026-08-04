@@ -30,9 +30,7 @@ export default function MyBoardsPage() {
                   {resolveImage(board.thumbnailUrl) ? (
                     <img className={styles.itemThumb} src={resolveImage(board.thumbnailUrl)} alt="" />
                   ) : (
-                    <span className={styles.itemThumb}>
-                      <PencilIcon />
-                    </span>
+                    <span className={styles.itemThumb}><PencilIcon /></span>
                   )}
                   <span className={styles.itemBody}>
                     <span className={styles.title}>
@@ -41,15 +39,9 @@ export default function MyBoardsPage() {
                     </span>
                     {board.excerpt && <span className={styles.excerpt}>{board.excerpt}</span>}
                     <span className={styles.metaRow}>
-                      <span className={styles.metaItem}>
-                        <EyeIcon /> {board.viewCount}
-                      </span>
-                      <span className={styles.metaItem}>
-                        <HeartIcon /> {board.likeCount}
-                      </span>
-                      <span className={styles.metaItem}>
-                        <ChatBubbleIcon /> {board.commentCount}
-                      </span>
+                      <span className={styles.metaItem}><EyeIcon /> {board.viewCount}</span>
+                      <span className={styles.metaItem}><HeartIcon /> {board.likeCount}</span>
+                      <span className={styles.metaItem}><ChatBubbleIcon /> {board.commentCount}</span>
                       <span className={styles.metaDate}>{new Date(board.createdAt).toLocaleDateString()}</span>
                     </span>
                   </span>
@@ -59,9 +51,7 @@ export default function MyBoardsPage() {
           </ul>
           {boardPage.content.length === 0 && (
             <div className={styles.empty}>
-              <span className={styles.emptyIcon}>
-                <PencilIcon />
-              </span>
+              <span className={styles.emptyIcon}><PencilIcon /></span>
               <p>작성한 글이 없습니다.</p>
             </div>
           )}
