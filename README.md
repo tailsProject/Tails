@@ -34,9 +34,6 @@
 </tr>
 </table>
 
-https://github.com/user-attachments/assets/02b850aa-8fd5-4c86-a96f-ace895b44f74
-
-
 
 <br>
 
