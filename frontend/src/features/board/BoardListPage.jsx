@@ -6,7 +6,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
 import Pagination from '../../components/Pagination/Pagination';
 import Button from '../../components/Button/Button';
-import { resolveImage } from '../../utils/resolveImage';
+import { resolveImage, resolveProfileImage } from '../../utils/resolveImage';
 import { HeartIcon, ChatBubbleIcon, PawIcon } from '../../components/Icon/Icon';
 import styles from './BoardListPage.module.scss';
 
@@ -119,11 +119,7 @@ export default function BoardListPage() {
                     <div className={styles.bottomRow}>
                       <div className={styles.author}>
                         <span className={styles.authorAvatar}>
-                          {resolveImage(board.authorProfileImg) ? (
-                            <img src={resolveImage(board.authorProfileImg)} alt="" />
-                          ) : (
-                            board.authorNickname.slice(0, 1)
-                          )}
+                          <img src={resolveProfileImage(board.authorProfileImg)} alt="" />
                         </span>
                         <span className={styles.authorName}>{board.authorNickname}</span>
                       </div>
