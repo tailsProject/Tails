@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { searchPlaces, addTravelDetail } from './api';
+import { searchPlaces } from '../place/api';
+import { addTravelDetail } from './api';
 import { useToast } from '../../hooks/useToast';
 import Modal from '../../components/Modal/Modal';
 import PlaceDetailModal from './PlaceDetailModal';
@@ -7,8 +8,7 @@ import Button from '../../components/Button/Button';
 import { MapPinIcon, MagnifyingGlassIcon } from '../../components/Icon/Icon';
 import styles from './PlaceSelectModal.module.scss';
 
-// 방문지 검색 - Place 지도(박영준 트랙)가 아직 없어서 키워드 검색 리스트 뼈대로 실제
-// 백엔드(/api/places/search)에 연동. 나중에 실제 지도 UI로 교체 예정
+// 방문지 검색 - 키워드 검색 리스트로 /api/places/search에 연동
 export default function PlaceSelectModal({ open, onClose, travelId, travelDate, onAdded }) {
   const { showToast } = useToast();
   const [keyword, setKeyword] = useState('');
@@ -21,8 +21,8 @@ export default function PlaceSelectModal({ open, onClose, travelId, travelDate, 
     if (!keyword.trim()) return;
     setSearching(true);
     try {
-      const res = await searchPlaces(keyword.trim());
-      setResults(res.data.data);
+      const res = await searchPlaces({ keyword: keyword.trim() });
+      setResults(res.data.data.content);
     } catch (error) {
       showToast(error.response?.data?.error?.message ?? '검색에 실패했습니다.', 'error');
     } finally {

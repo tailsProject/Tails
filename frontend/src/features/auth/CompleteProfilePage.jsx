@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
-import { updateMyInfo } from './api';
+import { updateMyInfo } from '../mypage/api';
 import Button from '../../components/Button/Button';
 import styles from './AuthPage.module.scss';
 
