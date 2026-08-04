@@ -76,6 +76,7 @@ export default function LoginPage() {
           </a>
         ))}
       </div>
+      <p className={styles.socialHint}>이미 이메일로 가입하셨다면 같은 이메일의 소셜 로그인이 자동으로 연동돼요.</p>
 
       <p className={styles.switchLink}>
         계정이 없으신가요? <Link to="/signup">회원가입</Link>
