@@ -1,22 +1,4 @@
-@use '../../styles/variables' as v;
-
 .modal {
-  width: 360px;
+  width: 720px;
   max-width: 100%;
-
-  h2 {
-    margin-bottom: v.$spacing-xs;
-  }
-}
-
-.address {
-  color: v.$color-text-muted;
-  font-size: v.$font-size-sm;
-  margin-bottom: v.$spacing-lg;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: v.$spacing-sm;
 }

@@ -1,13 +1,14 @@
-// 여행 일정 상세 페이지, 일자별 탭
+// 여행 일정 상세 페이지, 일자별 탭과 공유 링크 관리 포함
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getTravelDetail, deleteTravel, shareTravel, unshareTravel } from './api';
 import { useToast } from '../../hooks/useToast';
 import { useConfirm } from '../../hooks/useConfirm';
-import TravelFormModal from './TravelFormModal';
 import DaySchedule from './DaySchedule';
+import TravelFormModal from './TravelFormModal';
 import StateMessage from '../../components/StateMessage/StateMessage';
-import { SuitcaseIcon, PencilIcon, TrashIcon, LinkIcon, XMarkIcon, CheckIcon } from '../../components/Icon/Icon';
+import { resolveImage } from '../../utils/resolveImage';
+import { SuitcaseIcon, PawIcon, PencilIcon, TrashIcon, LinkIcon, XMarkIcon, CheckIcon } from '../../components/Icon/Icon';
 import { dDayLabel, nightsLabel } from './travelUtils';
 import styles from './TravelDetailPage.module.scss';
 
@@ -39,11 +40,10 @@ export default function TravelDetailPage() {
 
   const [travel, setTravel] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [notFound, setNotFound] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [shareToken, setShareToken] = useState(null);
   const [shareBoxOpen, setShareBoxOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [notFound, setNotFound] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   async function load() {
     try {
@@ -58,7 +58,6 @@ export default function TravelDetailPage() {
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [travelId]);
 
   async function handleDelete() {
@@ -73,19 +72,14 @@ export default function TravelDetailPage() {
     }
   }
 
-  function handleEditSaved() {
-    setEditModalOpen(false);
-    load();
-  }
-
   async function handleShare() {
-    if (shareToken) {
+    if (travel.shareToken) {
       setShareBoxOpen((prev) => !prev);
       return;
     }
     try {
       const res = await shareTravel(travelId);
-      setShareToken(res.data.data.shareToken);
+      setTravel((prev) => ({ ...prev, shareToken: res.data.data.shareToken }));
       setShareBoxOpen(true);
     } catch (error) {
       showToast(error.response?.data?.error?.message ?? '공유 링크 생성에 실패했습니다.', 'error');
@@ -97,7 +91,7 @@ export default function TravelDetailPage() {
     if (!ok) return;
     try {
       await unshareTravel(travelId);
-      setShareToken(null);
+      setTravel((prev) => ({ ...prev, shareToken: null }));
       setShareBoxOpen(false);
       showToast('공유가 중단되었습니다.', 'success');
     } catch (error) {
@@ -110,6 +104,11 @@ export default function TravelDetailPage() {
     setCopied(true);
     showToast('링크를 복사했습니다.', 'success');
     setTimeout(() => setCopied(false), 1500);
+  }
+
+  function handleEditSaved() {
+    setEditModalOpen(false);
+    load();
   }
 
   if (notFound) {
@@ -129,13 +128,47 @@ export default function TravelDetailPage() {
   }
 
   const dates = getDateRange(travel.startDate, travel.endDate);
-  const shareUrl = shareToken ? `${window.location.origin}/travels/shared/${shareToken}` : null;
   const dday = dDayLabel(travel.startDate, travel.endDate);
+  const cover = resolveImage(travel.thumbnailUrl);
+  const shareUrl = travel.shareToken ? `${window.location.origin}/travels/shared/${travel.shareToken}` : null;
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.header}>
-        <div>
+      <div className={styles.hero} style={cover ? { backgroundImage: `url(${cover})` } : undefined}>
+        {!cover && <span className={styles.heroIcon}><SuitcaseIcon /></span>}
+        <div className={styles.heroOverlay} />
+
+        <div className={styles.heroActions}>
+          <button
+            type="button"
+            className={styles.heroActionBtn}
+            onClick={handleShare}
+            aria-label={travel.shareToken ? '공유 링크 보기' : '공유 링크 만들기'}
+            data-tooltip={travel.shareToken ? '공유 중' : '공유 링크'}
+          >
+            <LinkIcon />
+          </button>
+          <button
+            type="button"
+            className={styles.heroActionBtn}
+            onClick={() => setEditModalOpen(true)}
+            aria-label="수정"
+            data-tooltip="수정"
+          >
+            <PencilIcon />
+          </button>
+          <button
+            type="button"
+            className={styles.heroActionBtn}
+            onClick={handleDelete}
+            aria-label="삭제"
+            data-tooltip="삭제"
+          >
+            <TrashIcon />
+          </button>
+        </div>
+
+        <div className={styles.heroContent}>
           <div className={styles.badgeRow}>
             <span className={`${styles.ddayBadge} ${styles[dday.tone]}`}>{dday.text}</span>
             <span className={styles.nightsLabel}>{nightsLabel(travel.startDate, travel.endDate)}</span>
@@ -144,22 +177,21 @@ export default function TravelDetailPage() {
           <p className={styles.dates}>
             {travel.startDate} ~ {travel.endDate}
           </p>
-        </div>
-        <div className={styles.headerActions}>
-          <button
-            type="button"
-            className={styles.headerActionBtn}
-            onClick={handleShare}
-            aria-label={shareToken ? '공유 링크 보기' : '공유 링크 만들기'}
-          >
-            <LinkIcon />
-          </button>
-          <button type="button" className={styles.headerActionBtn} onClick={() => setEditModalOpen(true)} aria-label="수정">
-            <PencilIcon />
-          </button>
-          <button type="button" className={styles.headerActionBtn} onClick={handleDelete} aria-label="삭제">
-            <TrashIcon />
-          </button>
+          {travel.description && <p className={styles.description}>{travel.description}</p>}
+          {travel.pets.length > 0 && (
+            <div className={styles.petRow}>
+              {travel.pets.map((pet) => (
+                <span key={pet.petId} className={styles.petChip}>
+                  {resolveImage(pet.photoImg) ? (
+                    <img src={resolveImage(pet.photoImg)} alt="" className={styles.petChipPhoto} />
+                  ) : (
+                    <PawIcon />
+                  )}
+                  {pet.name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -184,23 +216,25 @@ export default function TravelDetailPage() {
         </div>
       )}
 
-      <div className={styles.dayTabs}>
-        {dates.map((date, index) => {
-          const weekday = WEEKDAYS[new Date(`${date}T00:00:00`).getDay()];
-          const [, month, day] = date.split('-');
-          return (
-            <button
-              key={date}
-              className={date === selectedDate ? styles.dayActive : styles.day}
-              onClick={() => setSelectedDate(date)}
-            >
-              <span className={styles.dayNum}>DAY {index + 1}</span>
-              <span className={styles.dayDate}>
-                {Number(month)}.{Number(day)} <em>{weekday}</em>
-              </span>
-            </button>
-          );
-        })}
+      <div className={styles.dayTabsWrap}>
+        <div className={styles.dayTabs}>
+          {dates.map((date, index) => {
+            const weekday = WEEKDAYS[new Date(`${date}T00:00:00`).getDay()];
+            const [, month, day] = date.split('-');
+            return (
+              <button
+                key={date}
+                className={date === selectedDate ? styles.dayActive : styles.day}
+                onClick={() => setSelectedDate(date)}
+              >
+                <span className={styles.dayNum}>DAY {index + 1}</span>
+                <span className={styles.dayDate}>
+                  {Number(month)}.{Number(day)} <em>{weekday}</em>
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {selectedDate && <DaySchedule travelId={travelId} date={selectedDate} />}

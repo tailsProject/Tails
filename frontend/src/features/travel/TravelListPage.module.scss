@@ -57,11 +57,15 @@
 
 .thumb {
   position: relative;
-  height: 120px;
+  height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: v.$color-primary-bg;
+  padding: v.$spacing-sm;
+  background-color: #FFF1E6;
+  background-size: cover;
+  background-position: center;
+  color: #fff;
 }
 
 .thumbIcon {
@@ -106,6 +110,41 @@
   color: v.$color-text-muted;
 }
 
+.description {
+  margin-top: v.$spacing-xs;
+  min-height: 1.5em;
+  font-size: v.$font-size-sm;
+  color: v.$color-text;
+  @include m.ellipsis;
+}
+
+.petRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: v.$spacing-sm;
+  min-height: 22px;
+}
+
+.petChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: v.$radius-pill;
+  background-color: v.$color-bg-muted;
+  color: v.$color-text-muted;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.petChipPhoto {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .emptyState {
   display: flex;
   flex-direction: column;
@@ -117,12 +156,4 @@
 
 .emptyIcon {
   font-size: 40px;
-}
-
-.newButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: v.$color-primary;
-  font-weight: 700;
 }

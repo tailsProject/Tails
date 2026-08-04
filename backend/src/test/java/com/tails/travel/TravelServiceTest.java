@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
-// TravelService 단위테스트 - 날짜범위 검증/소유권 확인/공유링크 재발급 및 중단
+// 여행 일정 서비스 단위테스트, 날짜범위 검증과 소유권 확인, 공유링크 발급/중단
 @ExtendWith(MockitoExtension.class)
 class TravelServiceTest {
 
@@ -49,7 +49,7 @@ class TravelServiceTest {
 
     @Test
     void 생성_시_종료일이_시작일보다_빠르면_INVALID_DATE_RANGE() {
-        TravelCreateRequest request = new TravelCreateRequest("t", LocalDate.of(2026, 8, 3), LocalDate.of(2026, 8, 1));
+        TravelCreateRequest request = new TravelCreateRequest("t", null, LocalDate.of(2026, 8, 3), LocalDate.of(2026, 8, 1), null);
 
         assertThatThrownBy(() -> travelService.createTravel(1L, request))
                 .isInstanceOf(CustomException.class)
@@ -58,7 +58,7 @@ class TravelServiceTest {
 
     @Test
     void 수정_시_종료일이_시작일보다_빠르면_INVALID_DATE_RANGE() {
-        TravelUpdateRequest request = new TravelUpdateRequest("t", LocalDate.of(2026, 8, 3), LocalDate.of(2026, 8, 1));
+        TravelUpdateRequest request = new TravelUpdateRequest("t", null, LocalDate.of(2026, 8, 3), LocalDate.of(2026, 8, 1), null);
 
         assertThatThrownBy(() -> travelService.updateTravel(10L, 1L, request))
                 .isInstanceOf(CustomException.class)
@@ -88,12 +88,25 @@ class TravelServiceTest {
     }
 
     @Test
-    void 공유링크를_재발급하면_새_토큰으로_교체되어_이전_토큰과_달라진다() {
+    void 이미_공유_중이면_재요청해도_같은_토큰을_반환한다() {
         Travel travel = newTravel(10L, newMember(1L), LocalDate.of(2026, 8, 1), LocalDate.of(2026, 8, 3));
         when(travelRepository.findById(10L)).thenReturn(Optional.of(travel));
         when(travelRepository.existsByTravelIdAndMember_Id(10L, 1L)).thenReturn(true);
 
         ShareTokenResponse first = travelService.shareTravel(10L, 1L);
+        ShareTokenResponse second = travelService.shareTravel(10L, 1L);
+
+        assertThat(first.shareToken()).isEqualTo(second.shareToken());
+    }
+
+    @Test
+    void 공유_중단_후_다시_공유하면_새_토큰이_발급된다() {
+        Travel travel = newTravel(10L, newMember(1L), LocalDate.of(2026, 8, 1), LocalDate.of(2026, 8, 3));
+        when(travelRepository.findById(10L)).thenReturn(Optional.of(travel));
+        when(travelRepository.existsByTravelIdAndMember_Id(10L, 1L)).thenReturn(true);
+
+        ShareTokenResponse first = travelService.shareTravel(10L, 1L);
+        travelService.unshareTravel(10L, 1L);
         ShareTokenResponse second = travelService.shareTravel(10L, 1L);
 
         assertThat(first.shareToken()).isNotEqualTo(second.shareToken());

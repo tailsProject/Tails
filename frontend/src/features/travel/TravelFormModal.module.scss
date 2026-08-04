@@ -22,14 +22,22 @@
   }
 
   input[type='text'],
-  input[type='date'] {
+  input[type='date'],
+  textarea {
     width: 100%;
     padding: v.$spacing-sm v.$spacing-md;
     border: 1px solid v.$color-border;
     border-radius: v.$radius-sm;
     font-family: inherit;
     font-size: v.$font-size-base;
+    resize: vertical;
   }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-xs;
 }
 
 .fieldLabel {
@@ -50,6 +58,38 @@
   @include m.mobile {
     flex-direction: column;
   }
+}
+
+.petPickRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: v.$spacing-xs;
+}
+
+.petPick,
+.petPickActive {
+  display: inline-flex;
+  align-items: center;
+  gap: v.$spacing-xs;
+  padding: v.$spacing-xs v.$spacing-md;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-pill;
+  font-size: v.$font-size-sm;
+  font-weight: 600;
+  color: v.$color-text-muted;
+}
+
+.petPickActive {
+  border-color: v.$color-primary;
+  background-color: v.$color-primary-bg;
+  color: v.$color-primary-dark;
+}
+
+.petPickPhoto {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .actions {
