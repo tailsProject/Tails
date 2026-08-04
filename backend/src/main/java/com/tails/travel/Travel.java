@@ -1,6 +1,7 @@
 package com.tails.travel;
 
 import com.tails.member.Member;
+import com.tails.pet.Pet;
 import com.tails.traveldetail.TravelDetail;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -11,6 +12,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -56,11 +59,24 @@ public class Travel {
     @Column(name = "title", nullable = false)
     private String title;
 
+    // 여행 카드와 상세 상단에 보여줄 짧은 소개글, 선택 입력
+    @Column(name = "description", length = 255)
+    private String description;
+
     @Column(name = "start_date")
     private LocalDate startDate;
 
     @Column(name = "end_date")
     private LocalDate endDate;
+
+    // 이 여행에 함께 가는 반려동물 목록, 참조만 하므로 cascade 없는 단순 다대다
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "travel_pet",
+            joinColumns = @JoinColumn(name = "travel_id"),
+            inverseJoinColumns = @JoinColumn(name = "pet_id")
+    )
+    private List<Pet> pets = new ArrayList<>();
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
@@ -76,17 +92,25 @@ public class Travel {
     private String shareToken;
 
     @Builder
-    public Travel(Member member, String title, LocalDate startDate, LocalDate endDate) {
+    public Travel(Member member, String title, String description, LocalDate startDate, LocalDate endDate) {
         this.member = member;
         this.title = title;
+        this.description = description;
         this.startDate = startDate;
         this.endDate = endDate;
     }
 
-    public void updateInfo(String title, LocalDate startDate, LocalDate endDate) {
+    public void updateInfo(String title, String description, LocalDate startDate, LocalDate endDate) {
         this.title = title;
+        this.description = description;
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    // 동반 반려동물 목록을 통째로 교체, 부분 추가나 삭제 API는 두지 않음
+    public void updatePets(List<Pet> pets) {
+        this.pets.clear();
+        this.pets.addAll(pets);
     }
 
     // 공유 링크 (재)발급. 이미 공유 중이었어도 항상 새 UUID로 교체해 기존 링크를 무효화

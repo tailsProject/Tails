@@ -49,7 +49,7 @@ class TravelServiceTest {
 
     @Test
     void 생성_시_종료일이_시작일보다_빠르면_INVALID_DATE_RANGE() {
-        TravelCreateRequest request = new TravelCreateRequest("t", LocalDate.of(2026, 8, 3), LocalDate.of(2026, 8, 1));
+        TravelCreateRequest request = new TravelCreateRequest("t", null, LocalDate.of(2026, 8, 3), LocalDate.of(2026, 8, 1), null);
 
         assertThatThrownBy(() -> travelService.createTravel(1L, request))
                 .isInstanceOf(CustomException.class)
@@ -58,7 +58,7 @@ class TravelServiceTest {
 
     @Test
     void 수정_시_종료일이_시작일보다_빠르면_INVALID_DATE_RANGE() {
-        TravelUpdateRequest request = new TravelUpdateRequest("t", LocalDate.of(2026, 8, 3), LocalDate.of(2026, 8, 1));
+        TravelUpdateRequest request = new TravelUpdateRequest("t", null, LocalDate.of(2026, 8, 3), LocalDate.of(2026, 8, 1), null);
 
         assertThatThrownBy(() -> travelService.updateTravel(10L, 1L, request))
                 .isInstanceOf(CustomException.class)

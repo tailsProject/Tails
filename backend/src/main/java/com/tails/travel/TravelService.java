@@ -3,6 +3,8 @@ package com.tails.travel;
 import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.member.MemberRepository;
+import com.tails.pet.Pet;
+import com.tails.pet.PetRepository;
 import com.tails.travel.dto.ShareTokenResponse;
 import com.tails.travel.dto.SharedTravelResponse;
 import com.tails.travel.dto.TravelCreateRequest;
@@ -11,6 +13,7 @@ import com.tails.travel.dto.TravelUpdateRequest;
 import com.tails.traveldetail.TravelDetail;
 import com.tails.traveldetail.TravelDetailRepository;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,6 +29,7 @@ public class TravelService {
     private final TravelRepository travelRepository;
     private final MemberRepository memberRepository;
     private final TravelDetailRepository travelDetailRepository;
+    private final PetRepository petRepository;
 
     // 여행 일정 생성
     @Transactional
@@ -36,9 +40,11 @@ public class TravelService {
         Travel travel = Travel.builder()
                 .member(memberRepository.getReferenceById(memberId))
                 .title(request.title())
+                .description(request.description())
                 .startDate(request.startDate())
                 .endDate(request.endDate())
                 .build();
+        travel.updatePets(resolveOwnedPets(memberId, request.petIds()));
 
         Travel savedTravel = travelRepository.save(travel);
         return TravelResponse.from(savedTravel);
@@ -76,11 +82,22 @@ public class TravelService {
             throw new CustomException(ErrorCode.NOT_TRAVEL_OWNER);
         }
 
-        travel.updateInfo(request.title(), request.startDate(), request.endDate());
+        travel.updateInfo(request.title(), request.description(), request.startDate(), request.endDate());
+        travel.updatePets(resolveOwnedPets(memberId, request.petIds()));
         // flush 없으면 응답에 updatedAt이 예전 값으로 찍힘 (커밋 전이라 @PreUpdate 미실행)
         travelRepository.flush();
 
         return TravelResponse.from(travel);
+    }
+
+    // 요청받은 petIds 중 실제 내 반려동물만 필터링, 다른 회원 pet id 도용 방지
+    private List<Pet> resolveOwnedPets(Long memberId, List<Long> petIds) {
+        if (petIds == null || petIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return petRepository.findAllById(petIds).stream()
+                .filter(pet -> pet.getMember().getId().equals(memberId))
+                .toList();
     }
 
     // 여행 일정 삭제
