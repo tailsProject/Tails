@@ -113,9 +113,11 @@ public class Travel {
         this.pets.addAll(pets);
     }
 
-    // 공유 링크 (재)발급. 이미 공유 중이었어도 항상 새 UUID로 교체해 기존 링크를 무효화
+    // 공유 링크 발급. 이미 공유 중이면 기존 토큰 그대로 반환해 이미 공유해둔 링크가 무효화되지 않게 함
     public String generateShareToken() {
-        this.shareToken = UUID.randomUUID().toString();
+        if (this.shareToken == null) {
+            this.shareToken = UUID.randomUUID().toString();
+        }
         return this.shareToken;
     }
 

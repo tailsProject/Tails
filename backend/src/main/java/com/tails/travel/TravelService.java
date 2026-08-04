@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,14 +48,14 @@ public class TravelService {
         travel.updatePets(resolveOwnedPets(memberId, request.petIds()));
 
         Travel savedTravel = travelRepository.save(travel);
-        return TravelResponse.from(savedTravel);
+        return TravelResponse.from(savedTravel, null);
     }
 
     // 내 여행 일정 목록 페이지 단위 조회
     @Transactional(readOnly = true)
     public Page<TravelResponse> getMyTravels(Long memberId, Pageable pageable) {
         return travelRepository.findByMember_Id(memberId, pageable)
-                .map(TravelResponse::from);
+                .map(travel -> TravelResponse.from(travel, findThumbnailUrl(travel.getTravelId())));
     }
 
     // 여행 일정 상세 조회. 미존재 시 404, 소유자 아니면 403
@@ -67,7 +68,7 @@ public class TravelService {
             throw new CustomException(ErrorCode.NOT_TRAVEL_OWNER);
         }
 
-        return TravelResponse.from(travel);
+        return TravelResponse.from(travel, findThumbnailUrl(travelId));
     }
 
     // 여행 일정 수정
@@ -87,7 +88,7 @@ public class TravelService {
         // flush 없으면 응답에 updatedAt이 예전 값으로 찍힘 (커밋 전이라 @PreUpdate 미실행)
         travelRepository.flush();
 
-        return TravelResponse.from(travel);
+        return TravelResponse.from(travel, findThumbnailUrl(travelId));
     }
 
     // 요청받은 petIds 중 실제 내 반려동물만 필터링, 다른 회원 pet id 도용 방지
@@ -98,6 +99,15 @@ public class TravelService {
         return petRepository.findAllById(petIds).stream()
                 .filter(pet -> pet.getMember().getId().equals(memberId))
                 .toList();
+    }
+
+    // 1일차 첫 방문지의 장소 이미지, 방문지가 없으면 null 반환
+    private String findThumbnailUrl(Long travelId) {
+        List<TravelDetail> first = travelDetailRepository.findFirstDetail(travelId, PageRequest.of(0, 1));
+        if (first.isEmpty() || first.get(0).getPlace() == null) {
+            return null;
+        }
+        return first.get(0).getPlace().getImageUrl();
     }
 
     // 여행 일정 삭제
@@ -113,7 +123,7 @@ public class TravelService {
         travelRepository.delete(travel);
     }
 
-    // 여행 일정 공유 링크 (재)발급. 이미 공유 중이었어도 항상 새 토큰으로 교체해 기존 링크를 무효화
+    // 여행 일정 공유 링크 발급. 이미 공유 중이면 기존 링크 그대로 반환
     @Transactional
     public ShareTokenResponse shareTravel(Long travelId, Long memberId) {
         Travel travel = travelRepository.findById(travelId)
@@ -139,8 +149,8 @@ public class TravelService {
         travel.revokeShareToken();
     }
 
-    // 공유 토큰으로 여행 일정을 읽기 전용 조회. 로그인 불필요 — 토큰을 아는 것 자체가 접근 권한이라
-    // 소유권 확인이 없음. 존재하지 않거나 공유 중단된 토큰은 SHARED_TRAVEL_NOT_FOUND 하나로 통일
+    // 공유 토큰으로 여행 일정을 읽기 전용 조회. 로그인 불필요(토큰을 아는 것 자체가 접근 권한이라
+    // 소유권 확인이 없음). 존재하지 않거나 공유 중단된 토큰은 SHARED_TRAVEL_NOT_FOUND 하나로 통일
     @Transactional(readOnly = true)
     public SharedTravelResponse getSharedTravel(String shareToken) {
         Travel travel = travelRepository.findByShareToken(shareToken)
@@ -149,7 +159,7 @@ public class TravelService {
         List<TravelDetail> details = travelDetailRepository
                 .findByTravel_TravelIdOrderByTravelDateAscSequenceAsc(travel.getTravelId());
 
-        return SharedTravelResponse.of(travel, details);
+        return SharedTravelResponse.of(travel, details, findThumbnailUrl(travel.getTravelId()));
     }
 
     // 종료일이 시작일보다 빠르면 예외 (createTravel/updateTravel 공통)

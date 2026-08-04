@@ -18,11 +18,14 @@ public class TravelResponse {
     private final LocalDate startDate;
     private final LocalDate endDate;
     private final List<PetResponse> pets;
+    // 카드 썸네일용 대표 이미지, 1일차 첫 방문지의 장소 이미지, 없으면 null
+    private final String thumbnailUrl;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
     private TravelResponse(Long travelId, Long memberId, String title, String description, LocalDate startDate,
-            LocalDate endDate, List<PetResponse> pets, LocalDateTime createdAt, LocalDateTime updatedAt) {
+            LocalDate endDate, List<PetResponse> pets, String thumbnailUrl, LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
         this.travelId = travelId;
         this.memberId = memberId;
         this.title = title;
@@ -30,12 +33,13 @@ public class TravelResponse {
         this.startDate = startDate;
         this.endDate = endDate;
         this.pets = pets;
+        this.thumbnailUrl = thumbnailUrl;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
 
-    // Travel 엔티티 → TravelResponse 변환
-    public static TravelResponse from(Travel travel) {
+    // thumbnailUrl은 엔티티에 없는 파생 값이라 별도 조회 결과를 받아 조립
+    public static TravelResponse from(Travel travel, String thumbnailUrl) {
         return new TravelResponse(
                 travel.getTravelId(),
                 travel.getMember().getId(),
@@ -44,6 +48,7 @@ public class TravelResponse {
                 travel.getStartDate(),
                 travel.getEndDate(),
                 travel.getPets().stream().map(PetResponse::from).toList(),
+                thumbnailUrl,
                 travel.getCreatedAt(),
                 travel.getUpdatedAt()
         );

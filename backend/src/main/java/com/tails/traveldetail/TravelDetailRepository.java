@@ -2,6 +2,7 @@ package com.tails.traveldetail;
 
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +13,12 @@ public interface TravelDetailRepository extends JpaRepository<TravelDetail, Long
     @Query(value = "select td from TravelDetail td left join fetch td.place where td.travel.travelId = :travelId "
             + "order by td.travelDate asc, td.sequence asc")
     List<TravelDetail> findByTravel_TravelIdOrderByTravelDateAscSequenceAsc(@Param("travelId") Long travelId);
+
+    // 여행 카드 썸네일용, 화면에 실제로 첫 방문지로 보이는 시간순 정렬 기준과 동일하게 맞춤
+    @Query(value = "select td from TravelDetail td left join fetch td.place where td.travel.travelId = :travelId "
+            + "order by td.travelDate asc, case when td.visitTime is null then 1 else 0 end asc, "
+            + "td.visitTime asc, td.sequence asc")
+    List<TravelDetail> findFirstDetail(@Param("travelId") Long travelId, Pageable pageable);
 
     @Query(value = "select td from TravelDetail td left join fetch td.place "
             + "where td.travel.travelId = :travelId and td.travelDate = :travelDate order by td.sequence asc")

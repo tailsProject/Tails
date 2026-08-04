@@ -88,12 +88,25 @@ class TravelServiceTest {
     }
 
     @Test
-    void 공유링크를_재발급하면_새_토큰으로_교체되어_이전_토큰과_달라진다() {
+    void 이미_공유_중이면_재요청해도_같은_토큰을_반환한다() {
         Travel travel = newTravel(10L, newMember(1L), LocalDate.of(2026, 8, 1), LocalDate.of(2026, 8, 3));
         when(travelRepository.findById(10L)).thenReturn(Optional.of(travel));
         when(travelRepository.existsByTravelIdAndMember_Id(10L, 1L)).thenReturn(true);
 
         ShareTokenResponse first = travelService.shareTravel(10L, 1L);
+        ShareTokenResponse second = travelService.shareTravel(10L, 1L);
+
+        assertThat(first.shareToken()).isEqualTo(second.shareToken());
+    }
+
+    @Test
+    void 공유_중단_후_다시_공유하면_새_토큰이_발급된다() {
+        Travel travel = newTravel(10L, newMember(1L), LocalDate.of(2026, 8, 1), LocalDate.of(2026, 8, 3));
+        when(travelRepository.findById(10L)).thenReturn(Optional.of(travel));
+        when(travelRepository.existsByTravelIdAndMember_Id(10L, 1L)).thenReturn(true);
+
+        ShareTokenResponse first = travelService.shareTravel(10L, 1L);
+        travelService.unshareTravel(10L, 1L);
         ShareTokenResponse second = travelService.shareTravel(10L, 1L);
 
         assertThat(first.shareToken()).isNotEqualTo(second.shareToken());
