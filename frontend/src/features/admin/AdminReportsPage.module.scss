@@ -12,6 +12,12 @@
   }
 }
 
+.count {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+  font-weight: 600;
+}
+
 .tabs {
   display: flex;
   gap: 4px;

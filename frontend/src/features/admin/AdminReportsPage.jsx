@@ -72,6 +72,7 @@ export default function AdminReportsPage() {
     <div>
       <div className={styles.header}>
         <h1>신고 처리</h1>
+        {reportPage && <span className={styles.count}>전체 {reportPage.totalElements.toLocaleString()}건</span>}
       </div>
 
       <div className={styles.tabs}>
