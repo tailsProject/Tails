@@ -7,6 +7,7 @@ import com.tails.member.MemberRepository;
 import com.tails.pet.dto.PetCreateRequest;
 import com.tails.pet.dto.PetResponse;
 import com.tails.pet.dto.PetUpdateRequest;
+import com.tails.travel.TravelRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class PetService {
 
     private final PetRepository petRepository;
     private final MemberRepository memberRepository;
+    private final TravelRepository travelRepository;
     private final FileStorage fileStorage;
 
     @Transactional
@@ -52,6 +54,8 @@ public class PetService {
         Pet pet = getPetOrThrow(petId);
         requireOwner(pet, memberId);
         deleteStoredPhotoIfExists(pet);
+        // travel_pet은 cascade 없는 단순 참조라, 여행에 추가된 반려동물을 그냥 지우면 FK 위반이 남
+        travelRepository.removePetFromAllTravels(petId);
         petRepository.delete(pet);
     }
 
