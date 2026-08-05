@@ -45,6 +45,11 @@
 
 <br>
 
+## FIGMA
+
+- [목업 바로가기](https://www.figma.com/design/ojW787BKVTe6LlI2iXsocA/Tails?node-id=0-1&t=GDQYvztIBb4yeVk0-1)
+- [재생 바로가기](https://www.figma.com/proto/ojW787BKVTe6LlI2iXsocA/Tails?node-id=0-1&p=f&t=hyxkfy7mNKXl5jVO-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=2%3A378&fuid=1608331975332768453)
+
 <details open>
 <summary><h2>주요 기능</h2></summary>
 
@@ -125,7 +130,7 @@ https://github.com/user-attachments/assets/06897ec9-b492-4060-987e-8c4d3c6a9822
 
 <br>
 
-## 스타일가이드
+## STYLEGUIDE
 
 ### 컬러
 
