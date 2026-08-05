@@ -125,6 +125,47 @@ https://github.com/user-attachments/assets/06897ec9-b492-4060-987e-8c4d3c6a9822
 
 <br>
 
+## 스타일가이드
+
+### 컬러
+
+**Brand**
+
+| 컬러 | 이름 | 값 | 용도 |
+|:---:|---|---|---|
+| ![](https://dummyimage.com/40x40/ff8a3d/ff8a3d.png) | Primary | `#ff8a3d` | CTA / 활성 상태 / 강조 |
+| ![](https://dummyimage.com/40x40/e5722a/e5722a.png) | Primary Strong | `#e5722a` | hover · pressed |
+| ![](https://dummyimage.com/40x40/fff1e6/fff1e6.png) | Primary Soft | `#fff1e6` | 틴트 배경 / 뱃지 |
+| ![](https://dummyimage.com/40x40/2f9e8f/2f9e8f.png) | Secondary | `#2f9e8f` | 지도 경로 / 이동 정보 |
+
+**Warm Neutral**
+
+| 컬러 | 이름 | 값 | 용도 |
+|:---:|---|---|---|
+| ![](https://dummyimage.com/40x40/16130f/16130f.png) | Ink | `#16130f` | 본문 · 다크 서피스 |
+| ![](https://dummyimage.com/40x40/55504a/55504a.png) | Ink 2 | `#55504a` | 보조 텍스트 |
+| ![](https://dummyimage.com/40x40/8b857d/8b857d.png) | Ink 3 | `#8b857d` | 캡션 · placeholder |
+| ![](https://dummyimage.com/40x40/e8e2d9/e8e2d9.png) | Line | `#e8e2d9` | 테두리 · 구분선 |
+| ![](https://dummyimage.com/40x40/f7f4ef/f7f4ef.png) | Canvas | `#f7f4ef` | 페이지 배경 |
+| ![](https://dummyimage.com/40x40/ffffff/eeeeee.png) | Surface | `#ffffff` | 카드 · 패널 |
+
+**Semantic**
+
+| 컬러 | 이름 | 값 | 용도 |
+|:---:|---|---|---|
+| ![](https://dummyimage.com/40x40/e0432b/e0432b.png) | Error | `#e0432b` | 유효성 실패 · 삭제 |
+| ![](https://dummyimage.com/40x40/2e9e5b/2e9e5b.png) | Success | `#2e9e5b` | 인증 완료 · 저장 |
+| ![](https://dummyimage.com/40x40/d98a00/d98a00.png) | Warning | `#d98a00` | 미인증 · 주의 |
+
+<br>
+
+### 타이포그래피
+
+- 한글 본문: **Pretendard Variable**
+- 숫자 강조(통계 수치 등): **DM Mono**
+
+<br>
+
 <details>
 <summary><h2>설치 및 실행</h2></summary>
 
