@@ -21,29 +21,20 @@
 
 <table>
 <tr>
+<td align="left"><img width="16" height="16" src="docs/icons/users.svg" />&nbsp;<a href="#팀원-소개">팀원&nbsp;소개</a></td>
 <td align="left"><img width="16" height="16" src="docs/icons/book.svg" />&nbsp;<a href="#기획-배경">기획&nbsp;배경</a></td>
 <td align="left"><img width="16" height="16" src="docs/icons/figma.svg" />&nbsp;<a href="#figma">FIGMA</a></td>
 <td align="left"><img width="16" height="16" src="docs/icons/check-square.svg" />&nbsp;<a href="#주요-기능">주요&nbsp;기능</a></td>
 <td align="left"><img width="16" height="16" src="docs/icons/palette.svg" />&nbsp;<a href="#styleguide">STYLEGUIDE</a></td>
-<td align="left"><img width="16" height="16" src="docs/icons/tool.svg" />&nbsp;<a href="#기술-스택">기술&nbsp;스택</a></td>
 </tr>
 <tr>
+<td align="left"><img width="16" height="16" src="docs/icons/tool.svg" />&nbsp;<a href="#기술-스택">기술&nbsp;스택</a></td>
 <td align="left"><img width="16" height="16" src="docs/icons/layers.svg" />&nbsp;<a href="#architecture">ARCHITECTURE</a></td>
 <td align="left"><img width="16" height="16" src="docs/icons/database.svg" />&nbsp;<a href="#erd">ERD</a></td>
 <td align="left"><img width="16" height="16" src="docs/icons/folder.svg" />&nbsp;<a href="#프로젝트-구조">프로젝트&nbsp;구조</a></td>
-<td align="left"><img width="16" height="16" src="docs/icons/users.svg" />&nbsp;<a href="#팀원-소개">팀원&nbsp;소개</a></td>
 <td align="left"><img width="16" height="16" src="docs/icons/alert-triangle.svg" />&nbsp;<a href="#troubleshooting">TROUBLESHOOTING</a></td>
 </tr>
 </table>
-
-
-<br>
-
-## 기획 배경
-
-- 반려동물 동반 가능 장소 정보를 한 곳에서 찾기 어려운 문제 
-- 반려동물을 위한 **동반 여행 서비스**의 필요성
-- 여행 일정 계획부터 공유까지 가능한 통합 여행 서비스 구현
 
 <br>
 
@@ -83,6 +74,14 @@
 | 2026.07.20 | 백엔드 핵심 기능(이메일 인증, Pet CRUD 등) 완료 |
 | 2026.07.22 | 프론트엔드 전체 단계(0~7단계) 구현 완료 |
 | 2026.08.04 | README 문서 정리 및 배포 마무리 |
+
+<br>
+
+## 기획 배경
+
+- 반려동물 동반 가능 장소 정보를 한 곳에서 찾기 어려운 문제 
+- 반려동물을 위한 **동반 여행 서비스**의 필요성
+- 여행 일정 계획부터 공유까지 가능한 통합 여행 서비스 구현
 
 <br>
 
