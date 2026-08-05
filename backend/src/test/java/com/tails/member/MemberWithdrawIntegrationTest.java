@@ -71,4 +71,39 @@ class MemberWithdrawIntegrationTest extends AbstractIntegrationTest {
         assertThat(data.get("authorId").isNull()).isTrue();
         assertThat(data.get("likeCount").asInt()).isEqualTo(0);
     }
+
+    // 회귀테스트: Member에 commentLikes cascade가 없으면 댓글 좋아요를 남긴 회원의 탈퇴가
+    // comment_like.member_id FK 위반(DataIntegrityViolationException)으로 실패한다
+    @Test
+    void 댓글에_좋아요를_남긴_상태로_탈퇴해도_성공한다() throws Exception {
+        String authorToken = join("commentlike-withdraw-author@test.com", "clwauthor");
+        String likerToken = join("commentlike-withdraw-liker@test.com", "clwliker");
+
+        String boardBody = mockMvc.perform(post("/api/boards")
+                        .header("Authorization", "Bearer " + authorToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"title":"comment like withdraw test","content":"content"}
+                                """))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        long boardId = objectMapper.readTree(boardBody).at("/data").asLong();
+
+        String commentBody = mockMvc.perform(post("/api/boards/" + boardId + "/comments")
+                        .header("Authorization", "Bearer " + authorToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"content":"nice post"}
+                                """))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        long commentId = objectMapper.readTree(commentBody).at("/data").asLong();
+
+        mockMvc.perform(post("/api/boards/" + boardId + "/comments/" + commentId + "/like")
+                        .header("Authorization", "Bearer " + likerToken))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(delete("/api/members/me").header("Authorization", "Bearer " + likerToken))
+                .andExpect(status().isOk());
+    }
 }

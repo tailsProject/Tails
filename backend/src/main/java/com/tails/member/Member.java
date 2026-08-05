@@ -3,6 +3,7 @@ package com.tails.member;
 import com.tails.board.BoardLike;
 import com.tails.bookmark.BoardBookmark;
 import com.tails.bookmark.PlaceBookmark;
+import com.tails.comment.CommentLike;
 import com.tails.notification.Notification;
 import com.tails.pet.Pet;
 import com.tails.travel.Travel;
@@ -110,6 +111,10 @@ public class Member {
     // 회원 탈퇴 시 알림도 함께 삭제
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> notifications = new ArrayList<>();
+
+    // 회원 탈퇴 시 댓글 좋아요 기록도 함께 삭제 (없으면 comment_like.member_id FK 위반으로 탈퇴 자체가 실패함)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommentLike> commentLikes = new ArrayList<>();
 
     @Builder
     public Member(String email, String password, String nickname, String provider, String providerId,
