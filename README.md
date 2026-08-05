@@ -118,7 +118,7 @@ https://github.com/user-attachments/assets/06897ec9-b492-4060-987e-8c4d3c6a9822
 
 ### 반응형
 
-- 각 페이지 반응형 구현
+<img width="3040" height="2328" alt="tails_readme_banner" src="https://github.com/user-attachments/assets/f27c1099-fe36-488f-8c34-69892ed623a2" />
   
 </details>
 
