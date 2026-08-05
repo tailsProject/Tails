@@ -47,6 +47,45 @@
 
 <br>
 
+
+## 팀원 소개
+
+| [<img src="https://github.com/1gyeolpark.png" width="80" height="80"><br>**박한결**](https://github.com/1gyeolpark) | [<img src="https://github.com/pyj-0313.png" width="80" height="80"><br>**박영준**](https://github.com/pyj-0313) |
+| :---: | :---: |
+| 팀장 | 기획 |
+
+<br> 
+
+**박한결**
+
+| 구분 | 내용 |
+| --- | --- |
+| Backend | - JWT Access/Refresh 토큰 인증<br>- 카카오·구글·네이버 OAuth2 소셜 로그인, 동일 이메일 계정 자동 연동<br>- 이메일 인증번호 기반 회원가입, 비밀번호 재설정<br>- 게시판 CRUD, 임시저장/발행, 좋아요·북마크, 1단계 대댓글<br>- 게시글·리뷰 이미지 업로드<br>- 반려동물 등록 CRUD<br>- 신고 처리, 관리자 권한 변경, 이벤트 기반 알림 + FCM 웹 푸시 |
+| Frontend | - 마이페이지, 여행 일정, 메인페이지 화면 구현<br>- 로그인/회원가입, 관리자, 신고 화면 구현 |
+
+<br>
+
+**박영준**
+
+| 구분 | 내용 |
+| --- | --- |
+| Backend | - 장소 키워드·카테고리·지역·반경 검색, 평점/찜 랭킹<br>- 찜·리뷰 이력 기반 콘텐츠 기반 개인화 추천(코사인 유사도)<br>- TourAPI(한국관광공사) 연동 장소 데이터 동기화<br>- 장소 찜, 리뷰 CRUD(평균 별점 집계)<br>- 여행 일정 CRUD, 공유 링크 발급, 최근접 이웃 알고리즘 기반 경로 최적화 추천 |
+| Frontend | - 공통 인프라(axios, 라우팅), 공통 컴포넌트, 에러 페이지 구현<br>- 지도, 피드(게시판) 화면 구현 |
+
+<br>
+
+## 개정이력
+
+| 날짜 | 내용 |
+| --- | --- |
+| 2026.07.05 | 프로젝트 시작 |
+| 2026.07.14 | 장소 검색 기능 고도화 완료 |
+| 2026.07.20 | 백엔드 핵심 기능(이메일 인증, Pet CRUD 등) 완료 |
+| 2026.07.22 | 프론트엔드 전체 단계(0~7단계) 구현 완료 |
+| 2026.08.04 | README 문서 정리 및 배포 마무리 |
+
+<br>
+
 ## FIGMA
 
 - [목업 바로가기](https://www.figma.com/design/ojW787BKVTe6LlI2iXsocA/Tails?node-id=0-1&t=GDQYvztIBb4yeVk0-1)
@@ -64,6 +103,7 @@
 
 https://github.com/user-attachments/assets/096f6f20-eb68-4448-a692-e46e845fa8e7
 
+<br>
 
 ### 로그인 및 회원가입
 
@@ -74,6 +114,7 @@ https://github.com/user-attachments/assets/096f6f20-eb68-4448-a692-e46e845fa8e7
 
 https://github.com/user-attachments/assets/c9a69a47-6712-494b-a440-1211e4c67d01
 
+<br>
 
 ### 지도
 
@@ -83,6 +124,7 @@ https://github.com/user-attachments/assets/c9a69a47-6712-494b-a440-1211e4c67d01
 
 https://github.com/user-attachments/assets/2f985333-07e0-4e9b-ae27-1567c94f384e
 
+<br>
 
 ### 피드
 
@@ -94,6 +136,7 @@ https://github.com/user-attachments/assets/2f985333-07e0-4e9b-ae27-1567c94f384e
 
 https://github.com/user-attachments/assets/59d4e300-ab1e-4518-a0bd-1aa7d6e3216d
 
+<br>
 
 ### 여행 일정
 
@@ -104,6 +147,7 @@ https://github.com/user-attachments/assets/59d4e300-ab1e-4518-a0bd-1aa7d6e3216d
 
 https://github.com/user-attachments/assets/e474571a-8ebc-4017-a28a-cf2bbbe97aa7
 
+<br>
 
 ### 마이페이지
 
@@ -113,6 +157,7 @@ https://github.com/user-attachments/assets/e474571a-8ebc-4017-a28a-cf2bbbe97aa7
 
 https://github.com/user-attachments/assets/530139a4-6ef5-48b1-bf7c-ec5052c7f00d
 
+<br>
 
 ### 관리자
 
@@ -127,7 +172,6 @@ https://github.com/user-attachments/assets/06897ec9-b492-4060-987e-8c4d3c6a9822
 ### 반응형
 
 <img width="3040" height="2328" alt="tails_readme_banner" src="https://github.com/user-attachments/assets/f27c1099-fe36-488f-8c34-69892ed623a2" />
-  
 </details>
 
 <br>
@@ -343,44 +387,6 @@ frontend/src
 
 - features 안 폴더 하나가 화면 하나를 담당하며, 해당 화면에서 쓰는 API 호출 함수도 함께 포함
 - 여러 화면에서 반복해서 쓰는 컴포넌트만 components로 분리
-
-<br>
-
-## 팀원 소개
-
-| [<img src="https://github.com/1gyeolpark.png" width="80" height="80"><br>**박한결**](https://github.com/1gyeolpark) | [<img src="https://github.com/pyj-0313.png" width="80" height="80"><br>**박영준**](https://github.com/pyj-0313) |
-| :---: | :---: |
-| 팀장 | 기획 |
-
-<br> 
-
-**박한결**
-
-| 구분 | 내용 |
-| --- | --- |
-| Backend | - JWT Access/Refresh 토큰 인증<br>- 카카오·구글·네이버 OAuth2 소셜 로그인, 동일 이메일 계정 자동 연동<br>- 이메일 인증번호 기반 회원가입, 비밀번호 재설정<br>- 게시판 CRUD, 임시저장/발행, 좋아요·북마크, 1단계 대댓글<br>- 게시글·리뷰 이미지 업로드<br>- 반려동물 등록 CRUD<br>- 신고 처리, 관리자 권한 변경, 이벤트 기반 알림 + FCM 웹 푸시 |
-| Frontend | - 마이페이지, 여행 일정, 메인페이지 화면 구현<br>- 로그인/회원가입, 관리자, 신고 화면 구현 |
-
-<br>
-
-**박영준**
-
-| 구분 | 내용 |
-| --- | --- |
-| Backend | - 장소 키워드·카테고리·지역·반경 검색, 평점/찜 랭킹<br>- 찜·리뷰 이력 기반 콘텐츠 기반 개인화 추천(코사인 유사도)<br>- TourAPI(한국관광공사) 연동 장소 데이터 동기화<br>- 장소 찜, 리뷰 CRUD(평균 별점 집계)<br>- 여행 일정 CRUD, 공유 링크 발급, 최근접 이웃 알고리즘 기반 경로 최적화 추천 |
-| Frontend | - 공통 인프라(axios, 라우팅), 공통 컴포넌트, 에러 페이지 구현<br>- 지도, 피드(게시판) 화면 구현 |
-
-<br>
-
-## 개정이력
-
-| 날짜 | 내용 |
-| --- | --- |
-| 2026.07.05 | 프로젝트 시작 |
-| 2026.07.14 | 장소 검색 기능 고도화 완료 |
-| 2026.07.20 | 백엔드 핵심 기능(이메일 인증, Pet CRUD 등) 완료 |
-| 2026.07.22 | 프론트엔드 전체 단계(0~7단계) 구현 완료 |
-| 2026.08.04 | README 문서 정리 및 배포 마무리 |
 
 <br>
 
