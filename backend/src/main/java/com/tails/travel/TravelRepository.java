@@ -6,6 +6,9 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface TravelRepository extends JpaRepository<Travel, Long> {
 
@@ -23,4 +26,10 @@ public interface TravelRepository extends JpaRepository<Travel, Long> {
 
     // 마이페이지 통계용 - 내 여행 일정 개수
     long countByMember_Id(Long memberId);
+
+    // 반려동물 삭제 전 정리용. travel_pet은 cascade 없는 단순 참조 다대다라
+    // JPA 엔티티 그래프로는 지울 수 없어 조인 테이블에 직접 네이티브 쿼리로 접근
+    @Modifying
+    @Query(value = "delete from travel_pet where pet_id = :petId", nativeQuery = true)
+    void removePetFromAllTravels(@Param("petId") Long petId);
 }

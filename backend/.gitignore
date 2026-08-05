@@ -5,6 +5,9 @@ build/
 ### App config (contains local DB credentials) ###
 src/main/resources/application.properties
 src/main/resources/application-prod.properties
+
+### Firebase 서비스 계정 키 ###
+tails-firebase-key.json
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
