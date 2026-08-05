@@ -105,12 +105,4 @@ public class Board {
     public boolean isAuthor(Long currentMemberId) {
         return currentMemberId != null && member != null && member.getId().equals(currentMemberId);
     }
-
-    public void increaseLikeCount() {
-        this.likeCount++;
-    }
-
-    public void decreaseLikeCount() {
-        this.likeCount = Math.max(0, this.likeCount - 1);
-    }
 }

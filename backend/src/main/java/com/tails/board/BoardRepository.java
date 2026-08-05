@@ -21,6 +21,19 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     @Query("update Board b set b.likeCount = case when b.likeCount > 0 then b.likeCount - 1 else 0 end where b.id in :boardIds")
     void decreaseLikeCountBulk(@Param("boardIds") List<Long> boardIds);
 
+    // 좋아요 토글도 벌크 쿼리로 처리 - board 엔티티의 @Version(낙관적 락)과 무관하게 만들어
+    // 동시에 여러 명이 좋아요를 눌러도 CONCURRENT_UPDATE_CONFLICT로 실패하지 않게 함
+    @Modifying
+    @Query("update Board b set b.likeCount = b.likeCount + 1 where b.id = :id")
+    void increaseLikeCount(@Param("id") Long id);
+
+    @Modifying
+    @Query("update Board b set b.likeCount = case when b.likeCount > 0 then b.likeCount - 1 else 0 end where b.id = :id")
+    void decreaseLikeCount(@Param("id") Long id);
+
+    @Query("select b.likeCount from Board b where b.id = :id")
+    int findLikeCountById(@Param("id") Long id);
+
     @Query(value = "select b from Board b left join fetch b.member where b.status = com.tails.board.BoardStatus.PUBLISHED",
             countQuery = "select count(b) from Board b where b.status = com.tails.board.BoardStatus.PUBLISHED")
     Page<Board> findAllWithMember(Pageable pageable);
