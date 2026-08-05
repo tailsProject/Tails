@@ -32,6 +32,10 @@
 <td align="center"><img width="16" height="16" src="docs/icons/users.svg" />&nbsp;<a href="#팀원-소개">팀원&nbsp;소개</a></td>
 <td align="center"><img width="16" height="16" src="docs/icons/alert-triangle.svg" />&nbsp;<a href="#troubleshooting">TROUBLESHOOTING</a></td>
 </tr>
+<tr>
+<td align="center"><img width="16" height="16" src="docs/icons/figma.svg" />&nbsp;<a href="#figma">FIGMA</a></td>
+<td align="center"><img width="16" height="16" src="docs/icons/palette.svg" />&nbsp;<a href="#styleguide">STYLEGUIDE</a></td>
+</tr>
 </table>
 
 
