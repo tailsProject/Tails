@@ -142,8 +142,12 @@ export default function PetsPage() {
   async function handleDelete(petId) {
     const ok = await confirm('반려동물 정보를 삭제하시겠습니까?');
     if (!ok) return;
-    await deletePet(petId);
-    load();
+    try {
+      await deletePet(petId);
+      load();
+    } catch (error) {
+      showToast(error.response?.data?.error?.message ?? '삭제에 실패했습니다.', 'error');
+    }
   }
 
   return (

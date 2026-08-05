@@ -130,9 +130,13 @@ export default function MyInfoPage() {
       '정말 탈퇴하시겠습니까?\n작성한 글/댓글/리뷰는 "탈퇴한 회원"으로 남고, 되돌릴 수 없습니다.\n탈퇴 후 24시간 동안은 같은 이메일로 재가입할 수 없습니다.',
     );
     if (!ok) return;
-    await withdraw();
-    await logout();
-    navigate('/');
+    try {
+      await withdraw();
+      await logout();
+      navigate('/');
+    } catch (error) {
+      showToast(error.response?.data?.error?.message ?? '탈퇴에 실패했습니다.', 'error');
+    }
   }
 
   if (!info || !stats) {

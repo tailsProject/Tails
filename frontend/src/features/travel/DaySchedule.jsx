@@ -202,8 +202,12 @@ export default function DaySchedule({ travelId, date }) {
       delete next[detailId];
       return next;
     });
-    await deleteTravelDetail(travelId, detailId);
-    load();
+    try {
+      await deleteTravelDetail(travelId, detailId);
+      load();
+    } catch (error) {
+      showToast(error.response?.data?.error?.message ?? '삭제에 실패했습니다.', 'error');
+    }
   }
 
   function handleDragStart(index) {
@@ -250,15 +254,19 @@ export default function DaySchedule({ travelId, date }) {
       if (!ok) return;
     }
 
-    await reorderTravelDetails(travelId, {
-      travelDate: date,
-      detailIds: suggestion.orderedDetails.map((d) => d.detailId),
-    });
-    await Promise.all(
-      timedDetails.map((d) => updateTravelDetail(travelId, d.detailId, { visitTime: null, memo: d.memo })),
-    );
-    setSuggestion(null);
-    load();
+    try {
+      await reorderTravelDetails(travelId, {
+        travelDate: date,
+        detailIds: suggestion.orderedDetails.map((d) => d.detailId),
+      });
+      await Promise.all(
+        timedDetails.map((d) => updateTravelDetail(travelId, d.detailId, { visitTime: null, memo: d.memo })),
+      );
+      setSuggestion(null);
+      load();
+    } catch (error) {
+      showToast(error.response?.data?.error?.message ?? '순서 반영에 실패했습니다.', 'error');
+    }
   }
 
   const totalDistanceMeters = sortedDetails.reduce((sum, detail, index) => {

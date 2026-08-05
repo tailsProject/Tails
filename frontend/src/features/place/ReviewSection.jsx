@@ -120,8 +120,12 @@ export default function ReviewSection({ placeId }) {
   async function handleDelete(reviewId) {
     const ok = await confirm('리뷰를 삭제하시겠습니까?');
     if (!ok) return;
-    await deleteReview(placeId, reviewId);
-    load();
+    try {
+      await deleteReview(placeId, reviewId);
+      load();
+    } catch (error) {
+      showToast(error.response?.data?.error?.message ?? '삭제에 실패했습니다.', 'error');
+    }
   }
 
   async function handleDeleteImage(reviewId, imageId) {
