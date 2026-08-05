@@ -22,19 +22,23 @@
 <table>
 <tr>
 <td align="center"><img width="16" height="16" src="docs/icons/book.svg" />&nbsp;<a href="#기획-배경">기획&nbsp;배경</a></td>
+<td align="center"><img width="16" height="16" src="docs/icons/figma.svg" />&nbsp;<a href="#figma">FIGMA</a></td>
+</tr>
+<tr>
 <td align="center"><img width="16" height="16" src="docs/icons/check-square.svg" />&nbsp;<a href="#주요-기능">주요&nbsp;기능</a></td>
+<td align="center"><img width="16" height="16" src="docs/icons/palette.svg" />&nbsp;<a href="#styleguide">STYLEGUIDE</a></td>
+</tr>
+<tr>
 <td align="center"><img width="16" height="16" src="docs/icons/tool.svg" />&nbsp;<a href="#기술-스택">기술&nbsp;스택</a></td>
 <td align="center"><img width="16" height="16" src="docs/icons/layers.svg" />&nbsp;<a href="#architecture">ARCHITECTURE</a></td>
 </tr>
 <tr>
 <td align="center"><img width="16" height="16" src="docs/icons/database.svg" />&nbsp;<a href="#erd">ERD</a></td>
 <td align="center"><img width="16" height="16" src="docs/icons/folder.svg" />&nbsp;<a href="#프로젝트-구조">프로젝트&nbsp;구조</a></td>
-<td align="center"><img width="16" height="16" src="docs/icons/users.svg" />&nbsp;<a href="#팀원-소개">팀원&nbsp;소개</a></td>
-<td align="center"><img width="16" height="16" src="docs/icons/alert-triangle.svg" />&nbsp;<a href="#troubleshooting">TROUBLESHOOTING</a></td>
 </tr>
 <tr>
-<td align="center"><img width="16" height="16" src="docs/icons/figma.svg" />&nbsp;<a href="#figma">FIGMA</a></td>
-<td align="center"><img width="16" height="16" src="docs/icons/palette.svg" />&nbsp;<a href="#styleguide">STYLEGUIDE</a></td>
+<td align="center"><img width="16" height="16" src="docs/icons/users.svg" />&nbsp;<a href="#팀원-소개">팀원&nbsp;소개</a></td>
+<td align="center"><img width="16" height="16" src="docs/icons/alert-triangle.svg" />&nbsp;<a href="#troubleshooting">TROUBLESHOOTING</a></td>
 </tr>
 </table>
 
