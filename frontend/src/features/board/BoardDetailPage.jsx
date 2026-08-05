@@ -88,9 +88,13 @@ export default function BoardDetailPage() {
   async function handleDelete() {
     const ok = await confirm('정말 삭제하시겠습니까?\n삭제한 게시글은 복구할 수 없습니다.');
     if (!ok) return;
-    await deleteBoard(boardId);
-    showToast('삭제되었습니다.', 'success');
-    navigate('/boards');
+    try {
+      await deleteBoard(boardId);
+      showToast('삭제되었습니다.', 'success');
+      navigate('/boards');
+    } catch (error) {
+      showToast(error.response?.data?.error?.message ?? '삭제에 실패했습니다.', 'error');
+    }
   }
 
   if (notFound) {
