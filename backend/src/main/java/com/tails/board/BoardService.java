@@ -163,7 +163,7 @@ public class BoardService {
         boolean liked = boardLikeRepository.findByBoardIdAndMemberId(boardId, memberId)
                 .map(existing -> {
                     boardLikeRepository.delete(existing);
-                    board.decreaseLikeCount();
+                    boardRepository.decreaseLikeCount(boardId);
                     return false;
                 })
                 .orElseGet(() -> {
@@ -172,14 +172,14 @@ public class BoardService {
                             .member(memberRepository.getReferenceById(memberId))
                             .build();
                     boardLikeRepository.save(like);
-                    board.increaseLikeCount();
+                    boardRepository.increaseLikeCount(boardId);
                     if (board.getMember() != null && !board.getMember().getId().equals(memberId)) {
                         eventPublisher.publishEvent(new BoardLikedEvent(board.getMember().getId(), memberId, boardId));
                     }
                     return true;
                 });
 
-        return new LikeToggleResponse(liked, board.getLikeCount());
+        return new LikeToggleResponse(liked, boardRepository.findLikeCountById(boardId));
     }
 
     // 작성자 본인인지 확인.
