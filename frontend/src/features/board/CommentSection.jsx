@@ -8,7 +8,7 @@ import Button from '../../components/Button/Button';
 import Pagination from '../../components/Pagination/Pagination';
 import ReportModal from '../report/ReportModal';
 import { HeartIcon } from '../../components/Icon/Icon';
-import { resolveImage } from '../../utils/resolveImage';
+import { resolveProfileImage } from '../../utils/resolveImage';
 import styles from './CommentSection.module.scss';
 
 const DELETED_TEXT = '삭제된 댓글입니다.';
@@ -128,11 +128,7 @@ export default function CommentSection({ boardId, boardAuthorId }) {
       <>
         <div className={styles.commentHeader}>
           <span className={styles.authorAvatar}>
-            {resolveImage(comment.authorProfileImg) ? (
-              <img src={resolveImage(comment.authorProfileImg)} alt="" />
-            ) : (
-              comment.authorNickname.slice(0, 1)
-            )}
+            <img src={resolveProfileImage(comment.authorProfileImg)} alt="" />
           </span>
           <span className={styles.author}>{comment.authorNickname}</span>
           {comment.authorId != null && comment.authorId === boardAuthorId && (

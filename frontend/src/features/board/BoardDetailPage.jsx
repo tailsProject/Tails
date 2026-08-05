@@ -10,7 +10,7 @@ import Button from '../../components/Button/Button';
 import CommentSection from './CommentSection';
 import ReportModal from '../report/ReportModal';
 import StateMessage from '../../components/StateMessage/StateMessage';
-import { resolveImage } from '../../utils/resolveImage';
+import { resolveImage, resolveProfileImage } from '../../utils/resolveImage';
 import { HeartIcon, BookmarkIcon, PencilIcon } from '../../components/Icon/Icon';
 import { IMAGE_MARKER_PATTERN } from './contentBlocks';
 import styles from './BoardDetailPage.module.scss';
@@ -119,11 +119,7 @@ export default function BoardDetailPage() {
       <h1>{board.title}</h1>
       <div className={styles.meta}>
         <span className={styles.authorAvatar}>
-          {resolveImage(board.authorProfileImg) ? (
-            <img src={resolveImage(board.authorProfileImg)} alt="" />
-          ) : (
-            board.authorNickname.slice(0, 1)
-          )}
+          <img src={resolveProfileImage(board.authorProfileImg)} alt="" />
         </span>
         <span>{board.authorNickname}</span>
         <span>조회 {board.viewCount}</span>

@@ -152,12 +152,19 @@ public class CommentService {
         comment.changeContent(request.content());
     }
 
-    // 작성자 본인 또는 ADMIN이 삭제 가능. 실제로 지우지 않고 "삭제된 댓글입니다"로만 표시
+    // 작성자 본인 또는 ADMIN이 삭제 가능
+    // 답글이 달린 최상위 댓글은 소프트 삭제로 "삭제된 댓글입니다" 표시만 남기고, 그 외는 물리 삭제로 목록에서 제거
     @Transactional
     public void delete(Long memberId, Long boardId, Long commentId) {
         Comment comment = getCommentInBoardOrThrow(boardId, commentId, memberId);
         requireOwnerOrAdmin(comment, memberId);
-        comment.softDelete();
+
+        boolean hasReplies = comment.getParent() == null && commentRepository.existsByParent_Id(commentId);
+        if (hasReplies) {
+            comment.softDelete();
+        } else {
+            commentRepository.delete(comment);
+        }
     }
 
     private void requireOwner(Comment comment, Long memberId) {
