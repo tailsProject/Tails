@@ -1,0 +1,17 @@
+package com.tails.board.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+// 게시글 작성 요청 데이터를 전달하고 입력값 검증을 수행하는 DTO
+public record BoardCreateRequest(
+
+        @NotBlank(message = "제목을 입력해주세요.")
+        @Size(max = 200, message = "제목은 200자 이하여야 합니다.")
+        String title,
+
+        @NotBlank(message = "내용을 입력해주세요.")
+        @Size(max = 50000, message = "내용은 50000자 이하여야 합니다.")
+        String content
+) {
+}

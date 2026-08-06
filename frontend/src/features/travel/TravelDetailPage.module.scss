@@ -1,0 +1,356 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-lg;
+}
+
+.hero {
+  position: relative;
+  border-radius: v.$radius-lg;
+  overflow: hidden;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: v.$color-primary;
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+
+  @include m.mobile {
+    min-height: 180px;
+  }
+}
+
+.heroIcon {
+  font-size: 48px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.15) 55%, rgba(0, 0, 0, 0) 100%);
+}
+
+.heroActions {
+  position: absolute;
+  top: v.$spacing-md;
+  right: v.$spacing-md;
+  display: flex;
+  gap: v.$spacing-xs;
+
+  @include m.mobile {
+    gap: v.$spacing-sm;
+  }
+}
+
+.heroActionBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: rgba(17, 17, 17, 0.45);
+  color: #fff;
+  backdrop-filter: blur(4px);
+  transition: background-color 0.15s ease;
+
+  @include m.mobile {
+    width: 42px;
+    height: 42px;
+  }
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: v.$color-text;
+  }
+
+  &::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    padding: 5px 10px;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-sm;
+    background-color: v.$color-bg;
+    color: v.$color-text;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: v.$shadow-card;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 20;
+  }
+
+  &:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.heroContent {
+  position: absolute;
+  left: v.$spacing-lg;
+  right: v.$spacing-lg;
+  bottom: v.$spacing-lg;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+
+  h1 {
+    font-size: v.$font-size-xl;
+    font-weight: 800;
+  }
+}
+
+.dates {
+  margin-top: 4px;
+  font-size: v.$font-size-sm;
+  opacity: 0.9;
+}
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+  margin-bottom: 6px;
+}
+
+.ddayBadge {
+  padding: 2px 10px;
+  border-radius: v.$radius-pill;
+  font-size: 11px;
+  font-weight: 800;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: v.$color-primary-dark;
+  text-shadow: none;
+
+  &.ongoing {
+    background-color: v.$color-primary;
+    color: #fff;
+  }
+
+  &.done {
+    background-color: rgba(255, 255, 255, 0.7);
+    color: v.$color-text-muted;
+  }
+}
+
+.nightsLabel {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.petRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: v.$spacing-xs;
+  margin-top: v.$spacing-sm;
+}
+
+.petChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: v.$radius-pill;
+  background-color: rgba(255, 255, 255, 0.85);
+  color: v.$color-text;
+  font-size: 11px;
+  font-weight: 700;
+  text-shadow: none;
+}
+
+.petChipPhoto {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.description {
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: v.$font-size-sm;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.shareBox {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-sm;
+  padding: v.$spacing-sm v.$spacing-sm v.$spacing-sm v.$spacing-md;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  background-color: v.$color-bg;
+  box-shadow: v.$shadow-card;
+  animation: shareBoxIn 0.18s ease;
+
+  input {
+    flex: 1;
+    min-width: 0;
+    padding: v.$spacing-xs 0;
+    border: none;
+    background: transparent;
+    color: v.$color-text-muted;
+    font-family: v.$font-mono;
+    font-size: v.$font-size-sm;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+@keyframes shareBoxIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.shareBoxIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: v.$color-primary-bg;
+  color: v.$color-primary-dark;
+  font-size: 14px;
+}
+
+.shareBoxDivider {
+  flex-shrink: 0;
+  width: 1px;
+  height: 20px;
+  background-color: v.$color-border;
+}
+
+.copyBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: v.$spacing-xs v.$spacing-md;
+  border-radius: v.$radius-pill;
+  background-color: v.$color-primary;
+  color: #fff;
+  font-weight: 700;
+  font-size: v.$font-size-sm;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: v.$color-primary-dark;
+  }
+}
+
+.copyBtnDone {
+  background-color: v.$color-success;
+
+  &:hover {
+    background-color: v.$color-success;
+  }
+}
+
+.unshareBtn {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: v.$color-text-muted;
+  font-size: 12px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background-color: v.$color-bg-muted;
+    color: v.$color-error;
+  }
+}
+
+.dayTabsWrap {
+  position: sticky;
+  top: v.$header-height;
+  z-index: 5;
+  background-color: v.$color-bg;
+  padding: v.$spacing-sm 0;
+}
+
+.dayTabs {
+  display: flex;
+  gap: v.$spacing-sm;
+  overflow-x: auto;
+  padding-bottom: v.$spacing-xs;
+}
+
+.day,
+.dayActive {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: v.$spacing-sm v.$spacing-lg;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  flex-shrink: 0;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.dayNum {
+  font-size: 11px;
+  font-weight: 800;
+  color: v.$color-text-muted;
+  letter-spacing: 0.03em;
+}
+
+.dayDate {
+  font-family: v.$font-mono;
+  font-weight: 700;
+  color: v.$color-text;
+
+  em {
+    font-style: normal;
+    font-family: v.$font-body;
+    font-weight: 600;
+    color: v.$color-text-muted;
+    margin-left: 2px;
+  }
+}
+
+.day:hover {
+  border-color: v.$color-primary;
+}
+
+.dayActive {
+  border-color: v.$color-primary;
+  background-color: v.$color-primary;
+
+  .dayNum {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .dayDate,
+  .dayDate em {
+    color: #fff;
+  }
+}

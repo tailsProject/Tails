@@ -1,0 +1,99 @@
+package com.tails.common.security;
+
+import com.tails.common.exception.CustomException;
+import com.tails.common.exception.ErrorCode;
+import com.tails.common.response.ApiResponse;
+import com.tails.common.security.dto.AccessTokenResponse;
+import com.tails.common.security.dto.EmailVerifyRequest;
+import com.tails.common.security.dto.PasswordResetConfirmRequest;
+import com.tails.common.security.dto.PasswordResetRequest;
+import com.tails.common.security.dto.SignupCodeVerifyRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+// 토큰 재발급/로그아웃/이메일 인증/비밀번호 재설정 API - SecurityConfig에서 전부 permitAll
+@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+@Tag(name = "Auth", description = "토큰 재발급 / 로그아웃 / 이메일 인증 / 비밀번호 재설정 API")
+public class AuthController {
+
+    private final AuthService authService;
+    private final CookieUtil cookieUtil;
+
+    @PostMapping("/reissue")
+    @Operation(summary = "토큰 재발급", description = "쿠키의 Refresh Token으로 새 Access Token을 발급받습니다.")
+    public ApiResponse<AccessTokenResponse> reissue(
+            @CookieValue(value = CookieUtil.REFRESH_TOKEN_COOKIE, required = false) String refreshToken,
+            HttpServletResponse response) {
+        if (refreshToken == null) {
+            throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
+        AuthService.IssuedTokens tokens = authService.reissue(refreshToken);
+        response.addHeader(HttpHeaders.SET_COOKIE, tokens.refreshCookie().toString());
+        return ApiResponse.success(new AccessTokenResponse(tokens.accessToken()));
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "로그아웃", description = "Refresh Token을 무효화하고 쿠키를 제거합니다.")
+    public ApiResponse<Void> logout(
+            @CookieValue(value = CookieUtil.REFRESH_TOKEN_COOKIE, required = false) String refreshToken,
+            HttpServletResponse response) {
+        authService.logout(refreshToken);
+        response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.createExpiredRefreshTokenCookie().toString());
+        return ApiResponse.success();
+    }
+
+    @PostMapping("/email/signup-code")
+    @Operation(summary = "회원가입 인증번호 발송", description = "입력한 이메일로 6자리 인증번호를 발송합니다. 5분간 유효.")
+    public ApiResponse<Void> sendSignupCode(@Valid @RequestBody EmailVerifyRequest request) {
+        authService.sendSignupVerificationCode(request.email());
+        return ApiResponse.success();
+    }
+
+    @PostMapping("/email/signup-code/verify")
+    @Operation(summary = "회원가입 인증번호 확인", description = "발송된 인증번호를 검증합니다. 통과해야 회원가입이 가능합니다.")
+    public ApiResponse<Void> verifySignupCode(@Valid @RequestBody SignupCodeVerifyRequest request) {
+        authService.verifySignupCode(request.email(), request.code());
+        return ApiResponse.success();
+    }
+
+    @PostMapping("/email/verify-request")
+    @Operation(summary = "이메일 인증 메일 발송", description = "가입한 이메일로 인증 링크를 발송합니다. 30분간 유효.")
+    public ApiResponse<Void> requestEmailVerification(@Valid @RequestBody EmailVerifyRequest request) {
+        authService.requestEmailVerification(request.email());
+        return ApiResponse.success();
+    }
+
+    @GetMapping("/email/verify")
+    @Operation(summary = "이메일 인증 처리", description = "인증 메일의 토큰을 검증하고 이메일 인증을 완료합니다.")
+    public ApiResponse<Void> verifyEmail(@RequestParam String token) {
+        authService.verifyEmail(token);
+        return ApiResponse.success();
+    }
+
+    @PostMapping("/password/reset-request")
+    @Operation(summary = "비밀번호 재설정 메일 발송", description = "가입한 이메일로 비밀번호 재설정 링크를 발송합니다. 30분간 유효.")
+    public ApiResponse<Void> requestPasswordReset(@Valid @RequestBody PasswordResetRequest request) {
+        authService.requestPasswordReset(request.email());
+        return ApiResponse.success();
+    }
+
+    @PostMapping("/password/reset")
+    @Operation(summary = "비밀번호 재설정 처리", description = "재설정 메일의 토큰을 검증하고 새 비밀번호로 변경합니다.")
+    public ApiResponse<Void> resetPassword(@Valid @RequestBody PasswordResetConfirmRequest request) {
+        authService.resetPassword(request);
+        return ApiResponse.success();
+    }
+}

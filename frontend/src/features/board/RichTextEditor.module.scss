@@ -1,0 +1,118 @@
+@use '../../styles/variables' as v;
+
+.wrapper {
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-sm;
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: v.$spacing-xs;
+  background-color: v.$color-bg-muted;
+  border-bottom: 1px solid v.$color-border;
+
+  button {
+    min-width: 30px;
+    height: 30px;
+    padding: 0 v.$spacing-xs;
+    border-radius: v.$radius-sm;
+    color: v.$color-text;
+    font-size: 13px;
+
+    &:hover {
+      background-color: v.$color-bg;
+    }
+  }
+
+  .active {
+    background-color: v.$color-primary-bg;
+    color: v.$color-primary-dark;
+  }
+}
+
+.divider {
+  width: 1px;
+  height: 20px;
+  margin: 0 4px;
+  background-color: v.$color-border;
+}
+
+.fontSizeSelect {
+  height: 30px;
+  padding: 0 v.$spacing-xs;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-sm;
+  background-color: v.$color-bg;
+  font-size: v.$font-size-sm;
+}
+
+.content {
+  padding: v.$spacing-md;
+  min-height: 260px;
+
+  :global(.ProseMirror) {
+    outline: none;
+    line-height: 1.7;
+    min-height: 240px;
+
+    p {
+      margin-bottom: v.$spacing-sm;
+    }
+  }
+
+  :global(.ProseMirror p.is-editor-empty:first-child::before) {
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    color: v.$color-text-muted;
+    pointer-events: none;
+  }
+}
+
+.editorImageWrapper {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  cursor: grab;
+
+  &.ProseMirror-selectednode .editorImage {
+    outline: 2px solid v.$color-primary;
+  }
+}
+
+.editorImage {
+  max-width: 100%;
+  display: block;
+  margin: v.$spacing-sm 0;
+  border-radius: v.$radius-sm;
+}
+
+.coverToggle {
+  position: absolute;
+  top: v.$spacing-sm;
+  left: v.$spacing-xs;
+  padding: 4px 10px;
+  border-radius: v.$radius-pill;
+  background-color: rgba(255, 255, 255, 0.92);
+  color: v.$color-text-muted;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: v.$shadow-card;
+
+  &:hover {
+    background-color: v.$color-bg;
+  }
+}
+
+.coverToggleActive {
+  background-color: v.$color-primary;
+  color: #fff;
+
+  &:hover {
+    background-color: v.$color-primary;
+  }
+}

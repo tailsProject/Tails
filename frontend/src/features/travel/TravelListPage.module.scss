@@ -1,0 +1,159 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-lg;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  h1 {
+    font-size: v.$font-size-xl;
+    font-weight: 800;
+  }
+}
+
+.subtitle {
+  margin-top: 4px;
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: v.$spacing-lg;
+
+  @include m.tablet {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include m.mobile {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.card {
+  display: block;
+  border-radius: v.$radius-lg;
+  overflow: hidden;
+  border: 1px solid v.$color-border;
+  background-color: v.$color-bg;
+  box-shadow: v.$shadow-card;
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+
+  &:hover {
+    box-shadow: v.$shadow-card-hover;
+    transform: translateY(-2px);
+  }
+}
+
+.thumb {
+  position: relative;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: v.$spacing-sm;
+  background-color: #FFF1E6;
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+}
+
+.thumbIcon {
+  font-size: 36px;
+  color: v.$color-primary;
+}
+
+.ddayBadge {
+  position: absolute;
+  top: v.$spacing-sm;
+  left: v.$spacing-sm;
+  padding: 2px 10px;
+  border-radius: v.$radius-pill;
+  font-size: 11px;
+  font-weight: 800;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: v.$color-text;
+
+  &.ongoing {
+    background-color: v.$color-primary;
+    color: #fff;
+  }
+
+  &.done {
+    background-color: rgba(255, 255, 255, 0.7);
+    color: v.$color-text-muted;
+  }
+}
+
+.cardBody {
+  padding: v.$spacing-md;
+}
+
+.title {
+  font-weight: 700;
+  @include m.ellipsis;
+}
+
+.meta {
+  margin-top: 4px;
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}
+
+.description {
+  margin-top: v.$spacing-xs;
+  min-height: 1.5em;
+  font-size: v.$font-size-sm;
+  color: v.$color-text;
+  @include m.ellipsis;
+}
+
+.petRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: v.$spacing-sm;
+  min-height: 22px;
+}
+
+.petChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: v.$radius-pill;
+  background-color: v.$color-bg-muted;
+  color: v.$color-text-muted;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.petChipPhoto {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: v.$spacing-sm;
+  padding: v.$spacing-xxl 0;
+  color: v.$color-text-muted;
+}
+
+.emptyIcon {
+  font-size: 40px;
+}
