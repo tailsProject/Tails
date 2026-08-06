@@ -10,7 +10,7 @@
 
 <br>
 
-![개발기간](https://img.shields.io/badge/개발기간-2026.07.08_~_08.04-e5722a?style=flat-square&labelColor=222222&color=e5722a) 
+![개발기간](https://img.shields.io/badge/개발기간-2026.07.08_~_08.06-e5722a?style=flat-square&labelColor=222222&color=e5722a) 
 [![배포](https://img.shields.io/badge/배포-mytails.site-ff8a3d?style=flat-square&labelColor=222222&color=ff8a3d)](https://mytails.site) <br>
 [![CI](https://github.com/tailsProject/Tails/actions/workflows/ci.yml/badge.svg)](https://github.com/tailsProject/Tails/actions/workflows/ci.yml)
 ![팀원](https://img.shields.io/badge/팀원-2명-2e9e5b?style=flat-square&labelColor=222222&color=2e9e5b)
@@ -21,18 +21,60 @@
 
 <table>
 <tr>
-<td align="center"><img width="16" height="16" src="docs/icons/book.svg" />&nbsp;<a href="#기획-배경">기획&nbsp;배경</a></td>
-<td align="center"><img width="16" height="16" src="docs/icons/check-square.svg" />&nbsp;<a href="#주요-기능">주요&nbsp;기능</a></td>
-<td align="center"><img width="16" height="16" src="docs/icons/tool.svg" />&nbsp;<a href="#기술-스택">기술&nbsp;스택</a></td>
-<td align="center"><img width="16" height="16" src="docs/icons/layers.svg" />&nbsp;<a href="#architecture">ARCHITECTURE</a></td>
+<td align="left"><img width="16" height="16" src="docs/icons/users.svg" />&nbsp;<a href="#팀원-소개">팀원&nbsp;소개</a></td>
+<td align="left"><img width="16" height="16" src="docs/icons/book.svg" />&nbsp;<a href="#기획-배경">기획&nbsp;배경</a></td>
+<td align="left"><img width="16" height="16" src="docs/icons/figma.svg" />&nbsp;<a href="#figma">FIGMA</a></td>
+<td align="left"><img width="16" height="16" src="docs/icons/check-square.svg" />&nbsp;<a href="#주요-기능">주요&nbsp;기능</a></td>
+<td align="left"><img width="16" height="16" src="docs/icons/palette.svg" />&nbsp;<a href="#styleguide">STYLEGUIDE</a></td>
 </tr>
 <tr>
-<td align="center"><img width="16" height="16" src="docs/icons/database.svg" />&nbsp;<a href="#erd">ERD</a></td>
-<td align="center"><img width="16" height="16" src="docs/icons/folder.svg" />&nbsp;<a href="#프로젝트-구조">프로젝트&nbsp;구조</a></td>
-<td align="center"><img width="16" height="16" src="docs/icons/users.svg" />&nbsp;<a href="#팀원-소개">팀원&nbsp;소개</a></td>
-<td align="center"><img width="16" height="16" src="docs/icons/alert-triangle.svg" />&nbsp;<a href="#troubleshooting">TROUBLESHOOTING</a></td>
+<td align="left"><img width="16" height="16" src="docs/icons/tool.svg" />&nbsp;<a href="#기술-스택">기술&nbsp;스택</a></td>
+<td align="left"><img width="16" height="16" src="docs/icons/layers.svg" />&nbsp;<a href="#architecture">ARCHITECTURE</a></td>
+<td align="left"><img width="16" height="16" src="docs/icons/database.svg" />&nbsp;<a href="#erd">ERD</a></td>
+<td align="left"><img width="16" height="16" src="docs/icons/folder.svg" />&nbsp;<a href="#프로젝트-구조">프로젝트&nbsp;구조</a></td>
+<td align="left"><img width="16" height="16" src="docs/icons/alert-triangle.svg" />&nbsp;<a href="#troubleshooting">TROUBLESHOOTING</a></td>
 </tr>
 </table>
+
+<br>
+
+
+## 팀원 소개
+
+| [<img src="https://github.com/1gyeolpark.png" width="80" height="80"><br>**박한결**](https://github.com/1gyeolpark) | [<img src="https://github.com/pyj-0313.png" width="80" height="80"><br>**박영준**](https://github.com/pyj-0313) |
+| :---: | :---: |
+| 팀장 | 기획 |
+
+<br> 
+
+**박한결**
+
+| 구분 | 내용 |
+| --- | --- |
+| Backend | - JWT Access/Refresh 토큰 인증<br>- 카카오·구글·네이버 OAuth2 소셜 로그인, 동일 이메일 계정 자동 연동<br>- 이메일 인증번호 기반 회원가입, 비밀번호 재설정<br>- 게시판 CRUD, 임시저장/발행, 좋아요·북마크, 무한 depth 대댓글<br>- 게시글·리뷰 이미지 업로드<br>- 반려동물 등록 CRUD<br>- 신고 처리, 관리자 권한 변경, 이벤트 기반 알림 + FCM 웹 푸시 |
+| Frontend | - 마이페이지, 여행 일정, 메인페이지 화면 구현<br>- 로그인/회원가입, 관리자, 신고 화면 구현 |
+
+<br>
+
+**박영준**
+
+| 구분 | 내용 |
+| --- | --- |
+| Backend | - 장소 키워드·카테고리·지역·반경 검색, 평점/찜 랭킹<br>- 찜·리뷰 이력 기반 콘텐츠 기반 개인화 추천(코사인 유사도)<br>- TourAPI(한국관광공사) 연동 장소 데이터 동기화<br>- 장소 찜, 리뷰 CRUD(평균 별점 집계)<br>- 여행 일정 CRUD, 공유 링크 발급, 최근접 이웃 알고리즘 기반 경로 최적화 추천 |
+| Frontend | - 공통 인프라(axios, 라우팅), 공통 컴포넌트, 에러 페이지 구현<br>- 지도, 피드(게시판) 화면 구현 |
+
+<br>
+
+## 개발 타임라인
+
+| 날짜 | 내용 |
+| --- | --- |
+| 2026.07.08 | 프로젝트 시작 |
+| 2026.07.08~07.13 | 백엔드 핵심 기능(회원, 장소, 게시판, 리뷰 등) 구현 |
+| 2026.07.14~07.19 | 여행 일정, 알림(FCM), 인기 랭킹 등 부가 기능 구현 |
+| 2026.07.20~07.30 | 반려동물, 이메일 인증, 관리자 기능 등 추가 개발 및 안정화 |
+| 2026.07.31~08.01 | 프론트엔드 개발 착수, 공통 인프라 구축 |
+| 2026.08.02~08.06 | 로그인/회원가입, 지도·피드·여행 일정·마이페이지 등 전체 화면 구현 및 배포 마무리 |
 
 <br>
 
@@ -44,6 +86,11 @@
 
 <br>
 
+## FIGMA
+
+- [목업 바로가기](https://www.figma.com/design/ojW787BKVTe6LlI2iXsocA/Tails?node-id=0-1&t=GDQYvztIBb4yeVk0-1)
+- [재생 바로가기](https://www.figma.com/proto/ojW787BKVTe6LlI2iXsocA/Tails?node-id=0-1&p=f&t=hyxkfy7mNKXl5jVO-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=2%3A378&fuid=1608331975332768453)
+
 <details open>
 <summary><h2>주요 기능</h2></summary>
 
@@ -54,6 +101,9 @@
 - 인기 장소, 인기 게시글, 최근 리뷰 확인
 - 로그인한 사용자에게 이용 이력 바탕 개인화 추천 장소 제공
 
+https://github.com/user-attachments/assets/096f6f20-eb68-4448-a692-e46e845fa8e7
+
+<br>
 
 ### 로그인 및 회원가입
 
@@ -61,12 +111,20 @@
 - 카카오, 구글, 네이버 소셜 로그인 제공
 - 비밀번호 재설정 가능
 -  로그인 인증은 JWT 액세스 토큰과 리프레시 토큰을 사용해 처리
-  
+
+https://github.com/user-attachments/assets/c9a69a47-6712-494b-a440-1211e4c67d01
+
+<br>
+
 ### 지도
 
 - 장소를 키워드, 카테고리, 지역, 반경 조건으로 검색
 - 장소 상세 정보, 사진, 리뷰, 별점 확인 가능
 - 관심 장소 찜 기능
+
+https://github.com/user-attachments/assets/2f985333-07e0-4e9b-ae27-1567c94f384e
+
+<br>
 
 ### 피드
 
@@ -74,8 +132,11 @@
 - 게시글 임시저장 기능
 - 댓글, 대댓글 작성
 - 게시글과 댓글 좋아요 기능
-- 게시글 마크다운, 북마크, 이미지 첨부 기능
+- 리치 텍스트 에디터 기반 게시글 작성, 북마크, 이미지 첨부 기능
 
+https://github.com/user-attachments/assets/59d4e300-ab1e-4518-a0bd-1aa7d6e3216d
+
+<br>
 
 ### 여행 일정
 
@@ -84,23 +145,80 @@
 - 알고리즘 기반 경로 최적화 추천 기능 제공
 - 공유 링크 발급해 외부 공개 가능
 
+https://github.com/user-attachments/assets/e474571a-8ebc-4017-a28a-cf2bbbe97aa7
+
+<br>
+
 ### 마이페이지
 
 - 내 정보, 반려동물 추가, 내 글, 내 리뷰, 북마크 글, 신고 내역, 알림 확인 가능
 - 내 정보: 닉네임 변경, 프로필 사진 변경, 비밀번호 변경, 마케팅 정보 수신 여부 재설정, 로그아웃, 회원 탈퇴 가능
 - 알림은 알림함과 FCM 웹 푸시 두 가지 방식 모두 제공
-  
+
+https://github.com/user-attachments/assets/530139a4-6ef5-48b1-bf7c-ec5052c7f00d
+
+<br>
 
 ### 관리자
 
 - 마이페이지에서 관리자 페이지 진입 가능
 - 회원 권한 변경, 추방 가능
-- 신고된 게시글, 댓글, 회원을 처리 가능
+- 신고된 게시글, 댓글, 리뷰, 회원을 처리 가능
+
+https://github.com/user-attachments/assets/06897ec9-b492-4060-987e-8c4d3c6a9822
+
+<br>
 
 ### 반응형
 
-- 각 페이지 반응형 구현
-  
+- 모바일·태블릿 브레이크포인트를 공통 믹스인으로 만들어 주요 화면 전반에 적용
+- 화면이 좁아지면 헤더 메뉴가 햄버거 메뉴로 전환
+
+<img width="3040" height="2328" alt="tails_readme_banner" src="https://github.com/user-attachments/assets/f27c1099-fe36-488f-8c34-69892ed623a2" />
+</details>
+
+<br>
+
+<details>
+<summary><h2>STYLEGUIDE</h2></summary>
+
+### 컬러
+
+**Brand**
+
+| 컬러 | 이름 | 값 | 용도 |
+|:---:|---|---|---|
+| ![](https://dummyimage.com/40x40/ff8a3d/ff8a3d.png) | Primary | `#ff8a3d` | CTA / 활성 상태 / 강조 |
+| ![](https://dummyimage.com/40x40/e5722a/e5722a.png) | Primary Strong | `#e5722a` | hover · pressed |
+| ![](https://dummyimage.com/40x40/fff1e6/fff1e6.png) | Primary Soft | `#fff1e6` | 틴트 배경 / 뱃지 |
+| ![](https://dummyimage.com/40x40/2f9e8f/2f9e8f.png) | Secondary | `#2f9e8f` | 지도 경로 / 이동 정보 |
+
+**Warm Neutral**
+
+| 컬러 | 이름 | 값 | 용도 |
+|:---:|---|---|---|
+| ![](https://dummyimage.com/40x40/16130f/16130f.png) | Ink | `#16130f` | 본문 · 다크 서피스 |
+| ![](https://dummyimage.com/40x40/55504a/55504a.png) | Ink 2 | `#55504a` | 보조 텍스트 |
+| ![](https://dummyimage.com/40x40/8b857d/8b857d.png) | Ink 3 | `#8b857d` | 캡션 · placeholder |
+| ![](https://dummyimage.com/40x40/e8e2d9/e8e2d9.png) | Line | `#e8e2d9` | 테두리 · 구분선 |
+| ![](https://dummyimage.com/40x40/f7f4ef/f7f4ef.png) | Canvas | `#f7f4ef` | 페이지 배경 |
+| ![](https://dummyimage.com/40x40/ffffff/eeeeee.png) | Surface | `#ffffff` | 카드 · 패널 |
+
+**Semantic**
+
+| 컬러 | 이름 | 값 | 용도 |
+|:---:|---|---|---|
+| ![](https://dummyimage.com/40x40/e0432b/e0432b.png) | Error | `#e0432b` | 유효성 실패 · 삭제 |
+| ![](https://dummyimage.com/40x40/2e9e5b/2e9e5b.png) | Success | `#2e9e5b` | 인증 완료 · 저장 |
+| ![](https://dummyimage.com/40x40/d98a00/d98a00.png) | Warning | `#d98a00` | 미인증 · 주의 |
+
+<br>
+
+### 타이포그래피
+
+- 한글 본문: **Pretendard Variable**
+- 숫자 강조(통계 수치 등): **DM Mono**
+
 </details>
 
 <br>
@@ -195,9 +313,9 @@ npm run dev
 
 [![Tails Architecture](architecture.png)](architecture.png)
 
-- React SPA와 Spring Boot API 분리, MySQL과 Redis를 각각 데이터/세션 저장소로 사용하는 구조
-- Docker Compose로 EC2에 배포
-- GitHub Actions로 빌드·테스트 자동화
+- React 정적 빌드와 Spring Boot API 분리, Nginx가 정적 파일 서빙과 API 리버스 프록시 담당
+- MySQL과 Redis를 각각 데이터/세션 저장소로 사용하는 구조
+- GitHub Actions로 빌드·테스트, Jenkins로 배포 자동화, Docker Compose로 EC2에 배포
 
 <br>
 
@@ -275,44 +393,6 @@ frontend/src
 
 <br>
 
-## 팀원 소개
-
-| [<img src="https://github.com/1gyeolpark.png" width="80" height="80"><br>**박한결**](https://github.com/1gyeolpark) | [<img src="https://github.com/pyj-0313.png" width="80" height="80"><br>**박영준**](https://github.com/pyj-0313) |
-| :---: | :---: |
-| 팀장 | 기획 |
-
-<br> 
-
-**박한결**
-
-| 구분 | 내용 |
-| --- | --- |
-| Backend | - JWT Access/Refresh 토큰 인증<br>- 카카오·구글·네이버 OAuth2 소셜 로그인, 동일 이메일 계정 자동 연동<br>- 이메일 인증번호 기반 회원가입, 비밀번호 재설정<br>- 게시판 CRUD, 임시저장/발행, 좋아요·북마크, 1단계 대댓글<br>- 게시글·리뷰 이미지 업로드<br>- 반려동물 등록 CRUD<br>- 신고 처리, 관리자 권한 변경, 이벤트 기반 알림 + FCM 웹 푸시 |
-| Frontend | - 마이페이지, 여행 일정, 메인페이지 화면 구현<br>- 로그인/회원가입, 관리자, 신고 화면 구현 |
-
-<br>
-
-**박영준**
-
-| 구분 | 내용 |
-| --- | --- |
-| Backend | - 장소 키워드·카테고리·지역·반경 검색, 평점/찜 랭킹<br>- 찜·리뷰 이력 기반 콘텐츠 기반 개인화 추천(코사인 유사도)<br>- TourAPI(한국관광공사) 연동 장소 데이터 동기화<br>- 장소 찜, 리뷰 CRUD(평균 별점 집계)<br>- 여행 일정 CRUD, 공유 링크 발급, 최근접 이웃 알고리즘 기반 경로 최적화 추천 |
-| Frontend | - 공통 인프라(axios, 라우팅), 공통 컴포넌트, 에러 페이지 구현<br>- 지도, 피드(게시판) 화면 구현 |
-
-<br>
-
-## 개정이력
-
-| 날짜 | 내용 |
-| --- | --- |
-| 2026.07.05 | 프로젝트 시작 |
-| 2026.07.14 | 장소 검색 기능 고도화 완료 |
-| 2026.07.20 | 백엔드 핵심 기능(이메일 인증, Pet CRUD 등) 완료 |
-| 2026.07.22 | 프론트엔드 전체 단계(0~7단계) 구현 완료 |
-| 2026.08.04 | README 문서 정리 및 배포 마무리 |
-
-<br>
-
 ## TROUBLESHOOTING
 
 <details>
@@ -371,7 +451,7 @@ public ResponseEntity<ApiResponse<Void>> handleUnexpectedException(Exception e) 
 ```java
 @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
 public ResponseEntity<ApiResponse<Void>> handleOptimisticLockingFailure(ObjectOptimisticLockingFailureException e) {
-    log.warn("낙관적 락 충돌 (동시 요청으로 인한 경쟁 상황)", e);
+    log.warn("낙관적 락 충돌", e);
     return ResponseEntity.status(ErrorCode.CONCURRENT_UPDATE_CONFLICT.getStatus())
             .body(ApiResponse.error(ErrorCode.CONCURRENT_UPDATE_CONFLICT));
 }
