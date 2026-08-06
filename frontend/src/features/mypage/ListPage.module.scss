@@ -74,6 +74,15 @@
   }
 }
 
+.iconActionBtnOn {
+  color: v.$color-text;
+
+  &:hover:not(:disabled) {
+    background-color: v.$color-bg-muted;
+    color: v.$color-text;
+  }
+}
+
 .iconActionBtnDanger {
   &:hover {
     background-color: v.$color-bg-muted;

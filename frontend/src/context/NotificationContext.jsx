@@ -19,7 +19,11 @@ export function NotificationProvider({ children }) {
 
   useEffect(() => {
     refresh();
-  }, [refresh]);
+    if (!isAuthenticated) return undefined;
+    // 실시간 push 대신 30초 간격 폴링으로 헤더 뱃지 갱신
+    const intervalId = setInterval(refresh, 30000);
+    return () => clearInterval(intervalId);
+  }, [refresh, isAuthenticated]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
