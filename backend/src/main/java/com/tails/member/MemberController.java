@@ -118,6 +118,13 @@ public class MemberController {
         return ApiResponse.success();
     }
 
+    @DeleteMapping("/me/fcm-token")
+    @Operation(summary = "FCM 기기 토큰 해제", description = "브라우저 푸시 알림 수신을 끕니다.")
+    public ApiResponse<Void> deleteFcmToken(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        memberService.updateFcmToken(userDetails.getMemberId(), null);
+        return ApiResponse.success();
+    }
+
     @PostMapping(value = "/me/profile-image", consumes = "multipart/form-data")
     @Operation(summary = "프로필 이미지 업로드", description = "프로필 이미지를 업로드합니다(기존 이미지는 교체됨).")
     public ApiResponse<String> uploadProfileImage(@AuthenticationPrincipal CustomUserDetails userDetails,
