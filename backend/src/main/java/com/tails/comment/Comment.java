@@ -80,13 +80,4 @@ public class Comment {
     public void softDelete() {
         this.deleted = true;
     }
-
-    public void increaseLikeCount() {
-        this.likeCount++;
-    }
-
-    public void decreaseLikeCount() {
-        // 동시 취소 등으로 음수가 되는 것 방지
-        this.likeCount = Math.max(0, this.likeCount - 1);
-    }
 }
