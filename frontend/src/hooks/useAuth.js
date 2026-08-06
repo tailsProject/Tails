@@ -1,3 +1,4 @@
+// 로그인 상태 접근용 훅
 import { createContext, useContext } from 'react';
 
 export const AuthContext = createContext(null);
