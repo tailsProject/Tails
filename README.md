@@ -162,7 +162,7 @@ https://github.com/user-attachments/assets/530139a4-6ef5-48b1-bf7c-ec5052c7f00d
 
 - 마이페이지에서 관리자 페이지 진입 가능
 - 회원 권한 변경, 추방 가능
-- 신고된 게시글, 댓글, 회원을 처리 가능
+- 신고된 게시글, 댓글, 리뷰, 회원을 처리 가능
 
 https://github.com/user-attachments/assets/06897ec9-b492-4060-987e-8c4d3c6a9822
 
@@ -309,9 +309,9 @@ npm run dev
 
 [![Tails Architecture](architecture.png)](architecture.png)
 
-- React SPA와 Spring Boot API 분리, MySQL과 Redis를 각각 데이터/세션 저장소로 사용하는 구조
-- Docker Compose로 EC2에 배포
-- GitHub Actions로 빌드·테스트 자동화
+- React 정적 빌드와 Spring Boot API 분리, Nginx가 정적 파일 서빙과 API 리버스 프록시 담당
+- MySQL과 Redis를 각각 데이터/세션 저장소로 사용하는 구조
+- GitHub Actions로 빌드·테스트, Jenkins로 배포 자동화, Docker Compose로 EC2에 배포
 
 <br>
 
