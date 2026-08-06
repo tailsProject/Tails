@@ -170,6 +170,9 @@ https://github.com/user-attachments/assets/06897ec9-b492-4060-987e-8c4d3c6a9822
 
 ### 반응형
 
+- 모바일·태블릿 브레이크포인트를 공통 믹스인으로 만들어 주요 화면 전반에 적용
+- 화면이 좁아지면 헤더 메뉴가 햄버거 메뉴로 전환
+
 <img width="3040" height="2328" alt="tails_readme_banner" src="https://github.com/user-attachments/assets/f27c1099-fe36-488f-8c34-69892ed623a2" />
 </details>
 
