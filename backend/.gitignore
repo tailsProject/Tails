@@ -1,0 +1,47 @@
+HELP.md
+.gradle
+build/
+
+### App config (contains local DB credentials) ###
+src/main/resources/application.properties
+src/main/resources/application-prod.properties
+
+### Firebase 서비스 계정 키 ###
+tails-firebase-key.json
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### 로컬 업로드 이미지 ###
+/uploads/

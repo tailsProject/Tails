@@ -1,0 +1,50 @@
+@use '../../styles/variables' as v;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: v.$spacing-xs;
+  padding: v.$spacing-xl v.$spacing-lg;
+  text-align: center;
+}
+
+.iconBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: v.$spacing-xs;
+  border-radius: 50%;
+  background-color: v.$color-primary-bg;
+  color: v.$color-primary;
+  font-size: 32px;
+}
+
+.title {
+  font-size: v.$font-size-lg;
+  font-weight: 800;
+  color: v.$color-text;
+}
+
+.description {
+  max-width: 360px;
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+}
+
+.action {
+  margin-top: v.$spacing-sm;
+  padding: v.$spacing-sm v.$spacing-lg;
+  border-radius: v.$radius-pill;
+  background-color: v.$color-primary;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: v.$font-size-sm;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: v.$color-primary-dark;
+  }
+}
