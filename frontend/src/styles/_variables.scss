@@ -1,0 +1,56 @@
+// 디자인 토큰 (색상/간격/폰트)
+
+// 색상
+$color-primary: #ff8a3d;
+$color-primary-dark: #e5722a;
+$color-primary-bg: #fff1e6;
+$color-text: #222222;
+$color-text-muted: #767676;
+$color-border: #e5e5e5;
+$color-bg: #ffffff;
+$color-bg-muted: #f7f7f8;
+$color-error: #e0432b;
+$color-success: #2e9e5b;
+
+// 상태 배지 색
+$color-status-pending-bg: #fff1e6;
+$color-status-pending-text: #e5722a;
+$color-status-resolved-bg: #eaf6ec;
+$color-status-resolved-text: #2e9e5b;
+
+// 보조 컬러
+$color-accent: #2f9e8f;
+$color-accent-bg: #eafaf7;
+
+// 간격
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 40px;
+$spacing-xxl: 64px;
+
+// 폰트
+$font-body: 'Pretendard Variable', sans-serif;
+$font-mono: 'DM Mono', 'Pretendard Variable', monospace;
+$font-size-sm: 13px;
+$font-size-base: 15px;
+$font-size-lg: 18px;
+$font-size-xl: 24px;
+$font-size-xxl: 32px;
+
+// 모서리 반경 / 그림자
+$radius-sm: 8px;
+$radius-md: 14px;
+$radius-lg: 20px;
+$radius-pill: 999px;
+$shadow-card: 0 2px 12px rgba(0, 0, 0, 0.06);
+$shadow-card-hover: 0 6px 20px rgba(0, 0, 0, 0.1);
+
+// 레이아웃
+$header-height: 64px;
+$content-max-width: 1080px;
+
+// 브레이크포인트
+$breakpoint-mobile: 480px;
+$breakpoint-tablet: 768px;

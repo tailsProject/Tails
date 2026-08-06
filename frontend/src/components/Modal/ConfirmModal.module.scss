@@ -1,0 +1,13 @@
+@use '../../styles/variables' as v;
+
+.message {
+  color: v.$color-text;
+  margin-bottom: v.$spacing-lg;
+  white-space: pre-line;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: v.$spacing-sm;
+}

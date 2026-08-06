@@ -1,0 +1,80 @@
+spring.application.name=backend
+
+spring.datasource.url=jdbc:mysql://localhost:3306/tails?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Seoul
+spring.datasource.username=${DB_USERNAME:root}
+spring.datasource.password=${DB_PASSWORD:YOUR_PASSWORD}
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+# Refresh Token 저장소 (RefreshTokenStore 참고)
+spring.data.redis.host=${REDIS_HOST:localhost}
+spring.data.redis.port=${REDIS_PORT:6379}
+
+# FCM 푸시 알림 - 비워두면 자동 비활성화
+firebase.credentials-path=${FIREBASE_CREDENTIALS_PATH:}
+
+tour-api.service-key=${TOUR_API_KEY:YOUR_TOUR_API_SERVICE_KEY}
+tour2-api.service-key=${TOUR_API_KEY2:YOUR_TOUR2_API_SERVICE_KEY}
+
+jwt.secret=${JWT_SECRET:change-this-to-a-long-random-secret-key-at-least-256-bits-for-hs256}
+# Access 30분, Refresh 14일(httpOnly 쿠키)
+jwt.expiration=${JWT_EXPIRATION:1800000}
+jwt.refresh-expiration=${JWT_REFRESH_EXPIRATION:1209600000}
+
+# CORS - 프론트 개발 서버 origin (쿠키 기반 refreshToken을 쓰려면 allowCredentials=true + 명시적 origin 필요)
+cors.allowed-origins=${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+# 로컬 http 환경은 false, 배포(https) 환경은 true
+cookie.secure=${COOKIE_SECURE:false}
+
+# 이메일 인증 / 비밀번호 재설정 발송용 SMTP
+spring.mail.host=${MAIL_HOST:smtp.gmail.com}
+spring.mail.port=${MAIL_PORT:587}
+spring.mail.username=${MAIL_USERNAME:YOUR_MAIL_USERNAME}
+spring.mail.password=${MAIL_PASSWORD:YOUR_MAIL_APP_PASSWORD}
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+
+# 인증/재설정 메일에 들어가는 프론트엔드 페이지 링크
+app.email-verify-url=${APP_EMAIL_VERIFY_URL:http://localhost:3000/verify-email}
+app.password-reset-url=${APP_PASSWORD_RESET_URL:http://localhost:3000/reset-password}
+
+# 소셜 로그인 - 카카오/구글 개발자 콘솔에서 발급받은 값으로 교체
+spring.security.oauth2.client.registration.kakao.client-id=${KAKAO_CLIENT_ID:YOUR_KAKAO_CLIENT_ID}
+spring.security.oauth2.client.registration.kakao.client-secret=${KAKAO_CLIENT_SECRET:YOUR_KAKAO_CLIENT_SECRET}
+spring.security.oauth2.client.registration.kakao.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.kakao.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
+spring.security.oauth2.client.registration.kakao.client-authentication-method=client_secret_post
+spring.security.oauth2.client.registration.kakao.scope=profile_nickname,account_email
+spring.security.oauth2.client.provider.kakao.authorization-uri=https://kauth.kakao.com/oauth/authorize
+spring.security.oauth2.client.provider.kakao.token-uri=https://kauth.kakao.com/oauth/token
+spring.security.oauth2.client.provider.kakao.user-info-uri=https://kapi.kakao.com/v2/user/me
+spring.security.oauth2.client.provider.kakao.user-name-attribute=id
+
+spring.security.oauth2.client.registration.google.client-id=${GOOGLE_CLIENT_ID:YOUR_GOOGLE_CLIENT_ID}
+spring.security.oauth2.client.registration.google.client-secret=${GOOGLE_CLIENT_SECRET:YOUR_GOOGLE_CLIENT_SECRET}
+spring.security.oauth2.client.registration.google.scope=email,profile
+
+# 네이버 provider.* 엔드포인트 직접 명시(기본 제공 provider 아님)
+spring.security.oauth2.client.registration.naver.client-id=${NAVER_CLIENT_ID:YOUR_NAVER_CLIENT_ID}
+spring.security.oauth2.client.registration.naver.client-secret=${NAVER_CLIENT_SECRET:YOUR_NAVER_CLIENT_SECRET}
+spring.security.oauth2.client.registration.naver.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.naver.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
+spring.security.oauth2.client.registration.naver.client-authentication-method=client_secret_post
+spring.security.oauth2.client.registration.naver.scope=email,name
+spring.security.oauth2.client.provider.naver.authorization-uri=https://nid.naver.com/oauth2.0/authorize
+spring.security.oauth2.client.provider.naver.token-uri=https://nid.naver.com/oauth2.0/token
+spring.security.oauth2.client.provider.naver.user-info-uri=https://openapi.naver.com/v1/nid/me
+spring.security.oauth2.client.provider.naver.user-name-attribute=response
+
+oauth2.success-redirect-url=${OAUTH2_SUCCESS_REDIRECT_URL:http://localhost:3000/oauth2/redirect}
+
+# 로그인 실패 횟수 제한
+login.max-attempts=${LOGIN_MAX_ATTEMPTS:5}
+login.lock-duration-minutes=${LOGIN_LOCK_DURATION_MINUTES:10}
+
+# 이미지 업로드(로컬 디스크 저장) - FileStorage/WebMvcConfig가 함께 사용
+file.upload-dir=${FILE_UPLOAD_DIR:uploads}
+spring.servlet.multipart.max-file-size=5MB
+spring.servlet.multipart.max-request-size=25MB

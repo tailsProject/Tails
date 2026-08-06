@@ -1,0 +1,316 @@
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: v.$header-height;
+  background-color: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid v.$color-border;
+}
+
+.inner {
+  height: 100%;
+  max-width: v.$content-max-width;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-lg;
+  padding: 0 v.$spacing-lg;
+
+  @include m.mobile {
+    gap: v.$spacing-sm;
+    padding: 0 v.$spacing-sm;
+  }
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.logoImage {
+  height: 40px;
+  width: auto;
+}
+
+$nav-collapse: 700px;
+
+.nav {
+  display: flex;
+  gap: v.$spacing-lg;
+  flex: 1;
+
+  @media (max-width: $nav-collapse) {
+    display: none;
+  }
+}
+
+.menuToggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  color: v.$color-text-muted;
+  flex-shrink: 0;
+
+  @media (max-width: $nav-collapse) {
+    display: flex;
+  }
+}
+
+.mobileNav {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: none;
+  flex-direction: column;
+  padding: v.$spacing-sm;
+  background-color: v.$color-bg;
+  border-bottom: 1px solid v.$color-border;
+  box-shadow: v.$shadow-card;
+
+  @media (max-width: $nav-collapse) {
+    display: flex;
+  }
+}
+
+.mobileNavLink,
+.mobileNavActive {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: v.$spacing-sm v.$spacing-md;
+  border-radius: v.$radius-sm;
+  font-weight: 600;
+  color: v.$color-text-muted;
+
+  &:hover {
+    background-color: v.$color-bg-muted;
+  }
+}
+
+.mobileNavActive {
+  color: v.$color-primary;
+  background-color: v.$color-primary-bg;
+}
+
+.navLink,
+.navActive {
+  position: relative;
+  padding: v.$spacing-sm v.$spacing-md;
+  border-radius: v.$radius-pill;
+  font-weight: 600;
+  color: v.$color-text-muted;
+  white-space: nowrap;
+  transition: color 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    color: v.$color-text;
+    background-color: v.$color-bg-muted;
+  }
+}
+
+.navActive {
+  color: v.$color-primary;
+
+  &:hover {
+    color: v.$color-primary;
+    background-color: v.$color-primary-bg;
+  }
+}
+
+.auth {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-md;
+  white-space: nowrap;
+  margin-left: auto;
+
+  @include m.mobile {
+    gap: v.$spacing-sm;
+  }
+}
+
+.profileLink {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
+  font-weight: 600;
+
+  &:hover {
+    color: v.$color-text;
+  }
+
+  @media (max-width: $nav-collapse) {
+    span:last-child {
+      display: none;
+    }
+  }
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: v.$color-primary-bg;
+  color: v.$color-primary;
+  font-size: 14px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.loginLink {
+  font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
+
+  &:hover {
+    color: v.$color-text;
+  }
+}
+
+.notifWrapper {
+  position: relative;
+}
+
+.notificationLink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: v.$radius-pill;
+
+  &:hover {
+    background-color: v.$color-bg-muted;
+  }
+}
+
+.notifPanel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 288px;
+  max-height: 360px;
+  overflow-y: auto;
+  background-color: v.$color-bg;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  box-shadow: v.$shadow-card-hover;
+  z-index: 50;
+}
+
+.notifPanelHeader {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: v.$spacing-sm v.$spacing-md;
+  border-bottom: 1px solid v.$color-border;
+  background-color: v.$color-bg;
+  font-size: v.$font-size-sm;
+  font-weight: 700;
+
+  button {
+    font-weight: 600;
+    color: v.$color-primary;
+  }
+
+  > div {
+    display: flex;
+    gap: v.$spacing-sm;
+  }
+}
+
+.notifEmpty {
+  padding: v.$spacing-lg v.$spacing-md;
+  text-align: center;
+  color: v.$color-text-muted;
+  font-size: v.$font-size-sm;
+}
+
+.notifItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: v.$spacing-sm v.$spacing-md;
+  border-bottom: 1px solid v.$color-border;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: v.$color-bg-muted;
+  }
+
+  p {
+    font-size: 12px;
+    color: v.$color-text;
+    line-height: 1.5;
+  }
+
+  span {
+    display: block;
+    margin-top: 4px;
+    font-size: 10px;
+    color: v.$color-text-muted;
+  }
+}
+
+.notifItemUnread {
+  background-color: v.$color-primary-bg;
+
+  &:hover {
+    background-color: v.$color-primary-bg;
+  }
+}
+
+.notifPanelFooter {
+  display: block;
+  padding: v.$spacing-sm v.$spacing-md;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: v.$color-primary;
+
+  &:hover {
+    background-color: v.$color-bg-muted;
+  }
+}
+
+.bellIcon {
+  font-size: 18px;
+  color: v.$color-text-muted;
+}
+
+.badge {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background-color: v.$color-error;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}

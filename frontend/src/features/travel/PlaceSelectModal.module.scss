@@ -1,0 +1,21 @@
+@use '../../styles/variables' as v;
+
+.modal {
+  width: 1040px;
+  max-width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: v.$spacing-md;
+
+  h2 {
+    font-size: v.$font-size-lg;
+  }
+}
+
+.body {
+  min-width: 0;
+}
