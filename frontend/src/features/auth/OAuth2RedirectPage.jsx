@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { WarningIcon } from '../../components/Icon/Icon';
+import StateMessage from '../../components/StateMessage/StateMessage';
 import styles from './AuthPage.module.scss';
 
 // 소셜 로그인 성공/실패 모두 이 경로(oauth2.success-redirect-url)로 리다이렉트된다.
@@ -25,17 +27,20 @@ export default function OAuth2RedirectPage() {
   }, []);
 
   if (error) {
+    const isRecentlyWithdrawn = error === 'recently_withdrawn';
+    const description = isRecentlyWithdrawn
+      ? '탈퇴 후 24시간 동안은 같은 이메일로 재가입할 수 없습니다.'
+      : error === 'join_failed'
+        ? '회원가입에 실패했습니다. 다시 시도해주세요.'
+        : '소셜 로그인 중 문제가 발생했습니다. 다시 시도해주세요.';
     return (
-      <div className={styles.wrapper}>
-        <h1>로그인 실패</h1>
-        <p className={styles.hintError}>
-          {error === 'recently_withdrawn' && '탈퇴 후 24시간 동안은 같은 이메일로 재가입할 수 없습니다.'}
-          {error === 'join_failed' && '회원가입에 실패했습니다. 다시 시도해주세요.'}
-          {error !== 'recently_withdrawn' &&
-            error !== 'join_failed' &&
-            '소셜 로그인 중 문제가 발생했습니다. 다시 시도해주세요.'}
-        </p>
-      </div>
+      <StateMessage
+        icon={WarningIcon}
+        title={isRecentlyWithdrawn ? '재가입 제한 안내' : '로그인 실패'}
+        description={description}
+        actionTo="/login"
+        actionLabel="로그인 페이지로 이동"
+      />
     );
   }
 
