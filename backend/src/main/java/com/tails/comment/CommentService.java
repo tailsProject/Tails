@@ -125,7 +125,7 @@ public class CommentService {
         boolean liked = commentLikeRepository.findByCommentIdAndMemberId(commentId, memberId)
                 .map(existing -> {
                     commentLikeRepository.delete(existing);
-                    comment.decreaseLikeCount();
+                    commentRepository.decreaseLikeCount(commentId);
                     return false;
                 })
                 .orElseGet(() -> {
@@ -134,11 +134,11 @@ public class CommentService {
                             .member(memberRepository.getReferenceById(memberId))
                             .build();
                     commentLikeRepository.save(like);
-                    comment.increaseLikeCount();
+                    commentRepository.increaseLikeCount(commentId);
                     return true;
                 });
 
-        return new LikeToggleResponse(liked, comment.getLikeCount());
+        return new LikeToggleResponse(liked, commentRepository.findLikeCountById(commentId));
     }
 
     // 작성자 본인만 수정 가능, 삭제된 댓글은 수정 불가

@@ -2,6 +2,7 @@ package com.tails.common.exception;
 
 import com.tails.common.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -51,6 +52,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity<ApiResponse<Void>> handleOptimisticLockingFailure(ObjectOptimisticLockingFailureException e) {
         log.warn("낙관적 락 충돌", e);
+        return ResponseEntity.status(ErrorCode.CONCURRENT_UPDATE_CONFLICT.getStatus())
+                .body(ApiResponse.error(ErrorCode.CONCURRENT_UPDATE_CONFLICT));
+    }
+
+    // 좋아요 등 벌크 쿼리에 동시 요청이 몰려 DB 락 획득에 실패한 경우(데드락/락 대기 타임아웃) 처리
+    @ExceptionHandler(CannotAcquireLockException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCannotAcquireLock(CannotAcquireLockException e) {
+        log.warn("DB 락 획득 실패", e);
         return ResponseEntity.status(ErrorCode.CONCURRENT_UPDATE_CONFLICT.getStatus())
                 .body(ApiResponse.error(ErrorCode.CONCURRENT_UPDATE_CONFLICT));
     }

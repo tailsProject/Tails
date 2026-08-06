@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -29,5 +30,18 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // 삭제하려는 댓글에 답글이 있는지 확인, 삭제 방식 분기용
     boolean existsByParent_Id(Long parentId);
+
+    // 좋아요 토글도 벌크 쿼리로 처리 - 엔티티 메서드+dirty checking 방식은 동시 요청 시
+    // 마지막에 쓴 요청이 이전 변경을 덮어써 좋아요 수가 실제 row 개수와 어긋날 수 있음
+    @Modifying
+    @Query("update Comment c set c.likeCount = c.likeCount + 1 where c.id = :id")
+    void increaseLikeCount(@Param("id") Long id);
+
+    @Modifying
+    @Query("update Comment c set c.likeCount = case when c.likeCount > 0 then c.likeCount - 1 else 0 end where c.id = :id")
+    void decreaseLikeCount(@Param("id") Long id);
+
+    @Query("select c.likeCount from Comment c where c.id = :id")
+    int findLikeCountById(@Param("id") Long id);
 
 }
