@@ -1,3 +1,4 @@
+// 토스트 알림 호출용 훅
 import { createContext, useContext } from 'react';
 
 export const ToastContext = createContext(null);
