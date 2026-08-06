@@ -198,3 +198,14 @@
     font-weight: 600;
   }
 }
+
+.forgotLink {
+  display: flex;
+  justify-content: space-between;
+  margin-top: v.$spacing-sm;
+  font-size: v.$font-size-sm;
+
+  a {
+    color: v.$color-text-muted;
+  }
+}
