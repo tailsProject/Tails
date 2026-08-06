@@ -7,6 +7,9 @@ spring.jpa.show-sql=false
 
 cookie.secure=true
 
+# nginx 리버스 프록시 뒤에서 X-Forwarded-* 헤더를 신뢰 (OAuth2 redirect-uri가 https로 만들어지려면 필요)
+server.forward-headers-strategy=framework
+
 # 값은 서버 환경변수로만 주입
 spring.datasource.url=${SPRING_DATASOURCE_URL}
 spring.datasource.username=${DB_USERNAME}
