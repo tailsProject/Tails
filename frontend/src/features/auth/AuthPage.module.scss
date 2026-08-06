@@ -13,13 +13,6 @@
     font-weight: 800;
     text-align: center;
   }
-
-  p {
-    margin-top: v.$spacing-sm;
-    text-align: center;
-    color: v.$color-text-muted;
-    font-size: v.$font-size-sm;
-  }
 }
 
 .form {
@@ -91,6 +84,7 @@
   border-radius: v.$radius-pill;
   font-weight: 600;
 
+  // 라벨 길이와 무관하게 아이콘은 항상 왼쪽 같은 위치에 고정 (텍스트는 가운데 유지)
   svg {
     position: absolute;
     left: v.$spacing-md;
@@ -114,6 +108,13 @@
 .naver {
   background-color: #03c75a;
   color: #ffffff;
+}
+
+.socialHint {
+  margin-top: v.$spacing-sm;
+  text-align: center;
+  font-size: 12px;
+  color: v.$color-text-muted;
 }
 
 .terms {
@@ -167,7 +168,7 @@
   flex-shrink: 0;
 
   &:hover {
-    color: v.$color-primary;
+    color: v.$color-text;
   }
 }
 
@@ -197,24 +198,14 @@
     font-weight: 600;
   }
 }
+
 .forgotLink {
   display: flex;
-  justify-content: center;
-  gap: v.$spacing-sm;
+  justify-content: space-between;
   margin-top: v.$spacing-sm;
   font-size: v.$font-size-sm;
 
   a {
     color: v.$color-text-muted;
-
-    &:hover {
-      color: v.$color-primary;
-    }
-
-    &:not(:last-child) {
-      border-right: 1px solid v.$color-border;
-      padding-right: v.$spacing-sm;
-    }
   }
 }
-

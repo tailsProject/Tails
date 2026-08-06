@@ -1,6 +1,6 @@
-// 마이페이지 전반의 내 정보, 반려동물, 활동 내역, 알림 API 호출 모음
 import client from '../../api/client';
 
+// 내 정보
 export function getMyInfo() {
   return client.get('/api/members/me');
 }
@@ -33,6 +33,7 @@ export function withdraw() {
   return client.delete('/api/members/me');
 }
 
+// 반려동물
 export function getMyPets() {
   return client.get('/api/pets');
 }
@@ -61,26 +62,7 @@ export function deletePetPhoto(petId) {
   return client.delete(`/api/pets/${petId}/photo`);
 }
 
-export function getMyBoards({ page = 0, size = 10 } = {}) {
-  return client.get('/api/boards/my', { params: { page, size } });
-}
-
-export function getMyReviews({ page = 0, size = 10 } = {}) {
-  return client.get('/api/reviews/me', { params: { page, size } });
-}
-
-export function getMyBookmarkedBoards({ page = 0, size = 10 } = {}) {
-  return client.get('/api/bookmarks/boards', { params: { page, size } });
-}
-
-export function getMyBookmarkedPlaces({ page = 0, size = 10 } = {}) {
-  return client.get('/api/bookmarks/places', { params: { page, size } });
-}
-
-export function getMyReports({ page = 0, size = 10 } = {}) {
-  return client.get('/api/reports/my', { params: { page, size } });
-}
-
+// 알림
 export function getMyNotifications({ page = 0, size = 20 } = {}) {
   return client.get('/api/notifications', { params: { page, size } });
 }
@@ -99,4 +81,26 @@ export function deleteAllNotifications() {
 
 export function updateFcmToken(fcmToken) {
   return client.patch('/api/members/me/fcm-token', { fcmToken });
+}
+
+// 내 글 / 내 리뷰 / 북마크
+export function getMyBoards({ page = 0, size = 10 } = {}) {
+  return client.get('/api/boards/my', { params: { page, size } });
+}
+
+export function getMyReviews({ page = 0, size = 10 } = {}) {
+  return client.get('/api/reviews/me', { params: { page, size } });
+}
+
+export function getMyBookmarkedBoards({ page = 0, size = 10 } = {}) {
+  return client.get('/api/bookmarks/boards', { params: { page, size } });
+}
+
+export function getMyBookmarkedPlaces({ page = 0, size = 10 } = {}) {
+  return client.get('/api/bookmarks/places', { params: { page, size } });
+}
+
+// 내 신고 내역
+export function getMyReports({ page = 0, size = 10 } = {}) {
+  return client.get('/api/reports/my', { params: { page, size } });
 }
