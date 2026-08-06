@@ -9,7 +9,7 @@ import styles from './Footer.module.scss';
 const SUPPORT_EMAIL = 'tails@mail.com';
 
 export default function Footer() {
-  const [openTerms, setOpenTerms] = useState(null);
+  const [openTerms, setOpenTerms] = useState(null); 
 
   return (
     <footer className={styles.footer}>
