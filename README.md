@@ -451,7 +451,7 @@ public ResponseEntity<ApiResponse<Void>> handleUnexpectedException(Exception e) 
 ```java
 @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
 public ResponseEntity<ApiResponse<Void>> handleOptimisticLockingFailure(ObjectOptimisticLockingFailureException e) {
-    log.warn("낙관적 락 충돌 (동시 요청으로 인한 경쟁 상황)", e);
+    log.warn("낙관적 락 충돌", e);
     return ResponseEntity.status(ErrorCode.CONCURRENT_UPDATE_CONFLICT.getStatus())
             .body(ApiResponse.error(ErrorCode.CONCURRENT_UPDATE_CONFLICT));
 }
