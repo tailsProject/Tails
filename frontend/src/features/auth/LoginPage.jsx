@@ -1,3 +1,4 @@
+// 이메일 로그인, 소셜 로그인 진입 페이지
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -65,6 +66,11 @@ export default function LoginPage() {
         </Button>
       </form>
 
+      <p className={styles.forgotLink}>
+        <Link to="/signup">회원가입</Link>
+        <Link to="/forgot-password">비밀번호 찾기</Link>
+      </p>
+
       <div className={styles.socialDivider}>또는</div>
       <div className={styles.socialButtons}>
         {SOCIAL_PROVIDERS.map((provider) => (
@@ -77,14 +83,6 @@ export default function LoginPage() {
           </a>
         ))}
       </div>
-      <p className={styles.socialHint}>이미 이메일로 가입하셨다면 같은 이메일의 소셜 로그인이 자동으로 연동돼요.</p>
-
-      <p className={styles.switchLink}>
-        계정이 없으신가요? <Link to="/signup">회원가입</Link>
-      </p>
-      <p className={styles.switchLink}>
-        <Link to="/forgot-password">비밀번호 찾기</Link>
-      </p>
     </div>
   );
 }
