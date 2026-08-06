@@ -670,8 +670,9 @@ $ls-label: 0.06em;
 }
 
 .recentTitle {
-  font-weight: 600;
+  font-weight: 400;
   font-size: v.$font-size-sm;
+  color: v.$color-text-muted;
   margin-bottom: v.$spacing-sm;
   @include m.ellipsis;
 }
