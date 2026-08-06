@@ -448,6 +448,7 @@
   background-color: v.$color-bg;
   border: 1px solid v.$color-border;
   box-shadow: v.$shadow-card-hover;
+  cursor: pointer;
 
   &::after {
     content: '';
