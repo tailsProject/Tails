@@ -76,8 +76,12 @@ export default function CommentSection({ boardId, boardAuthorId }) {
   async function handleDelete(commentId) {
     const ok = await confirm('댓글을 삭제하시겠습니까?');
     if (!ok) return;
-    await deleteComment(boardId, commentId);
-    load();
+    try {
+      await deleteComment(boardId, commentId);
+      load();
+    } catch (error) {
+      showToast(error.response?.data?.error?.message ?? '삭제에 실패했습니다.', 'error');
+    }
   }
 
   function handleReplyClick(commentId) {
