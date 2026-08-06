@@ -1,3 +1,4 @@
+// 헤더 알림 뱃지, 알림 목록 전역 제공
 import { useCallback, useEffect, useState } from 'react';
 import { getMyNotifications } from '../features/mypage/api';
 import { useAuth } from '../hooks/useAuth';
