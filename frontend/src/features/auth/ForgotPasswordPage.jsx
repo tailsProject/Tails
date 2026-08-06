@@ -1,3 +1,4 @@
+// 비밀번호 재설정 링크 요청 페이지
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { requestPasswordReset } from './api';
@@ -11,8 +12,6 @@ export default function ForgotPasswordPage() {
   const [sent, setSent] = useState(false);
   const { showToast } = useToast();
 
-  // 가입 안 된 이메일이어도 서버가 조용히 성공 응답을 주므로(계정 열거 방지),
-  // 프론트도 항상 같은 안내 문구를 보여준다.
   async function handleSubmit(e) {
     e.preventDefault();
     setIsSubmitting(true);

@@ -1,3 +1,4 @@
+// 비밀번호 재설정 링크로 진입해 새 비밀번호를 입력하는 페이지
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { resetPassword } from './api';
