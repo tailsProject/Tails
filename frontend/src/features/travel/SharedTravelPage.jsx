@@ -94,6 +94,7 @@ export default function SharedTravelPage() {
   }, [detailsByDate, selectedDate]);
 
   useEffect(() => {
+    if (!travel || mapRef.current) return;
     let cancelled = false;
     loadKakaoMaps().then((kakao) => {
       if (cancelled || !mapContainerRef.current) return;
@@ -109,7 +110,7 @@ export default function SharedTravelPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [travel]);
 
   useEffect(() => {
     if (!mapRef.current) return;
