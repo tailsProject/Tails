@@ -1,3 +1,4 @@
+// 브라우저 기본 confirm 대체용 확인창, Promise로 결과 전달
 import { useCallback, useRef, useState } from 'react';
 import Modal from './Modal';
 import Button from '../Button/Button';
@@ -8,6 +9,7 @@ export function ConfirmProvider({ children }) {
   const [message, setMessage] = useState(null);
   const resolveRef = useRef(null);
 
+  // 호출부는 await confirm(메시지) 형태로 사용, 버튼 클릭 시 Promise 해결
   const confirm = useCallback((msg) => {
     setMessage(msg);
     return new Promise((resolve) => {

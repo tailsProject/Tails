@@ -1,3 +1,4 @@
+// 알림 목록 접근용 훅
 import { createContext, useContext } from 'react';
 
 export const NotificationContext = createContext(null);
