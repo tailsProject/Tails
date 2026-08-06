@@ -215,6 +215,12 @@ $nav-collapse: 700px;
   border-radius: v.$radius-md;
   box-shadow: v.$shadow-card-hover;
   z-index: 50;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .notifPanelHeader {
