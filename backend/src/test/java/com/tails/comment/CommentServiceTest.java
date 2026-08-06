@@ -53,6 +53,12 @@ class CommentServiceTest {
         return board;
     }
 
+    private Board newDraftBoard(Long boardId, Member owner) {
+        Board board = Board.builder().member(owner).title("t").content("c").status(BoardStatus.DRAFT).build();
+        ReflectionTestUtils.setField(board, "id", boardId);
+        return board;
+    }
+
     private Comment newComment(Long commentId, Board board, Comment parent) {
         Comment comment = Comment.builder().board(board).member(newMember(1L)).parent(parent).content("c").build();
         ReflectionTestUtils.setField(comment, "id", commentId);
@@ -101,5 +107,29 @@ class CommentServiceTest {
         assertThatThrownBy(() -> commentService.update(1L, 1L, 10L, new CommentUpdateRequest("edited")))
                 .isInstanceOf(CustomException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.COMMENT_NOT_FOUND);
+    }
+
+    @Test
+    void 작성자가_아니면_남의_임시저장_글의_댓글을_수정할_수_없다() {
+        Member owner = newMember(1L);
+        Board draftBoard = newDraftBoard(1L, owner);
+        Comment comment = newComment(10L, draftBoard, null);
+        when(commentRepository.findById(10L)).thenReturn(Optional.of(comment));
+
+        assertThatThrownBy(() -> commentService.update(2L, 1L, 10L, new CommentUpdateRequest("edited")))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.BOARD_NOT_FOUND);
+    }
+
+    @Test
+    void 작성자가_아니면_남의_임시저장_글의_댓글을_삭제할_수_없다() {
+        Member owner = newMember(1L);
+        Board draftBoard = newDraftBoard(1L, owner);
+        Comment comment = newComment(10L, draftBoard, null);
+        when(commentRepository.findById(10L)).thenReturn(Optional.of(comment));
+
+        assertThatThrownBy(() -> commentService.delete(2L, 1L, 10L))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.BOARD_NOT_FOUND);
     }
 }
