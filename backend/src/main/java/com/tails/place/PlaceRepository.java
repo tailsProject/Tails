@@ -30,8 +30,9 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
               and (:cat1List is null or p.cat1 in :cat1List)
               and (:cat2 is null or p.cat2 = :cat2)
               and (:region is null
-                   or p.address like concat('%', :region, '%')
-                   or (:regionAlias is not null and p.address like concat('%', :regionAlias, '%')))
+                   or cast(function('SUBSTRING_INDEX', p.address, ' ', 1) as string) like concat('%', :region, '%')
+                   or (:regionAlias is not null
+                       and cast(function('SUBSTRING_INDEX', p.address, ' ', 1) as string) like concat('%', :regionAlias, '%')))
               and (:minLat is null or p.latitude between :minLat and :maxLat)
               and (:minLng is null or p.longitude between :minLng and :maxLng)
             """)
