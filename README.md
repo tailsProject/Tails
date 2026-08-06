@@ -10,7 +10,7 @@
 
 <br>
 
-![개발기간](https://img.shields.io/badge/개발기간-2026.07.08_~_08.04-e5722a?style=flat-square&labelColor=222222&color=e5722a) 
+![개발기간](https://img.shields.io/badge/개발기간-2026.07.08_~_08.06-e5722a?style=flat-square&labelColor=222222&color=e5722a) 
 [![배포](https://img.shields.io/badge/배포-mytails.site-ff8a3d?style=flat-square&labelColor=222222&color=ff8a3d)](https://mytails.site) <br>
 [![CI](https://github.com/tailsProject/Tails/actions/workflows/ci.yml/badge.svg)](https://github.com/tailsProject/Tails/actions/workflows/ci.yml)
 ![팀원](https://img.shields.io/badge/팀원-2명-2e9e5b?style=flat-square&labelColor=222222&color=2e9e5b)
