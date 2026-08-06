@@ -1,3 +1,4 @@
+// 공통 axios 인스턴스, 토큰 첨부와 401 재발급 처리
 import axios from 'axios';
 import { getAccessToken, setAccessToken } from './tokenStore';
 
@@ -5,7 +6,7 @@ const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const client = axios.create({
   baseURL,
-  withCredentials: true,
+  withCredentials: true, 
 });
 
 client.interceptors.request.use((config) => {
@@ -16,6 +17,7 @@ client.interceptors.request.use((config) => {
   return config;
 });
 
+// 동시에 여러 요청이 401을 맞아도 재발급 호출은 한 번만 나가도록 공유
 let reissuePromise = null;
 
 function reissueAccessToken() {

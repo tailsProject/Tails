@@ -1,3 +1,4 @@
+// 공통 모달 껍데기, body에 포털로 렌더링
 import { createPortal } from 'react-dom';
 import styles from './Modal.module.scss';
 
