@@ -1,3 +1,4 @@
+// 로그인 회원 정보와 인증 관련 동작 전역 제공
 import { useEffect, useState } from 'react';
 import client from '../api/client';
 import { setAccessToken } from '../api/tokenStore';
@@ -7,6 +8,7 @@ export function AuthProvider({ children }) {
   const [member, setMember] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // 리프레시 쿠키로 액세스 토큰 재발급 후 내 정보 조회, 앱 첫 진입 시 로그인 세션 복구용
   async function completeSessionFromCookie() {
     const reissueRes = await client.post('/api/auth/reissue');
     setAccessToken(reissueRes.data.data.accessToken);
@@ -19,9 +21,12 @@ export function AuthProvider({ children }) {
     });
   }
 
+
   useEffect(() => {
     completeSessionFromCookie()
-      .catch(() => {})
+      .catch(() => {
+
+      })
       .finally(() => setIsLoading(false));
   }, []);
 
