@@ -75,11 +75,11 @@
 }
 
 .iconActionBtnOn {
-  color: v.$color-text;
+  color: v.$color-error;
 
   &:hover:not(:disabled) {
     background-color: v.$color-bg-muted;
-    color: v.$color-text;
+    color: v.$color-error;
   }
 }
 

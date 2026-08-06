@@ -122,7 +122,7 @@ export default function NotificationsPage() {
               aria-label={isPushEnabled ? '푸시 알림 끄기' : '푸시 알림 켜기'}
               data-tooltip={isPushEnabled ? '푸시 알림 끄기' : '푸시 알림 켜기'}
             >
-              <BellIcon />
+              <BellIcon fill={isPushEnabled ? 'currentColor' : 'none'} />
             </button>
           )}
           <button
