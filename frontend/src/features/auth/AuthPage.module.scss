@@ -11,6 +11,7 @@
   h1 {
     font-size: v.$font-size-xl;
     font-weight: 800;
+    text-align: center;
   }
 }
 
@@ -80,7 +81,7 @@
   align-items: center;
   justify-content: center;
   padding: v.$spacing-sm;
-  border-radius: 6px;
+  border-radius: v.$radius-pill;
   font-weight: 600;
 
   // 라벨 길이와 무관하게 아이콘은 항상 왼쪽 같은 위치에 고정 (텍스트는 가운데 유지)
