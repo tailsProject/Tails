@@ -3,14 +3,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
 import Button from '../../components/Button/Button';
+import { KakaoIcon, GoogleIcon, NaverIcon } from '../../components/Icon/Icon';
 import styles from './AuthPage.module.scss';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 const SOCIAL_PROVIDERS = [
-  { id: 'kakao', label: '카카오로 로그인' },
-  { id: 'google', label: '구글로 로그인' },
-  { id: 'naver', label: '네이버로 로그인' },
+  { id: 'kakao', label: '카카오로 로그인', Icon: KakaoIcon },
+  { id: 'google', label: '구글로 로그인', Icon: GoogleIcon },
+  { id: 'naver', label: '네이버로 로그인', Icon: NaverIcon },
 ];
 
 export default function LoginPage() {
@@ -72,7 +73,7 @@ export default function LoginPage() {
             href={`${API_BASE}/oauth2/authorization/${provider.id}`}
             className={`${styles.socialButton} ${styles[provider.id]}`}
           >
-            {provider.label}
+            <provider.Icon /> {provider.label}
           </a>
         ))}
       </div>

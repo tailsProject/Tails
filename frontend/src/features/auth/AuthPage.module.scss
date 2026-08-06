@@ -75,11 +75,22 @@
 }
 
 .socialButton {
-  display: block;
-  text-align: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: v.$spacing-sm;
   border-radius: 6px;
   font-weight: 600;
+
+  // 라벨 길이와 무관하게 아이콘은 항상 왼쪽 같은 위치에 고정 (텍스트는 가운데 유지)
+  svg {
+    position: absolute;
+    left: v.$spacing-md;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+  }
 }
 
 .kakao {
