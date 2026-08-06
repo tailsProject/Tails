@@ -14,7 +14,7 @@ export function NotificationProvider({ children }) {
       setNotifications([]);
       return;
     }
-    const res = await getMyNotifications({ page: 0, size: 5 });
+    const res = await getMyNotifications({ page: 0, size: 20 });
     setNotifications(res.data.data.content);
   }, [isAuthenticated]);
 
