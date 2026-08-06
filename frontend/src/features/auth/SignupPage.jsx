@@ -1,3 +1,4 @@
+// 회원가입 페이지, 이메일 인증과 약관 동의를 포함
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { join, checkEmail, checkNickname, sendSignupCode, verifySignupCode } from './api';
@@ -7,7 +8,6 @@ import Button from '../../components/Button/Button';
 import Modal from '../../components/Modal/Modal';
 import styles from './AuthPage.module.scss';
 
-// 백엔드 MemberJoinRequest 검증 규칙과 동일 (프론트에서 미리 걸러 UX 개선용, 최종 검증은 서버가 함)
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_PATTERN = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).+$/;
 // 공백과 자음/모음 단독 문자 차단, 특수문자와 이모지는 허용
@@ -18,7 +18,8 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [nickname, setNickname] = useState('');
-  const [emailAvailable, setEmailAvailable] = useState(null); // null: 미확인
+  const [emailAvailable, setEmailAvailable] = useState(null);
+  const [emailUnavailableReason, setEmailUnavailableReason] = useState('');
   const [nicknameAvailable, setNicknameAvailable] = useState(null);
   const [code, setCode] = useState('');
   const [codeSent, setCodeSent] = useState(false);
@@ -29,7 +30,7 @@ export default function SignupPage() {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [agreePrivacy, setAgreePrivacy] = useState(false);
   const [agreeMarketing, setAgreeMarketing] = useState(false);
-  const [openTerms, setOpenTerms] = useState(null); // null | 'terms' | 'privacy' | 'marketing'
+  const [openTerms, setOpenTerms] = useState(null); 
   const { showToast } = useToast();
   const navigate = useNavigate();
 
@@ -42,14 +43,7 @@ export default function SignupPage() {
     setAgreeMarketing(checked);
   }
 
-  // 이메일을 바꾸면 이전 인증 상태는 무효화
-  useEffect(() => {
-    setCode('');
-    setCodeSent(false);
-    setCodeVerified(false);
-  }, [email]);
-
-  // 입력을 멈추고 500ms 뒤에만 중복 확인 호출 (매 키 입력마다 API를 부르지 않도록)
+  // 이메일 형식이 맞을 때만 0.5초 디바운스로 중복확인 요청
   useEffect(() => {
     if (!EMAIL_PATTERN.test(email) || email.length > 100) {
       setEmailAvailable(null);
@@ -58,8 +52,15 @@ export default function SignupPage() {
     const timer = setTimeout(async () => {
       const res = await checkEmail(email);
       setEmailAvailable(res.data.data.available);
+      setEmailUnavailableReason(res.data.data.reason ?? '');
     }, 500);
     return () => clearTimeout(timer);
+  }, [email]);
+
+  useEffect(() => {
+    setCode('');
+    setCodeSent(false);
+    setCodeVerified(false);
   }, [email]);
 
   useEffect(() => {
@@ -111,7 +112,7 @@ export default function SignupPage() {
     setIsSubmitting(true);
     try {
       await join({ email, password, passwordConfirm, nickname, agreeMarketing });
-      showToast('회원가입이 완료됐습니다. 로그인해주세요.', 'success');
+      showToast('회원가입이 완료됐습니다.', 'success');
       navigate('/login');
     } catch (error) {
       const message = error.response?.data?.error?.message ?? '회원가입에 실패했습니다.';
@@ -147,7 +148,7 @@ export default function SignupPage() {
             </Button>
           </div>
           {emailAvailable === true && <span className={styles.hintOk}>사용 가능한 이메일입니다.</span>}
-          {emailAvailable === false && <span className={styles.hintError}>이미 사용 중인 이메일입니다.</span>}
+          {emailAvailable === false && <span className={styles.hintError}>{emailUnavailableReason}</span>}
         </label>
 
         {codeSent && !codeVerified && (
