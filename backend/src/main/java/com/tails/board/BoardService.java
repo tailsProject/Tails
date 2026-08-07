@@ -205,7 +205,7 @@ public class BoardService {
     }
 
     private Board getBoardOrThrow(Long boardId) {
-        return boardRepository.findById(boardId)
+        return boardRepository.findByIdWithMember(boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
     }
 }

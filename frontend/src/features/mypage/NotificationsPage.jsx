@@ -1,7 +1,7 @@
 // 전체 알림 목록 페이지, 웹 푸시 켜기 포함
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getMyNotifications, markNotificationAsRead, markAllNotificationsAsRead, deleteAllNotifications, updateFcmToken } from './api';
+import { getMyNotifications, markNotificationAsRead, markAllNotificationsAsRead, deleteAllNotifications, updateFcmToken, deleteFcmToken, getMyInfo } from './api';
 import { isPushConfigured, requestPushToken } from './firebaseMessaging';
 import { useToast } from '../../hooks/useToast';
 import { useConfirm } from '../../hooks/useConfirm';
@@ -32,6 +32,7 @@ export default function NotificationsPage() {
   const [page, setPage] = useState(0);
   const [notificationPage, setNotificationPage] = useState(null);
   const [isEnablingPush, setIsEnablingPush] = useState(false);
+  const [isPushEnabled, setIsPushEnabled] = useState(false);
   const navigate = useNavigate();
   const { showToast } = useToast();
   const confirm = useConfirm();
@@ -42,9 +43,18 @@ export default function NotificationsPage() {
     setNotificationPage(res.data.data);
   }
 
+  async function loadPushStatus() {
+    const res = await getMyInfo();
+    setIsPushEnabled(res.data.data.pushEnabled);
+  }
+
   useEffect(() => {
     load();
   }, [page]);
+
+  useEffect(() => {
+    loadPushStatus();
+  }, []);
 
   async function handleClick(notification) {
     if (!notification.read) {
@@ -73,15 +83,23 @@ export default function NotificationsPage() {
     }
   }
 
-  async function handleEnablePush() {
+  async function handleTogglePush() {
     setIsEnablingPush(true);
     try {
+      if (isPushEnabled) {
+        await deleteFcmToken();
+        setIsPushEnabled(false);
+        showToast('브라우저 푸시 알림을 껐습니다.', 'success');
+        return;
+      }
+
       const token = await requestPushToken();
       if (!token) {
         showToast('알림 권한이 거부되었거나 이 브라우저에서 지원하지 않습니다.', 'error');
         return;
       }
       await updateFcmToken(token);
+      setIsPushEnabled(true);
       showToast('브라우저 푸시 알림이 설정되었습니다.', 'success');
     } catch {
       showToast('푸시 알림 설정에 실패했습니다.', 'error');
@@ -98,13 +116,13 @@ export default function NotificationsPage() {
           {isPushConfigured() && (
             <button
               type="button"
-              className={styles.iconActionBtn}
+              className={isPushEnabled ? `${styles.iconActionBtn} ${styles.iconActionBtnOn}` : styles.iconActionBtn}
               disabled={isEnablingPush}
-              onClick={handleEnablePush}
-              aria-label="푸시 알림 켜기"
-              data-tooltip="푸시 알림 켜기"
+              onClick={handleTogglePush}
+              aria-label={isPushEnabled ? '푸시 알림 끄기' : '푸시 알림 켜기'}
+              data-tooltip={isPushEnabled ? '푸시 알림 끄기' : '푸시 알림 켜기'}
             >
-              <BellIcon />
+              <BellIcon fill={isPushEnabled ? 'currentColor' : 'none'} />
             </button>
           )}
           <button

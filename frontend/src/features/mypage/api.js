@@ -100,3 +100,7 @@ export function deleteAllNotifications() {
 export function updateFcmToken(fcmToken) {
   return client.patch('/api/members/me/fcm-token', { fcmToken });
 }
+
+export function deleteFcmToken() {
+  return client.delete('/api/members/me/fcm-token');
+}

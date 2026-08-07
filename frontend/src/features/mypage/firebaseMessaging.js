@@ -24,6 +24,16 @@ async function registerServiceWorker() {
   return navigator.serviceWorker.ready;
 }
 
+let messagingInstance = null;
+
+function getMessagingInstance() {
+  if (!messagingInstance) {
+    const app = initializeApp(firebaseConfig);
+    messagingInstance = getMessaging(app);
+  }
+  return messagingInstance;
+}
+
 export async function requestPushToken() {
   if (!isPushConfigured() || !('serviceWorker' in navigator) || !('Notification' in window)) {
     return null;
@@ -34,13 +44,17 @@ export async function requestPushToken() {
     return null;
   }
 
-  const app = initializeApp(firebaseConfig);
-  const messaging = getMessaging(app);
+  const messaging = getMessagingInstance();
   const registration = await registerServiceWorker();
 
-  onMessage(messaging, (payload) => {
-    console.info('[FCM] foreground message', payload);
-  });
-
   return getToken(messaging, { vapidKey, serviceWorkerRegistration: registration });
+}
+
+// 탭이 열려있는 동안 도착하는 포그라운드 메시지를 구독 (헤더 알림 뱃지 즉시 갱신용)
+export function subscribeToForegroundMessages(onReceive) {
+  if (!isPushConfigured() || Notification.permission !== 'granted') {
+    return () => {};
+  }
+  const messaging = getMessagingInstance();
+  return onMessage(messaging, onReceive);
 }

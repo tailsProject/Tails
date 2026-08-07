@@ -42,12 +42,16 @@ services:
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-dummy}
       NAVER_CLIENT_ID: ${NAVER_CLIENT_ID:-dummy}
       NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET:-dummy}
-      FIREBASE_CREDENTIALS_PATH: ${FIREBASE_CREDENTIALS_PATH:-}
+      FIREBASE_CREDENTIALS_PATH: ${FIREBASE_CREDENTIALS_PATH:-tails-firebase-key.json}
+      OAUTH2_SUCCESS_REDIRECT_URL: ${OAUTH2_SUCCESS_REDIRECT_URL:-https://mytails.site/oauth2/redirect}
+      APP_EMAIL_VERIFY_URL: ${APP_EMAIL_VERIFY_URL:-https://mytails.site/verify-email}
+      APP_PASSWORD_RESET_URL: ${APP_PASSWORD_RESET_URL:-https://mytails.site/reset-password}
     volumes:
       - uploads_data:/app/uploads
       # EC2 /opt/tails-config/ 에 미리 배치해둔 실제 설정 파일 (git엔 없음, .example 기반)
       - /opt/tails-config/application.properties:/app/config/application.properties:ro
       - /opt/tails-config/application-prod.properties:/app/config/application-prod.properties:ro
+      - /opt/tails-config/tails-firebase-key.json:/app/tails-firebase-key.json:ro
     restart: unless-stopped
 
   nginx:

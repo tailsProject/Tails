@@ -16,6 +16,7 @@ public record MemberResponse(
         String provider,
         String role,
         boolean marketingAgreed,
+        boolean pushEnabled,
         LocalDateTime createdAt,
         List<PetResponse> pets
 ) {
@@ -29,6 +30,7 @@ public record MemberResponse(
                 member.getProvider(),
                 member.getRole().name(),
                 member.isMarketingAgreed(),
+                member.getFcmToken() != null,
                 member.getCreatedAt(),
                 member.getPets().stream().map(PetResponse::from).toList()
         );

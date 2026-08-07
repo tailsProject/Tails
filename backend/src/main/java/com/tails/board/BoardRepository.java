@@ -1,6 +1,7 @@
 package com.tails.board;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,6 +38,11 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     @Query(value = "select b from Board b left join fetch b.member where b.status = com.tails.board.BoardStatus.PUBLISHED",
             countQuery = "select count(b) from Board b where b.status = com.tails.board.BoardStatus.PUBLISHED")
     Page<Board> findAllWithMember(Pageable pageable);
+
+    // 탈퇴한 회원의 글은 member_id가 존재하지 않는 회원을 가리킬 수 있어 left join fetch로 조회
+    // (기본 findById로 지연 로딩하면 board.getMember() 접근 시 EntityNotFoundException 발생)
+    @Query("select b from Board b left join fetch b.member where b.id = :id")
+    Optional<Board> findByIdWithMember(@Param("id") Long id);
 
     // 제목/내용에 keyword가 포함된 게시글 검색
     @Query(value = "select b from Board b left join fetch b.member "

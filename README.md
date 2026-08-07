@@ -315,7 +315,7 @@ npm run dev
 
 - React 정적 빌드와 Spring Boot API 분리, Nginx가 정적 파일 서빙과 API 리버스 프록시 담당
 - MySQL과 Redis를 각각 데이터/세션 저장소로 사용하는 구조
-- GitHub Actions로 빌드·테스트, Jenkins로 배포 자동화, Docker Compose로 EC2에 배포
+- GitHub Actions로 빌드·테스트, Jenkins로 배포를 각각 자동화, Docker Compose로 EC2에 배포
 
 <br>
 

@@ -101,7 +101,7 @@ export default function Header() {
                   onClick={() => setNotifOpen((open) => !open)}
                 >
                   <span className={styles.bellIcon}><BellIcon /></span>
-                  {unreadCount > 0 && <span className={styles.badge}>{unreadCount > 9 ? '9+' : unreadCount}</span>}
+                  {unreadCount > 0 && <span className={styles.badge}>{unreadCount > 99 ? '99+' : unreadCount}</span>}
                 </button>
                 {notifOpen && (
                   <div className={styles.notifPanel}>
