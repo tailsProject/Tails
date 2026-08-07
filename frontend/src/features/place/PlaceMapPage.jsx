@@ -304,7 +304,12 @@ export default function PlaceMapPage({ selectMode = false, onAddPlace, addedPlac
             },
           ],
         });
-        parseAndSearch(keyword);
+        if (searchParams.get('bookmarked') === '1' && isAuthenticated) {
+          setShowBookmarks(true);
+          loadBookmarkedPlaces();
+        } else {
+          parseAndSearch(keyword);
+        }
       })
       .catch(() => setSdkError(true));
     return () => {
