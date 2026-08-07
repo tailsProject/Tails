@@ -53,7 +53,7 @@ $ls-label: 0.06em;
   align-items: center;
 
   @include m.tablet {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: v.$spacing-lg;
   }
 }
