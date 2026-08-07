@@ -14,16 +14,16 @@ export function NotificationProvider({ children }) {
       setNotifications([]);
       return;
     }
-    const res = await getMyNotifications({ page: 0, size: 20 });
+    const res = await getMyNotifications({ page: 0, size: 100 });
     setNotifications(res.data.data.content);
   }, [isAuthenticated]);
 
   useEffect(() => {
     refresh();
     if (!isAuthenticated) return undefined;
-    // 포그라운드로 FCM이 도착하면 즉시 갱신, 그 외엔 10초 폴링으로 보완
+    // 포그라운드로 FCM이 도착하면 즉시 갱신, 그 외엔 1초 폴링으로 보완
     const unsubscribe = subscribeToForegroundMessages(refresh);
-    const intervalId = setInterval(refresh, 10000);
+    const intervalId = setInterval(refresh, 1000);
     return () => {
       unsubscribe();
       clearInterval(intervalId);
