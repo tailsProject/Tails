@@ -1,6 +1,7 @@
 // 마이페이지 사이드바 탭과 하위 라우트 뼈대
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { isStaffRole } from '../../utils/memberRole';
 import { UserIcon, PawIcon, PencilIcon, StarIcon, BookmarkIcon, WarningIcon, BellIcon, CrownIcon, LogoutIcon } from '../../components/Icon/Icon';
 import styles from './MyPageLayout.module.scss';
 
@@ -38,7 +39,7 @@ export default function MyPageLayout() {
               {tab.label}
             </NavLink>
           ))}
-          {member?.role === 'ADMIN' && (
+          {isStaffRole(member?.role) && (
             <NavLink to="/admin" className={({ isActive }) => (isActive ? styles.active : undefined)}>
               <span className={styles.tabIcon}><CrownIcon /></span>
               관리자

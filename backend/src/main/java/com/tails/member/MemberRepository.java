@@ -14,8 +14,12 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByEmail(String email);
 
-    // 관리자 회원 검색 - 이메일 또는 닉네임에 keyword 포함
-    Page<Member> findByEmailContainingOrNicknameContaining(String email, String nickname, Pageable pageable);
+    // 관리자 회원 검색 - 이메일 또는 닉네임에 keyword 포함. ADMIN/MANAGER가 승격 즉시 목록 위쪽에 오도록 권한순 정렬
+    @Query("select m from Member m where m.email like concat('%', :email, '%') or m.nickname like concat('%', :nickname, '%') "
+            + "order by case m.role when com.tails.member.MemberRole.ADMIN then 0 "
+            + "when com.tails.member.MemberRole.MANAGER then 1 else 2 end, m.id desc")
+    Page<Member> findByEmailContainingOrNicknameContaining(
+            @Param("email") String email, @Param("nickname") String nickname, Pageable pageable);
 
     boolean existsByEmail(String email);
 

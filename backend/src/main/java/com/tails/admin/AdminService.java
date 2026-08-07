@@ -22,13 +22,17 @@ public class AdminService {
     private final MemberService memberService;
 
     // 최초 관리자 계정은 이 API로 만들 수 없음. DB에서 직접 UPDATE로 지정
+    // MANAGER는 ADMIN 권한을 부여하거나, ADMIN의 권한을 바꿀 수 없음 (USER<->MANAGER만 가능)
     @Transactional
-    public void changeMemberRole(Long currentMemberId, Long memberId, MemberRole role) {
+    public void changeMemberRole(Long currentMemberId, MemberRole currentRole, Long memberId, MemberRole role) {
         if (currentMemberId.equals(memberId)) {
             throw new CustomException(ErrorCode.CANNOT_CHANGE_OWN_ROLE);
         }
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        if (currentRole == MemberRole.MANAGER && (member.getRole() == MemberRole.ADMIN || role == MemberRole.ADMIN)) {
+            throw new CustomException(ErrorCode.CANNOT_CHANGE_ADMIN_ROLE);
+        }
         member.changeRole(role);
     }
 
@@ -40,10 +44,16 @@ public class AdminService {
     }
 
     // 문제 회원 강제 추방 - 기존 회원 탈퇴 로직 재사용
+    // MANAGER는 ADMIN/MANAGER를 추방할 수 없음 (USER만 추방 가능)
     @Transactional
-    public void expelMember(Long adminMemberId, Long targetMemberId) {
+    public void expelMember(Long adminMemberId, MemberRole adminRole, Long targetMemberId) {
         if (adminMemberId.equals(targetMemberId)) {
             throw new CustomException(ErrorCode.CANNOT_EXPEL_SELF);
+        }
+        Member target = memberRepository.findById(targetMemberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        if (adminRole == MemberRole.MANAGER && target.getRole().isStaff()) {
+            throw new CustomException(ErrorCode.CANNOT_EXPEL_STAFF);
         }
         memberService.withdraw(targetMemberId);
     }
