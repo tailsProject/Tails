@@ -138,6 +138,17 @@ https://github.com/user-attachments/assets/59d4e300-ab1e-4518-a0bd-1aa7d6e3216d
 
 <br>
 
+### 피드_FCM
+
+- 댓글, 대댓글, 좋아요, 북마크, 신고 처리 등 실시간 FCM 푸시 알림
+- 알림 목록 최신순 조회
+- 개별 읽음 처리, 전체 읽음 처리, 전체 삭제기능
+- 백그라운드 푸시 알림 수신
+
+https://github.com/user-attachments/assets/3756f1d6-1ad4-4350-be1f-06fdd1a31ea3
+
+<br>
+
 ### 여행 일정
 
 - 여행 일정 생성, 관리
@@ -146,6 +157,16 @@ https://github.com/user-attachments/assets/59d4e300-ab1e-4518-a0bd-1aa7d6e3216d
 - 공유 링크 발급해 외부 공개 가능
 
 https://github.com/user-attachments/assets/e474571a-8ebc-4017-a28a-cf2bbbe97aa7
+
+<br>
+
+### 여행 일정_알림
+
+- 여행 시작 하루 전 매일 아침 자동 스케줄러 실행
+- 대상 회원에게 알림 생성 후 FCM 전송 시도
+- 생성된 알림이 남아, 실시간 푸시를 놓쳤어도 나중에 다시 확인 가능
+
+<img width="1280" height="720" alt="여행일정_알림" src="https://github.com/user-attachments/assets/6efb91c3-3733-46ac-a9ca-5c038324e3e2" />
 
 <br>
 
@@ -311,7 +332,7 @@ npm run dev
 
 ## ARCHITECTURE
 
-[![Tails Architecture](architecture.png)](architecture.png)
+<img width="1995" height="2198" alt="아키텍처" src="https://github.com/user-attachments/assets/0037bef0-3d46-4fab-b387-90caac15d8ab" />
 
 - React 정적 빌드와 Spring Boot API 분리, Nginx가 정적 파일 서빙과 API 리버스 프록시 담당
 - MySQL과 Redis를 각각 데이터/세션 저장소로 사용하는 구조
