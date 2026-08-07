@@ -69,7 +69,7 @@ class BoardServiceTest {
         setUpService();
         Member owner = newMember(1L);
         Board board = newBoard(10L, owner);
-        when(boardRepository.findById(10L)).thenReturn(Optional.of(board));
+        when(boardRepository.findByIdWithMember(10L)).thenReturn(Optional.of(board));
         when(boardLikeRepository.findByBoardIdAndMemberId(10L, 2L)).thenReturn(Optional.empty());
         when(memberRepository.getReferenceById(2L)).thenReturn(newMember(2L));
 
@@ -86,7 +86,7 @@ class BoardServiceTest {
         Board board = newBoard(10L, owner);
         Member liker = newMember(2L);
         BoardLike existing = BoardLike.builder().board(board).member(liker).build();
-        when(boardRepository.findById(10L)).thenReturn(Optional.of(board));
+        when(boardRepository.findByIdWithMember(10L)).thenReturn(Optional.of(board));
         when(boardLikeRepository.findByBoardIdAndMemberId(10L, 2L)).thenReturn(Optional.of(existing));
 
         LikeToggleResponse response = boardService.toggleLike(2L, 10L);
@@ -100,7 +100,7 @@ class BoardServiceTest {
         setUpService();
         Member owner = newMember(1L);
         Board board = newBoard(10L, owner);
-        when(boardRepository.findById(10L)).thenReturn(Optional.of(board));
+        when(boardRepository.findByIdWithMember(10L)).thenReturn(Optional.of(board));
         when(boardLikeRepository.findByBoardIdAndMemberId(10L, 1L)).thenReturn(Optional.empty());
         when(memberRepository.getReferenceById(1L)).thenReturn(owner);
 
@@ -114,7 +114,7 @@ class BoardServiceTest {
     void 작성자가_탈퇴한_글에_좋아요를_눌러도_알림이벤트가_발행되지_않는다() {
         setUpService();
         Board board = newBoard(10L, null);
-        when(boardRepository.findById(10L)).thenReturn(Optional.of(board));
+        when(boardRepository.findByIdWithMember(10L)).thenReturn(Optional.of(board));
         when(boardLikeRepository.findByBoardIdAndMemberId(10L, 2L)).thenReturn(Optional.empty());
         when(memberRepository.getReferenceById(2L)).thenReturn(newMember(2L));
 
