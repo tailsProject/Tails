@@ -95,7 +95,9 @@ public enum ErrorCode {
 
     // ===== 관리자(Admin) 관련 =====
     CANNOT_CHANGE_OWN_ROLE(HttpStatus.BAD_REQUEST, "자기 자신의 권한은 변경할 수 없습니다."),
-    CANNOT_EXPEL_SELF(HttpStatus.BAD_REQUEST, "자기 자신은 추방할 수 없습니다.");
+    CANNOT_EXPEL_SELF(HttpStatus.BAD_REQUEST, "자기 자신은 추방할 수 없습니다."),
+    CANNOT_CHANGE_ADMIN_ROLE(HttpStatus.FORBIDDEN, "매니저는 관리자 권한을 부여하거나 관리자의 권한을 변경할 수 없습니다."),
+    CANNOT_EXPEL_STAFF(HttpStatus.FORBIDDEN, "매니저는 관리자 또는 매니저를 추방할 수 없습니다.");
 
     private final HttpStatus status;
     private final String message;

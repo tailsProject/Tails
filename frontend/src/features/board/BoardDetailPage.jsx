@@ -11,6 +11,7 @@ import CommentSection from './CommentSection';
 import ReportModal from '../report/ReportModal';
 import StateMessage from '../../components/StateMessage/StateMessage';
 import { resolveImage, resolveProfileImage } from '../../utils/resolveImage';
+import { isStaffRole } from '../../utils/memberRole';
 import { HeartIcon, BookmarkIcon, PencilIcon } from '../../components/Icon/Icon';
 import { IMAGE_MARKER_PATTERN } from './contentBlocks';
 import styles from './BoardDetailPage.module.scss';
@@ -114,7 +115,7 @@ export default function BoardDetailPage() {
   }
 
   const isOwner = isAuthenticated && member.memberId === board.authorId;
-  const isAdmin = isAuthenticated && member.role === 'ADMIN';
+  const isAdmin = isAuthenticated && isStaffRole(member.role);
   const isRichText = board.contentFormat === 'HTML';
   const hasInlineImages = !isRichText && IMAGE_MARKER_PATTERN.test(board.content ?? '');
 
@@ -165,7 +166,7 @@ export default function BoardDetailPage() {
         )}
         {(isOwner || isAdmin) && (
           <Button variant="secondary" onClick={handleDelete}>
-            {isOwner ? '삭제' : '삭제 (관리자)'}
+            {isOwner ? '삭제' : `삭제 (${member.role === 'MANAGER' ? '매니저' : '관리자'})`}
           </Button>
         )}
         {!isOwner && isAuthenticated && (

@@ -1,5 +1,11 @@
 @use '../../styles/variables' as v;
 
+// 관리자(v.$color-primary 계열)와 같은 구조(테두리/짙은 텍스트/연한 배경)로 맞추되,
+// 노란색은 같은 명도에서도 주황보다 눈에 더 띄어서 명도를 낮춰 튀지 않게 보정함
+$color-manager-border: #ecb213;
+$color-manager-text: #d7a542;
+$color-manager-bg: #fdf7e7;
+
 .header {
   display: flex;
   align-items: center;
@@ -116,7 +122,8 @@
 }
 
 .roleSelect,
-.roleSelectAdmin {
+.roleSelectAdmin,
+.roleSelectManager {
   padding: 4px v.$spacing-sm;
   border: 1px solid v.$color-border;
   border-radius: v.$radius-pill;
@@ -135,6 +142,12 @@
   border-color: v.$color-primary;
   background-color: v.$color-primary-bg;
   color: v.$color-primary-dark;
+}
+
+.roleSelectManager {
+  border-color: $color-manager-border;
+  background-color: $color-manager-bg;
+  color: $color-manager-text;
 }
 
 .expelButton {

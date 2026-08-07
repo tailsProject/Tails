@@ -11,7 +11,6 @@ import com.tails.common.exception.CustomException;
 import com.tails.common.exception.ErrorCode;
 import com.tails.member.Member;
 import com.tails.member.MemberRepository;
-import com.tails.member.MemberRole;
 import com.tails.notification.event.CommentCreatedEvent;
 import com.tails.notification.event.CommentRepliedEvent;
 import lombok.RequiredArgsConstructor;
@@ -173,14 +172,14 @@ public class CommentService {
         }
     }
 
-    // 삭제는 작성자 본인 또는 ADMIN이 할 수 있음 (신고된 댓글 강제 삭제 용도)
+    // 삭제는 작성자 본인 또는 ADMIN/MANAGER가 할 수 있음 (신고된 댓글 강제 삭제 용도)
     private void requireOwnerOrAdmin(Comment comment, Long memberId) {
         if (comment.getMember() != null && comment.getMember().getId().equals(memberId)) {
             return;
         }
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_COMMENT_OWNER));
-        if (member.getRole() != MemberRole.ADMIN) {
+        if (!member.getRole().isStaff()) {
             throw new CustomException(ErrorCode.NOT_COMMENT_OWNER);
         }
     }
