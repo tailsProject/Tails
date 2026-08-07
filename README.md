@@ -17,6 +17,16 @@
 
 <br>
 
+<table>
+<tr>
+<td align="left"><img width="16" height="16" src="docs/icons/external-link.svg" />&nbsp;<a href="https://mytails.site">TAILS&nbsp;바로가기</a></td>
+<td align="left"><img width="16" height="16" src="docs/icons/monitor.svg" />&nbsp;<a href="https://1drv.ms/p/c/cb606d7905de5b70/IQCaFAmMqaq5Sb5k4il69t94AUm9nIiPbhSjJLVhWqOQFL4?e=A4iVd1">PPT</a></td>
+<td align="left"><img width="16" height="16" src="docs/icons/server.svg" />&nbsp;<a href="https://mytails.site/swagger-ui/index.html">SWAGGER</a></td>
+</tr>
+</table>
+
+<br>
+
 ## 목차
 
 <table>
