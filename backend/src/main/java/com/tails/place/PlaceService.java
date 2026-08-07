@@ -41,6 +41,8 @@ public class PlaceService {
     // "이 지역에서 검색"처럼 지도를 축소한 상태로 반경 검색하면 결과가 수백~수천 건까지 잡힐 수 있어서,
     // 거리순으로 가까운 것부터 이 개수만 반환(카카오맵/네이버맵 등 실제 지도 서비스도 결과 상한을 둠)
     private static final int MAX_GEO_SEARCH_RESULTS = 100;
+    // 좌표 없는 일반 검색은 거리순 정렬이 없어 자를 기준이 없으므로, 결과 전체를 메모리에 올리는 것을 막는 안전장치용 상한
+    private static final int MAX_CANDIDATE_RESULTS = 2000;
 
     // 지역 줄임말 중 실제 주소와 문자열이 다른 5개만 정식 명칭을 함께 확인
     private static final Map<String, String> REGION_FULL_NAME_ALIASES = Map.of(
@@ -115,6 +117,7 @@ public class PlaceService {
         if (!allGeo) {
             all = candidates.stream()
                     .map(PlaceSearchResponse::from)
+                    .limit(MAX_CANDIDATE_RESULTS)
                     .toList();
         } else {
             final double centerLat = lat;

@@ -1,3 +1,4 @@
+// 확인창 호출용 훅
 import { createContext, useContext } from 'react';
 
 export const ConfirmContext = createContext(null);
