@@ -14,7 +14,6 @@ import com.tails.image.Image;
 import com.tails.image.ImageRepository;
 import com.tails.member.Member;
 import com.tails.member.MemberRepository;
-import com.tails.member.MemberRole;
 import com.tails.notification.event.BoardLikedEvent;
 import java.util.List;
 import java.util.Map;
@@ -192,14 +191,14 @@ public class BoardService {
         }
     }
 
-    // 삭제는 작성자 본인 또는 ADMIN이 할 수 있음
+    // 삭제는 작성자 본인 또는 ADMIN/MANAGER가 할 수 있음
     private void requireOwnerOrAdmin(Board board, Long memberId) {
         if (board.getMember() != null && board.getMember().getId().equals(memberId)) {
             return;
         }
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_BOARD_OWNER));
-        if (member.getRole() != MemberRole.ADMIN) {
+        if (!member.getRole().isStaff()) {
             throw new CustomException(ErrorCode.NOT_BOARD_OWNER);
         }
     }

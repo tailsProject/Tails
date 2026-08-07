@@ -9,6 +9,7 @@ import Pagination from '../../components/Pagination/Pagination';
 import ReportModal from '../report/ReportModal';
 import { HeartIcon } from '../../components/Icon/Icon';
 import { resolveProfileImage } from '../../utils/resolveImage';
+import { isStaffRole } from '../../utils/memberRole';
 import styles from './CommentSection.module.scss';
 
 const DELETED_TEXT = '삭제된 댓글입니다.';
@@ -184,7 +185,7 @@ export default function CommentSection({ boardId, boardAuthorId }) {
           )}
           {(isOwner || isAdmin) && !isDeleted && editTarget !== comment.commentId && (
             <button onClick={() => handleDelete(comment.commentId)}>
-              {isOwner ? '삭제' : '삭제 (관리자)'}
+              {isOwner ? '삭제' : `삭제 (${member.role === 'MANAGER' ? '매니저' : '관리자'})`}
             </button>
           )}
           {!isOwner && isAuthenticated && !isDeleted && (
@@ -215,7 +216,7 @@ export default function CommentSection({ boardId, boardAuthorId }) {
 
   function renderComment(comment) {
     const isOwner = isAuthenticated && member.memberId === comment.authorId;
-    const isAdmin = isAuthenticated && member.role === 'ADMIN';
+    const isAdmin = isAuthenticated && isStaffRole(member.role);
     const isDeleted = comment.content === DELETED_TEXT;
     const flatReplies = flattenReplies(comment.replies ?? [], comment.authorNickname, comment.authorNickname);
 
@@ -227,7 +228,7 @@ export default function CommentSection({ boardId, boardAuthorId }) {
           <ul className={styles.replies}>
             {flatReplies.map((reply) => {
               const replyIsOwner = isAuthenticated && member.memberId === reply.authorId;
-              const replyIsAdmin = isAuthenticated && member.role === 'ADMIN';
+              const replyIsAdmin = isAuthenticated && isStaffRole(member.role);
               const replyIsDeleted = reply.content === DELETED_TEXT;
               return (
                 <li key={reply.commentId} className={styles.reply}>

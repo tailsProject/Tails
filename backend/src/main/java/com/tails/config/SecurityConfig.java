@@ -61,7 +61,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         // "/api/places/**" 하위 permitAll 규칙보다 먼저 선언해야 우선 매칭된다
                         .requestMatchers("/api/places/sync/**").hasRole("ADMIN")
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "MANAGER")
                         // 리뷰 목록 조회는 게시글처럼 비회원도 가능, 작성/수정/삭제만 회원 전용이라 GET을 먼저 permitAll로 선언
                         .requestMatchers(HttpMethod.GET, "/api/places/{placeId}/reviews").permitAll()
                         // 리뷰 작성/찜 토글/개인화 추천은 회원 전용 기능이라, 아래 /api/places/** permitAll보다

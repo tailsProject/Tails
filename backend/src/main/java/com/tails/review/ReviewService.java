@@ -7,7 +7,6 @@ import com.tails.image.Image;
 import com.tails.image.ImageRepository;
 import com.tails.member.Member;
 import com.tails.member.MemberRepository;
-import com.tails.member.MemberRole;
 import com.tails.place.Place;
 import com.tails.place.PlaceRepository;
 import com.tails.review.dto.MyReviewResponse;
@@ -123,14 +122,14 @@ public class ReviewService {
         }
     }
 
-    // 삭제는 작성자 본인 또는 ADMIN이 할 수 있음 (신고된 리뷰 강제 삭제 용도)
+    // 삭제는 작성자 본인 또는 ADMIN/MANAGER가 할 수 있음 (신고된 리뷰 강제 삭제 용도)
     private void requireOwnerOrAdmin(Review review, Long memberId) {
         if (review.getMember() != null && review.getMember().getId().equals(memberId)) {
             return;
         }
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_REVIEW_OWNER));
-        if (member.getRole() != MemberRole.ADMIN) {
+        if (!member.getRole().isStaff()) {
             throw new CustomException(ErrorCode.NOT_REVIEW_OWNER);
         }
     }

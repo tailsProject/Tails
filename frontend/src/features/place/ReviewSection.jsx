@@ -15,6 +15,7 @@ import { useConfirm } from '../../hooks/useConfirm';
 import Button from '../../components/Button/Button';
 import Pagination from '../../components/Pagination/Pagination';
 import { resolveImage } from '../../utils/resolveImage';
+import { isStaffRole } from '../../utils/memberRole';
 import ReportModal from '../report/ReportModal';
 import { WarningIcon } from '../../components/Icon/Icon';
 import styles from './ReviewSection.module.scss';
@@ -181,7 +182,7 @@ export default function ReviewSection({ placeId }) {
       <ul className={styles.list}>
         {reviewData.reviews.content.map((review) => {
           const isOwner = isAuthenticated && member.memberId === review.authorId;
-          const isAdmin = isAuthenticated && member.role === 'ADMIN';
+          const isAdmin = isAuthenticated && isStaffRole(member.role);
           const images = imagesByReview[review.reviewId] ?? [];
           return (
             <li key={review.reviewId} className={styles.item}>
@@ -240,7 +241,7 @@ export default function ReviewSection({ placeId }) {
                 <div className={styles.actions}>
                   {isOwner && <button onClick={() => startEdit(review)}>수정</button>}
                   <button onClick={() => handleDelete(review.reviewId)}>
-                    {isOwner ? '삭제' : '삭제 (관리자)'}
+                    {isOwner ? '삭제' : `삭제 (${member.role === 'MANAGER' ? '매니저' : '관리자'})`}
                   </button>
                 </div>
               )}

@@ -9,15 +9,31 @@ import StateMessage from '../../components/StateMessage/StateMessage';
 import { MagnifyingGlassIcon, WarningIcon } from '../../components/Icon/Icon';
 import styles from './AdminMembersPage.module.scss';
 
+const ROLE_LABELS = { ADMIN: '관리자', MANAGER: '매니저', USER: '회원' };
+
 export default function AdminMembersPage() {
   const { showToast } = useToast();
   const confirm = useConfirm();
   const { member: me } = useAuth();
+  const myRole = me?.role;
   const [keyword, setKeyword] = useState('');
   const [keywordInput, setKeywordInput] = useState('');
   const [page, setPage] = useState(0);
   const [memberPage, setMemberPage] = useState(null);
   const [accessDenied, setAccessDenied] = useState(false);
+
+  // MANAGER는 ADMIN을 건드릴 수 없음(권한 변경도, 추방도). ADMIN은 제한 없음
+  function canEditRole(target) {
+    if (target.memberId === me?.memberId) return false;
+    if (myRole === 'ADMIN') return true;
+    return myRole === 'MANAGER' && target.role !== 'ADMIN';
+  }
+
+  function canExpel(target) {
+    if (target.memberId === me?.memberId) return false;
+    if (myRole === 'ADMIN') return true;
+    return myRole === 'MANAGER' && target.role === 'USER';
+  }
 
   async function load() {
     try {
@@ -43,7 +59,7 @@ export default function AdminMembersPage() {
   async function handleRoleChange(target, nextRole) {
     if (nextRole === target.role) return;
     const ok = await confirm(
-      `${target.nickname}(${target.email})님의 권한을 ${nextRole === 'ADMIN' ? '관리자' : '회원'}로 변경하시겠습니까?`,
+      `${target.nickname}(${target.email})님의 권한을 ${ROLE_LABELS[nextRole]}로 변경하시겠습니까?`,
     );
     if (!ok) return;
     try {
@@ -127,14 +143,22 @@ export default function AdminMembersPage() {
                       <td>{m.email}</td>
                       <td>{new Date(m.createdAt).toLocaleDateString()}</td>
                       <td>
-                        {/* 자기 자신의 권한 변경과 추방은 버튼 단계에서부터 막음 */}
+                        {/* 자기 자신, 그리고 MANAGER가 ADMIN 대상으로 시도하는 권한 변경은 여기서부터 막음 */}
                         <select
-                          className={m.role === 'ADMIN' ? styles.roleSelectAdmin : styles.roleSelect}
+                          className={
+                            m.role === 'ADMIN'
+                              ? styles.roleSelectAdmin
+                              : m.role === 'MANAGER'
+                                ? styles.roleSelectManager
+                                : styles.roleSelect
+                          }
                           value={m.role}
-                          disabled={m.memberId === me?.memberId}
+                          disabled={!canEditRole(m)}
                           onChange={(e) => handleRoleChange(m, e.target.value)}
                         >
-                          <option value="ADMIN">관리자</option>
+                          {/* MANAGER는 ADMIN으로 승격시킬 수 없어서 선택지에서 뺌 */}
+                          {(myRole === 'ADMIN' || m.role === 'ADMIN') && <option value="ADMIN">관리자</option>}
+                          <option value="MANAGER">매니저</option>
                           <option value="USER">회원</option>
                         </select>
                       </td>
@@ -142,7 +166,7 @@ export default function AdminMembersPage() {
                         <button
                           type="button"
                           className={styles.expelButton}
-                          disabled={m.memberId === me?.memberId}
+                          disabled={!canExpel(m)}
                           onClick={() => handleExpel(m)}
                         >
                           추방
