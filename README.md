@@ -10,20 +10,12 @@
 
 <br>
 
-![개발기간](https://img.shields.io/badge/개발기간-2026.07.08_~_08.06-e5722a?style=flat-square&labelColor=222222&color=e5722a) 
-[![배포](https://img.shields.io/badge/배포-mytails.site-ff8a3d?style=flat-square&labelColor=222222&color=ff8a3d)](https://mytails.site) <br>
+[![배포](https://img.shields.io/badge/배포-mytails.site-ff8a3d?style=flat-square&labelColor=222222&color=ff8a3d)](https://mytails.site)
+[![PPT](https://img.shields.io/badge/발표-PPT-e5722a?style=flat-square&labelColor=222222&color=e5722a)](https://1drv.ms/p/c/cb606d7905de5b70/IQCaFAmMqaq5Sb5k4il69t94AUm9nIiPbhSjJLVhWqOQFL4?e=A4iVd1)
+[![SWAGGER](https://img.shields.io/badge/API-SWAGGER-2e9e5b?style=flat-square&labelColor=222222&color=2e9e5b)](https://mytails.site/swagger-ui/index.html)
 [![CI](https://github.com/tailsProject/Tails/actions/workflows/ci.yml/badge.svg)](https://github.com/tailsProject/Tails/actions/workflows/ci.yml)
+![개발기간](https://img.shields.io/badge/개발기간-2026.07.08_~_08.06-e5722a?style=flat-square&labelColor=222222&color=e5722a) 
 ![팀원](https://img.shields.io/badge/팀원-2명-2e9e5b?style=flat-square&labelColor=222222&color=2e9e5b)
-
-<br>
-
-<table>
-<tr>
-<td align="left"><img width="16" height="16" src="docs/icons/external-link.svg" />&nbsp;<a href="https://mytails.site">TAILS&nbsp;바로가기</a></td>
-<td align="left"><img width="16" height="16" src="docs/icons/monitor.svg" />&nbsp;<a href="https://1drv.ms/p/c/cb606d7905de5b70/IQCaFAmMqaq5Sb5k4il69t94AUm9nIiPbhSjJLVhWqOQFL4?e=A4iVd1">PPT</a></td>
-<td align="left"><img width="16" height="16" src="docs/icons/server.svg" />&nbsp;<a href="https://mytails.site/swagger-ui/index.html">SWAGGER</a></td>
-</tr>
-</table>
 
 <br>
 
