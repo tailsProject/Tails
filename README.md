@@ -10,9 +10,11 @@
 
 <br>
 
-![개발기간](https://img.shields.io/badge/개발기간-2026.07.08_~_08.06-e5722a?style=flat-square&labelColor=222222&color=e5722a) 
-[![배포](https://img.shields.io/badge/배포-mytails.site-ff8a3d?style=flat-square&labelColor=222222&color=ff8a3d)](https://mytails.site) <br>
+[![배포](https://img.shields.io/badge/배포-mytails.site-ff8a3d?style=flat-square&labelColor=222222&color=ff8a3d)](https://mytails.site)
+[![PPT](https://img.shields.io/badge/발표-PPT-e5722a?style=flat-square&labelColor=222222&color=e5722a)](https://1drv.ms/p/c/cb606d7905de5b70/IQCaFAmMqaq5Sb5k4il69t94AUm9nIiPbhSjJLVhWqOQFL4?e=A4iVd1)
+[![SWAGGER](https://img.shields.io/badge/API-SWAGGER-2e9e5b?style=flat-square&labelColor=222222&color=2e9e5b)](https://mytails.site/swagger-ui/index.html)
 [![CI](https://github.com/tailsProject/Tails/actions/workflows/ci.yml/badge.svg)](https://github.com/tailsProject/Tails/actions/workflows/ci.yml)
+![개발기간](https://img.shields.io/badge/개발기간-2026.07.08_~_08.06-e5722a?style=flat-square&labelColor=222222&color=e5722a) 
 ![팀원](https://img.shields.io/badge/팀원-2명-2e9e5b?style=flat-square&labelColor=222222&color=2e9e5b)
 
 <br>
@@ -101,7 +103,7 @@
 - 인기 장소, 인기 게시글, 최근 리뷰 확인
 - 로그인한 사용자에게 이용 이력 바탕 개인화 추천 장소 제공
 
-https://github.com/user-attachments/assets/096f6f20-eb68-4448-a692-e46e845fa8e7
+https://github.com/user-attachments/assets/54781bca-e8c2-4f8a-870d-4e6d86b9fcd8
 
 <br>
 
@@ -112,7 +114,7 @@ https://github.com/user-attachments/assets/096f6f20-eb68-4448-a692-e46e845fa8e7
 - 비밀번호 재설정 가능
 -  로그인 인증은 JWT 액세스 토큰과 리프레시 토큰을 사용해 처리
 
-https://github.com/user-attachments/assets/c9a69a47-6712-494b-a440-1211e4c67d01
+https://github.com/user-attachments/assets/246c5812-5ca9-4854-912f-3f78477aaf04
 
 <br>
 
@@ -122,7 +124,7 @@ https://github.com/user-attachments/assets/c9a69a47-6712-494b-a440-1211e4c67d01
 - 장소 상세 정보, 사진, 리뷰, 별점 확인 가능
 - 관심 장소 찜 기능
 
-https://github.com/user-attachments/assets/2f985333-07e0-4e9b-ae27-1567c94f384e
+https://github.com/user-attachments/assets/8439c573-07cf-4bc0-8157-af8f426d66f8
 
 <br>
 
@@ -145,7 +147,7 @@ https://github.com/user-attachments/assets/59d4e300-ab1e-4518-a0bd-1aa7d6e3216d
 - 개별 읽음 처리, 전체 읽음 처리, 전체 삭제기능
 - 백그라운드 푸시 알림 수신
 
-https://github.com/user-attachments/assets/3756f1d6-1ad4-4350-be1f-06fdd1a31ea3
+https://github.com/user-attachments/assets/d7b5ca0f-0298-4a2f-934c-a6012702e427
 
 <br>
 
