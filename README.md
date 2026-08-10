@@ -420,11 +420,13 @@ frontend/src
 
 ## TROUBLESHOOTING
 
+### 박한결
+
 <details>
 <summary><b>PasswordEncoder 순환 참조로 서버가 기동되지 않던 문제</b></summary><br>
 
 - **문제**: 코드는 컴파일이 잘 되는데, 막상 서버를 실행하면 켜지지 않음
-- **원인**: `AuthService` → `PasswordEncoder`(`SecurityConfig` 안에 정의) → `OAuth2SuccessHandler` → 다시 `AuthService`로 돌아오는 순환 참조 구조였음
+- **원인**: `AuthService` → `SecurityConfig`에 정의된 `PasswordEncoder` → `OAuth2SuccessHandler` → 다시 `AuthService`로 돌아오는 순환 참조 구조였음
 - **해결**: `PasswordEncoder`를 의존성 없는 `PasswordEncoderConfig`로 옮김. 이 클래스는 바로 만들어지니, `AuthService`와 `SecurityConfig`는 서로를 기다릴 필요 없이 이미 준비된 `PasswordEncoder`를 갖다 쓰기만 하면 됨<br><br>
 
 **해결 전** 
@@ -456,8 +458,8 @@ public class PasswordEncoderConfig {
 <summary><b>좋아요를 동시에 눌렀을 때 500 에러가 뜨던 문제</b></summary><br>
 
 - **문제**: 같은 게시글에 좋아요 요청이 거의 동시에 들어오면 500 에러 발생
-- **원인**: 동시 수정을 막기 위한 버전 검증(낙관적 락)에 걸린 경우인데, 이에 대한 처리가 없어서 다른 예외들과 함께 서버 오류로 처리됨. 사실 재요청하면 대부분 바로 해결되는 일시적 충돌
-- **해결**: 이 예외만 따로 잡아서 500 대신 409(재시도 가능)로 응답하도록 처리 추가<br><br>
+- **원인**: 동시 수정을 막는 낙관적 락 검증에 걸린 경우인데, 이에 대한 처리가 없어서 다른 예외들과 함께 서버 오류로 처리됨. 사실 재요청하면 대부분 바로 풀리는 일시적 충돌
+- **해결**: 이 예외만 따로 잡아서 500 대신 재시도 가능한 409로 응답하도록 처리 추가<br><br>
 
 **해결 전**
 - `GlobalExceptionHandler.java`
@@ -483,6 +485,97 @@ public ResponseEntity<ApiResponse<Void>> handleOptimisticLockingFailure(ObjectOp
 ```
 <br>
 </details>
+
+<details>
+<summary><b>Refresh Token을 Access Token으로 오용할 수 있던 취약점</b></summary><br>
+
+- **문제**: 로그인 응답으로 내려주는 Refresh Token을 그대로 Authorization 헤더에 넣어도 일반 API가 호출됨
+- **원인**: Access Token과 Refresh Token이 같은 시크릿 키로 서명돼 있고 구조도 같아서, 요청 필터가 서명 검증만 통과하면 어떤 토큰이든 인증된 걸로 처리함. Refresh Token 재발급 API도 마찬가지로 넘어온 토큰이 진짜 Refresh Token인지 구분하지 않음
+- **해결**: 토큰 발급 시 `type` 클레임을 추가해 `access`와 `refresh`를 구분하고, 요청 인증 필터는 `access`가 아니면 인증 처리하지 않도록, 재발급 API는 `refresh`가 아니면 거부하도록 수정<br><br>
+
+**해결 전**
+- `JwtFilter.java`
+```java
+if (claims.isPresent()) {
+    authenticate(jwtProvider.getMemberId(claims.get()));
+}
+```
+
+**해결 후**
+- `JwtProvider.java`: 토큰 종류 구분용 클레임 추가
+```java
+private static final String TYPE_ACCESS = "access";
+private static final String TYPE_REFRESH = "refresh";
+
+public boolean isAccessToken(Claims claims) {
+    return TYPE_ACCESS.equals(claims.get("type", String.class));
+}
+
+public boolean isRefreshToken(Claims claims) {
+    return TYPE_REFRESH.equals(claims.get("type", String.class));
+}
+```
+- `JwtFilter.java`: Access Token일 때만 인증 처리
+```java
+// Refresh Token은 서명이 유효해도 인증 처리하지 않음 - 탈취된 Refresh Token을 헤더에 그대로 넣어 API를 호출하는 것을 막음
+if (claims.isPresent() && jwtProvider.isAccessToken(claims.get())) {
+    authenticate(jwtProvider.getMemberId(claims.get()));
+}
+```
+- `AuthService.java`: 재발급은 Refresh Token일 때만 허용
+```java
+if (!jwtProvider.isRefreshToken(claims)) {
+    throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+}
+```
+<br>
+</details>
+
+<details>
+<summary><b>이메일 인증 페이지에서 인증 요청이 두 번 나가던 문제</b></summary><br>
+
+- **문제**: 개발 모드에서 이메일 인증 링크로 들어가면 인증 API가 두 번 호출됨
+- **원인**: React 개발 모드의 StrictMode가 컴포넌트를 일부러 두 번 마운트하는데, `useEffect` 안에서 아무 방어 없이 바로 인증 요청을 보내고 있었음
+- **해결**: 요청 여부를 `useRef`로 기록해, 이미 요청을 보냈으면 다시 마운트돼도 재요청하지 않도록 처리<br><br>
+
+**해결 전**
+- `VerifyEmailPage.jsx`
+```jsx
+useEffect(() => {
+  if (!token) {
+    setStatus('error');
+    setErrorMessage('유효하지 않은 링크입니다.');
+    return;
+  }
+  verifyEmail(token)
+    .then(() => setStatus('success'))
+    .catch((error) => { ... });
+}, [token]);
+```
+
+**해결 후**
+```jsx
+// StrictMode 이중 렌더링에도 인증 요청이 두 번 나가지 않도록 방지
+const requestedRef = useRef(false);
+
+useEffect(() => {
+  if (!token) {
+    setStatus('error');
+    setErrorMessage('유효하지 않은 인증 링크입니다.');
+    return;
+  }
+  if (requestedRef.current) return;
+  requestedRef.current = true;
+
+  verifyEmail(token)
+    .then(() => setStatus('success'))
+    .catch((error) => { ... });
+}, [token]);
+```
+<br>
+</details>
+
+### 박영준
 
 <details>
 <summary><b>게시글 상세 조회 시 조회수가 두 번씩 오르던 문제</b></summary><br>
@@ -523,7 +616,7 @@ useEffect(() => {
 <summary><b>존재하지 않는 경로를 요청했을 때 500 에러가 뜨던 문제</b></summary><br>
 
 - **문제**: 오타 난 URL이나 없는 경로로 요청하면 404가 아니라 500 에러 발생
-- **원인**: 예외를 한곳에서 모아 처리하는 `GlobalExceptionHandler`에 "요청한 자원이 없음"(`NoResourceFoundException`)에 대한 처리가 빠져 있어서, catch-all 핸들러에 걸려 "알 수 없는 서버 오류"로 뭉뚱그려 처리됨
+- **원인**: 예외를 한곳에서 모아 처리하는 `GlobalExceptionHandler`에 요청한 자원이 없을 때 던지는 `NoResourceFoundException` 처리가 빠져 있어서, catch-all 핸들러에 걸려 "알 수 없는 서버 오류"로 뭉뚱그려 처리됨
 - **해결**: 해당 예외를 따로 잡아서 404로 응답하도록 처리 추가<br><br>
 
 **해결 전**
@@ -545,6 +638,131 @@ public ResponseEntity<ApiResponse<Void>> handleUnexpectedException(Exception e) 
 public ResponseEntity<ApiResponse<Void>> handleNoResourceFound(NoResourceFoundException e) {
     return ResponseEntity.status(ErrorCode.RESOURCE_NOT_FOUND.getStatus())
             .body(ApiResponse.error(ErrorCode.RESOURCE_NOT_FOUND));
+}
+```
+<br>
+</details>
+
+<details>
+<summary><b>Review PK 필드명 불일치로 서버 구동이 실패하던 문제</b></summary><br>
+
+- **문제**: 리뷰 이미지 조회 기능을 추가한 뒤 서버를 실행하면 애플리케이션이 아예 뜨지 않음
+- **원인**: `Review` 엔티티의 PK 필드명이 관례적인 `id`가 아니라 `reviewId`인데, `ImageRepository`의 쿼리 메서드는 `findByReviewIdOrderByCreatedAtAsc`처럼 `id` 기준으로 이름을 지어서, Spring Data JPA가 부팅 시점에 쿼리를 해석하지 못하고 실패함
+- **해결**: `review` 연관관계를 타고 들어가 그 안의 `reviewId` 필드를 보라는 뜻으로 언더스코어를 명시해 `findByReview_ReviewIdOrderByCreatedAtAsc`로 수정<br><br>
+
+**해결 전**
+- `ImageRepository.java`
+```java
+// 후기 이미지 조회
+List<Image> findByReviewIdOrderByCreatedAtAsc(Long reviewId);
+```
+
+**해결 후**
+```java
+// 후기 이미지 조회. Review의 PK 필드명이 reviewId(id가 아님)라서, "review 필드를 타고
+// 들어가 그 안의 reviewId 필드"라는 걸 언더스코어로 명시해야 한다
+List<Image> findByReview_ReviewIdOrderByCreatedAtAsc(Long reviewId);
+```
+<br>
+</details>
+
+<details>
+<summary><b>여행 세부 일정 조회 시 N+1 쿼리가 발생하던 문제</b></summary><br>
+
+- **문제**: 방문 장소가 많은 여행일수록 세부 일정 조회가 눈에 띄게 느려짐
+- **원인**: 세부 일정 목록을 조회한 뒤, 화면에 뿌리려고 각 항목의 `place` 필드에 접근할 때마다 지연 로딩으로 장소 조회 쿼리가 추가로 나가서, 목록 조회 1번에 항목 수만큼 쿼리가 더 붙는 N+1이 발생함
+- **해결**: 목록 조회 쿼리에 `place`를 fetch join으로 함께 가져오도록 수정해 쿼리 1번으로 통일<br><br>
+
+**해결 전**
+- `TravelDetailRepository.java`
+```java
+List<TravelDetail> findByTravel_TravelIdOrderByTravelDateAscSequenceAsc(Long travelId);
+```
+
+**해결 후**
+```java
+// 목록 응답이 건마다 place 필드를 읽으므로 fetch join으로 N+1 방지
+@Query(value = "select td from TravelDetail td left join fetch td.place where td.travel.travelId = :travelId "
+        + "order by td.travelDate asc, td.sequence asc")
+List<TravelDetail> findByTravel_TravelIdOrderByTravelDateAscSequenceAsc(@Param("travelId") Long travelId);
+```
+<br>
+</details>
+
+### 박한결·박영준 공동
+
+<details>
+<summary><b>nginx 업로드 용량 제한 기본값 때문에 사진 업로드가 대부분 실패하던 문제</b></summary><br>
+
+- **문제**: 로컬에서는 잘 되던 게시글 이미지 업로드가 배포 서버에서는 대부분 실패
+- **원인**: nginx의 `client_max_body_size` 기본값이 1MB라, 여러 장을 동시에 올리는 요청이 애플리케이션까지 가기도 전에 nginx 단에서 잘림
+- **해결**: 게시글 이미지 최대 10장에 파일당 5MB 제한이라는 기준을 감안해 nginx 업로드 용량을 넉넉하게 조정<br><br>
+
+**해결 전**
+- `nginx/nginx.conf`
+```nginx
+server {
+    ssl_certificate     /etc/letsencrypt/live/mytails.site/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/mytails.site/privkey.pem;
+
+    root /usr/share/nginx/html;
+    index index.html;
+}
+```
+
+**해결 후**
+```nginx
+server {
+    ssl_certificate     /etc/letsencrypt/live/mytails.site/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/mytails.site/privkey.pem;
+
+    # 게시글 이미지는 최대 10장까지 동시 업로드(파일당 5MB, FileStorage.MAX_FILE_SIZE)되므로
+    # 멀티파트 폼 경계값 등 부가 데이터를 감안해 60m으로 여유를 둠
+    client_max_body_size 60m;
+
+    root /usr/share/nginx/html;
+    index index.html;
+}
+```
+<br>
+</details>
+
+<details>
+<summary><b>nginx에 소셜 로그인 경로가 프록시되지 않아 로그인이 안 되던 문제</b></summary><br>
+
+- **문제**: 배포 환경에서 카카오/구글/네이버 로그인 버튼을 누르면 로그인이 진행되지 않음
+- **원인**: nginx 설정에 API 경로(`/api/`)만 프록시돼 있고, Spring Security의 OAuth2 진입/콜백 경로인 `/oauth2/authorization/`, `/login/`은 빠져 있어서 프론트 정적 파일 라우팅인 `try_files`로 떨어짐
+- **해결**: `/oauth2/authorization/`, `/login/` 경로를 백엔드로 프록시하는 location 블록 추가<br><br>
+
+**해결 전**
+- `nginx/nginx.conf`: `/api/`만 프록시, `/oauth2/authorization/`·`/login/` 없음
+```nginx
+location /api/ {
+    proxy_pass http://app:8080;
+    ...
+}
+
+location / {
+    try_files $uri $uri/ /index.html;
+}
+```
+
+**해결 후**
+```nginx
+location /oauth2/authorization/ {
+    proxy_pass http://app:8080;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+
+location /login/ {
+    proxy_pass http://app:8080;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
 }
 ```
 <br>
